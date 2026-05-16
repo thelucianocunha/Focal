@@ -38,7 +38,7 @@ Contributions that respect these constraints are most likely to be accepted. Con
 
 Detailed in [[02-Architecture]], but the key rules:
 
-- Data and user-configurable values → `Focal_data.js`
+- Data and user-configurable values → `Focal_data.default.js`
 - Styles → `Focal.css`
 - Logic → `Focal_app.js` (use section markers)
 - Structure → `Focal.html` (only for layout changes)

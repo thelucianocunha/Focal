@@ -29,7 +29,7 @@ Then open `Focal.html` in your browser — no setup needed.
 
 ## First run
 
-When you open Focal for the first time, it loads the starter data from `Focal_data.js`. You will see:
+When you open Focal for the first time, it loads the starter data from `Focal_data.default.js`. You will see:
 - A welcome task in the **All Tasks** view
 - Empty sections ready for your content
 

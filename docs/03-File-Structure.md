@@ -11,8 +11,8 @@ focal/
 ├── Focal.html              # HTML structure — tabs, panels, modals
 ├── Focal.css               # All styles
 ├── Focal_app.js            # All JavaScript logic (~1,400 lines)
-├── Focal_data.js           # Starter data — committed to git with clean demo data
-├── Focal_data.default.js   # Reference copy of the clean starter (reset baseline)
+├── Focal_data.default.js   # Starter data — committed to git with clean demo data
+# Focal_data.js is gitignored — personal copy only, not in repo
 ├── focal-logo.png          # App header logo (full)
 ├── focal-logo-icon.png     # App icon — used in header and as favicon
 ├── Focal_USER_MANUAL.html  # Full in-app user manual
@@ -57,16 +57,12 @@ Notable functions:
 - `openAdd()` / `openEdit(id)` — task modal
 - `sw(view)` — switch active view
 
-### `Focal_data.js` (gitignored — personal use only)
-Your personal seed data file. Not committed to the repo. Used only on first run (when localStorage is empty) to seed the app with your own sections, tasks, connections, and outcomes. After that, all changes go to localStorage and this file is not read again.
-
-To set up: copy `Focal_data.default.js` → `Focal_data.js` and customize it. See [[04-Customizing]] for the structure.
-
-Note: the app loads `Focal_data.default.js` by default — if `Focal_data.js` doesn't exist, the app still works using the clean demo data.
+### `Focal_data.default.js`
+The public starter data file. Committed to git. Loaded by `Focal.html` on every run. Contains the clean demo starter — customize this file to set up your sections, outcomes, people, and starter tasks. After your first run, all changes go to localStorage; editing this file only affects the app after a localStorage reset.
 
 Structure:
 ```js
-const VER   = '9.x';
+const VER   = '10.x';
 const VDATE = 'Month DD, YYYY';
 const FILE_DATA = {
   version, updated,
@@ -78,8 +74,8 @@ const FILE_DATA = {
 };
 ```
 
-### `Focal_data.default.js`
-A read-only reference copy of the clean starter data. Use this to reset `Focal_data.js` back to its original state if needed. Never edited directly.
+### `Focal_data.js` (gitignored — advanced personal use)
+Optional personal override. Not in the repo. If you want to keep real task data out of git while tracking the rest of the app in version control, create this file alongside `Focal_data.default.js` and update the `<script src>` in `Focal.html` to point to `Focal_data.js`. Not needed for most users — simply edit `Focal_data.default.js` instead.
 
 ### `Focal_USER_MANUAL.html`
 The in-app help manual. Opened via the 📖 button in the header. A standalone HTML file with a sidebar navigation — no dependency on the main app.

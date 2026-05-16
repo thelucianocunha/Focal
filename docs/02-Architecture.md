@@ -13,14 +13,14 @@ Focal is deliberately simple: four files, no build step, no dependencies, no ser
 | `Focal.html` | HTML structure — tabs, panels, modals | Edit directly, rarely |
 | `Focal.css` | All styles and theming | Edit directly |
 | `Focal_app.js` | All JavaScript logic | Use section markers to navigate |
-| `Focal_data.js` | Seed data and user-configurable defaults | Edit for personal setup; not committed to git |
+| `Focal_data.default.js` | Seed data and user-configurable defaults | Customize for your setup; committed to git |
 
-> **Rule:** if it is data or user-configurable, it belongs in `Focal_data.js`. Nothing personal is hardcoded in the HTML or JS files.
+> **Rule:** if it is data or user-configurable, it belongs in `Focal_data.default.js`. Nothing personal is hardcoded in the HTML or JS files.
 
 ## Data flow
 
 ```
-Focal_data.js (FILE_DATA)
+Focal_data.default.js (FILE_DATA)
         │
         ▼ (only on first load, if localStorage is empty)
   localStorage  ←──────────────────── saveS()
@@ -35,10 +35,10 @@ Focal_data.js (FILE_DATA)
         └──▶ renderAnalytics()
 ```
 
-1. On first open: `FILE_DATA` from `Focal_data.js` is written to `localStorage` as `focal_v1`
+1. On first open: `FILE_DATA` from `Focal_data.default.js` is written to `localStorage` as `focal_v1`
 2. On every subsequent open: state is read from `localStorage` into `S`
 3. Every change calls `saveS()` which writes `S` back to `localStorage`
-4. `Focal_data.js` is not touched after first load — it is only the starting point
+4. `Focal_data.default.js` is not touched after first load — it is only the starting point
 
 ## State object `S`
 
@@ -100,7 +100,7 @@ All views share a two-layer filter pipeline:
 
 ## Versioning
 
-- Version lives in `Focal_data.js`: `VER` and `VDATE`
+- Version lives in `Focal_data.default.js`: `VER` and `VDATE`
 - Minor feature = bump minor (9.0 → 9.1)
 - Major release = bump major (9.x → 10.0); archive files to `Archive/` first
 - localStorage key: `focal_v1` — migration guards in `loadS()` handle upgrades from older keys

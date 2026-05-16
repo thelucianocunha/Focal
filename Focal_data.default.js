@@ -9,7 +9,7 @@
  */
 
 // ═══ APP META ═══
-const VER   = '9.30';
+const VER   = '10.0';
 const VDATE = 'May 16, 2026';
 
 // ═══ FILE_DATA — edit this to set up your personal Focal ═══

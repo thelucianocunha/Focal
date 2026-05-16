@@ -4,7 +4,7 @@ tags: [focal, customizing, setup]
 
 # Customizing Focal
 
-All customization is done either through the **Settings panel** (⚙️ in the header) or by editing `Focal_data.js` before your first run.
+All customization is done either through the **Settings panel** (⚙️ in the header) or by editing `Focal_data.default.js` before your first run.
 
 ## Sections
 
@@ -13,7 +13,7 @@ Sections are the top-level groupings for your tasks (e.g. "Monthly Priorities", 
 **Via Settings:**
 - Settings → ⚙️ Categories → Add / rename / reorder / delete sections
 
-**Via `Focal_data.js`** (before first run, or to reset):
+**Via `Focal_data.default.js`** (before first run, or to reset):
 ```js
 sections: [
   { id: 'priorities', icon: '🎯', title: 'Monthly Priorities', tasks: [] },
@@ -22,7 +22,7 @@ sections: [
 ]
 ```
 
-**Note:** After your first run, changes to sections are made in Settings — edits to `Focal_data.js` won't take effect until localStorage is cleared.
+**Note:** After your first run, changes to sections are made in Settings — edits to `Focal_data.default.js` won't take effect until localStorage is cleared.
 
 ## Strategic Outcomes
 
@@ -31,7 +31,7 @@ Outcomes are colored labels you attach to tasks to show which strategic goal the
 **Via Settings:**
 - Settings → 🎯 Outcomes → Add / edit / reorder / toggle active
 
-**Via `Focal_data.js`:**
+**Via `Focal_data.default.js`:**
 ```js
 outcomes: [
   { id: 'revenue',  name: 'Revenue Growth',   color: '#059669', active: true, sort: 0 },
@@ -48,7 +48,7 @@ Connections are names you associate with tasks — team members, clients, partne
 - Add / remove names from the known connections list
 - Create groups (e.g. "Leadership Team") for easy bulk filtering
 
-**Via `Focal_data.js`:**
+**Via `Focal_data.default.js`:**
 ```js
 knownConnections: ['Alex', 'Jordan', 'Sam', 'Acme Corp'],
 personGroups: [
@@ -58,7 +58,7 @@ personGroups: [
 
 ## Starter tasks
 
-To give yourself a specific set of tasks on first run, add them to the relevant section in `Focal_data.js`:
+To give yourself a specific set of tasks on first run, add them to the relevant section in `Focal_data.default.js`:
 
 ```js
 { id: 'p1', priority: 'P1', task: 'My first priority', status: 'To Do',
@@ -66,14 +66,14 @@ To give yourself a specific set of tasks on first run, add them to the relevant 
   connections: [], kanbanCol: null, outcomes: [] }
 ```
 
-> After first run, all changes go to localStorage. Editing `Focal_data.js` won't affect existing data unless you clear localStorage.
+> After first run, all changes go to localStorage. Editing `Focal_data.default.js` won't affect existing data unless you clear localStorage.
 
 ## Resetting to a clean state
 
 To start fresh:
 1. Open browser DevTools → Application → Local Storage
 2. Delete `focal_v1` and `focal_log`
-3. Refresh — the app re-seeds from `Focal_data.js`
+3. Refresh — the app re-seeds from `Focal_data.default.js`
 
 Or use Settings → ⚠️ Reset (if available in your version).
 
