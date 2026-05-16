@@ -7,6 +7,7 @@
 <link rel="icon" type="image/png" href="focal-logo-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="Focal.css">
+<script>(function(){try{const s=JSON.parse(localStorage.getItem('focal_v1'));if(s&&s.settings&&s.settings.theme==='dark')document.documentElement.classList.add('dark');}catch(e){}})();</script>
 </head>
 <body>
 
@@ -298,6 +299,7 @@
       <button class="stab" id="stab-ai" onclick="switchSettingsTab('ai')">🤖 AI</button>
       <button class="stab" id="stab-outcomes" onclick="switchSettingsTab('outcomes')">📊 Outcomes</button>
       <button class="stab" id="stab-email" onclick="switchSettingsTab('email')">📥 Task Import</button>
+      <button class="stab" id="stab-appearance" onclick="switchSettingsTab('appearance')">🎨 Appearance</button>
     </div>
     <div class="stab-body" id="stab-body-categories">
       <div style="padding:16px 20px" id="secMgrBody"></div>
@@ -327,6 +329,9 @@
     </div>
     <div class="stab-body" id="stab-body-email" style="display:none">
       <div id="emailSettingsBody" style="padding:16px 20px"></div>
+    </div>
+    <div class="stab-body" id="stab-body-appearance" style="display:none">
+      <div id="appearanceMgrBody" style="padding:16px 20px"></div>
     </div>
     <div class="mf">
       <button class="bsec" onclick="closeSettings()">Close</button>

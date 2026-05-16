@@ -26,7 +26,7 @@ const DEFAULT_OUTCOMES=[
   {id:'people',    name:'Leadership / People', color:'#7C3AED', active:true, sort:4},
   {id:'strategic', name:'Strategic Projects',  color:'#00B5B0', active:true, sort:5},
 ];
-function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); }
+function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(d.settings&&!d.settings.theme) d.settings.theme='light'; }
 function rebuildSecDropdown(){
   const sel=document.getElementById('fSec');
   if(!sel) return;
@@ -2330,13 +2330,14 @@ function openSettingsPanel(tab){
 }
 function switchSettingsTab(tab){
   _settingsTab=tab;
-  ['categories','people','ai','outcomes','email'].forEach(t=>{
+  ['categories','people','ai','outcomes','email','appearance'].forEach(t=>{
     document.getElementById('stab-body-'+t).style.display=t===tab?'':'none';
     document.getElementById('stab-'+t).classList.toggle('on',t===tab);
   });
   document.getElementById('sf-test').style.display=tab==='ai'?'':'none';
   document.getElementById('sf-save').style.display=tab==='ai'?'':'none';
   if(tab==='email') renderEmailSettingsTab();
+  if(tab==='appearance') renderAppearanceTab();
 }
 function openSettings(){ openSettingsPanel('ai'); }
 function closeSettings(){
@@ -2803,6 +2804,31 @@ function renderEmailTasks(){
   el.innerHTML=`<div class="et-section-hdr"><span>📋 Tasks</span><span class="et-count">${_etTasks.length} pending</span></div><div class="et-cards">${cards}</div>`;
 }
 
+// ═══ APPEARANCE ═══
+function applyTheme(){
+  document.documentElement.classList.toggle('dark',(S.settings&&S.settings.theme)==='dark');
+}
+function setTheme(t){
+  if(!S.settings) S.settings={};
+  S.settings.theme=t;
+  saveS();
+  applyTheme();
+  renderAppearanceTab();
+}
+function renderAppearanceTab(){
+  const el=document.getElementById('appearanceMgrBody');
+  if(!el) return;
+  const cur=(S.settings&&S.settings.theme)||'light';
+  const opts=[{v:'light',label:'☀️ Light',note:'Default'},{v:'dark',label:'🌙 Dark',note:''}];
+  el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Choose how Focal looks on your screen.</p>
+<div style="display:flex;flex-direction:column;gap:8px">
+${opts.map(o=>`<label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;border:1px solid ${cur===o.v?'var(--teal)':'var(--border)'};border-radius:8px;background:${cur===o.v?'var(--teal-dim)':'transparent'}">
+<input type="radio" name="focalTheme" value="${o.v}" ${cur===o.v?'checked':''} onchange="setTheme('${o.v}')">
+<span style="font-size:14px;font-weight:600;color:var(--text)">${o.label}</span>${o.note?`<span style="font-size:11px;color:var(--muted);margin-left:auto">${o.note}</span>`:''}
+</label>`).join('')}
+</div>`;
+}
+
 // ═══ AI VISIBILITY ═══
 function syncAiVisibility(){
   const hasKey=!!(S.settings&&S.settings.claudeKey);
@@ -2820,6 +2846,7 @@ document.addEventListener('click',e=>{ if(!e.target.closest('.ctx-menu')){closeC
 // ═══ INIT ═══
 
 // Init
+applyTheme();
 renderAll();
 renderMatrixFilter();
 computeWeekSummary();
