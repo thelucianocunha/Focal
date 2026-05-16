@@ -1,0 +1,31 @@
+# Personal seed data — gitignored so your tasks never reach the public repo
+# For recovery: keep a copy of your personal Focal_data.js outside the repo
+# New users: the app loads Focal_data.default.js automatically — no copy needed
+Focal_data.js
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+*.swp
+*.swo
+
+# Obsidian vault config (auto-created when docs/ opened as Obsidian vault)
+.obsidian/
+
+# Claude Code AI dev files (not for public)
+.claude/
+CLAUDE.md
+
+# Internal development docs (not for public)
+Focal_SPEC.md
+Focal_TEST_PLAN.md
+Focal_v8_TEST_PLAN.md
+project_future_features.md
+Archive/
+
+# Logs
+*.log

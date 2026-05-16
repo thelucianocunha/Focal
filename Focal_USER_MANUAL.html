@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focal — User Manual v9.29</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --p1: #EF4444; --p1-bg: #FEF2F2; --p1-b: #FCA5A5;
+    --p2: #F97316; --p2-bg: #FFF7ED; --p2-b: #FED7AA;
+    --p3: #3B82F6; --p3-bg: #EFF6FF; --p3-b: #BFDBFE;
+    --p4: #9CA3AF; --p4-bg: #F9FAFB; --p4-b: #E5E7EB;
+    --teal: #0D9488; --teal-bg: #F0FDFA; --teal-b: #99F6E4;
+    --amber: #F59E0B; --amber-bg: #FFFBEB; --amber-b: #FDE68A;
+    --indigo: #6366F1; --indigo-bg: #EEF2FF; --indigo-b: #C7D2FE;
+    --galaxy: #1E293B;
+    --text: #1E293B; --muted: #64748B; --border: #E2E8F0;
+    --surface: #FFFFFF; --surface2: #F8FAFC;
+    --sh: 0 1px 3px rgba(0,0,0,.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  /* ── Layout ── */
+  .page-wrap {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--galaxy);
+    color: #CBD5E1;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 0 0 24px;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .sidebar-logo {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0D9488;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #F1F5F9;
+    margin-top: 4px;
+  }
+
+  .sidebar-ver {
+    font-size: 11px;
+    color: #64748B;
+    margin-top: 2px;
+  }
+
+  .nav-group {
+    padding: 16px 0 4px;
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #475569;
+    padding: 0 20px 6px;
+  }
+
+  .nav-item {
+    display: block;
+    padding: 6px 20px;
+    font-size: 13px;
+    color: #94A3B8;
+    text-decoration: none;
+    border-radius: 0;
+    transition: color .15s, background .15s;
+    cursor: pointer;
+  }
+
+  .nav-item:hover {
+    color: #F1F5F9;
+    background: rgba(255,255,255,.04);
+  }
+
+  .nav-item.active {
+    color: #0D9488;
+    background: rgba(13,148,136,.1);
+  }
+
+  /* ── Main content ── */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 40px 48px;
+    max-width: 900px;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--galaxy);
+    color: white;
+    border-radius: 16px;
+    padding: 40px 48px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(13,148,136,.3) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #0D9488;
+    margin-bottom: 8px;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .hero p {
+    font-size: 15px;
+    color: #94A3B8;
+    max-width: 520px;
+    line-height: 1.7;
+  }
+
+  .hero-badges {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .hbadge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255,255,255,.08);
+    color: #CBD5E1;
+    border: 1px solid rgba(255,255,255,.1);
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 48px;
+    scroll-margin-top: 32px;
+  }
+
+  .section-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+
+  .section h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .section-lead {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    max-width: 640px;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 24px 0 8px;
+  }
+
+  h3:first-child { margin-top: 0; }
+
+  p { margin-bottom: 12px; color: var(--muted); }
+
+  p:last-child { margin-bottom: 0; }
+
+  strong { color: var(--text); font-weight: 600; }
+
+  /* ── Cards ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: var(--sh);
+  }
+
+  .card-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .card p {
+    font-size: 13px;
+    margin: 0;
+  }
+
+  /* ── Feature block ── */
+  .feature-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--sh);
+  }
+
+  .feature-block h3 {
+    margin-top: 0;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ── Step list ── */
+  .steps {
+    list-style: none;
+    counter-reset: steps;
+    margin: 0 0 16px;
+  }
+
+  .steps li {
+    counter-increment: steps;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .steps li:last-child { border-bottom: none; }
+
+  .steps li::before {
+    content: counter(steps);
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    background: var(--p3-bg);
+    color: var(--p3);
+    border: 1px solid var(--p3-b);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+
+  /* ── Bullet list ── */
+  .blist {
+    list-style: none;
+    margin: 0 0 16px;
+  }
+
+  .blist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .blist li::before {
+    content: '→';
+    color: var(--teal);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Badge demos ── */
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 16px;
+  }
+
+  .bdemo {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid;
+  }
+
+  .bdemo .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .bp1  { color: var(--p1);  background: var(--p1-bg);  border-color: var(--p1-b);  }
+  .bp1  .dot { background: var(--p1);  }
+  .bp2  { color: var(--p2);  background: var(--p2-bg);  border-color: var(--p2-b);  }
+  .bp2  .dot { background: var(--p2);  }
+  .bp3  { color: var(--p3);  background: var(--p3-bg);  border-color: var(--p3-b);  }
+  .bp3  .dot { background: var(--p3);  }
+  .bp4  { color: var(--p4);  background: var(--p4-bg);  border-color: var(--p4-b);  }
+  .bp4  .dot { background: var(--p4);  }
+
+  .bst-todo  { color: #0284C7; background: #F0F9FF; border-color: #BAE6FD; }
+  .bst-prog  { color: #D97706; background: #FFFBEB; border-color: #FDE68A; }
+  .bst-done  { color: #059669; background: #F0FDF4; border-color: #A7F3D0; }
+  .bst-back  { color: var(--indigo); background: var(--indigo-bg); border-color: var(--indigo-b); }
+
+  /* ── Callout ── */
+  .callout {
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .callout-icon { flex-shrink: 0; font-size: 16px; }
+
+  .callout p { margin: 0; }
+
+  .callout.tip    { background: var(--teal-bg); border: 1px solid var(--teal-b); }
+  .callout.tip    p { color: #0F766E; }
+  .callout.warn   { background: var(--amber-bg); border: 1px solid var(--amber-b); }
+  .callout.warn   p { color: #92400E; }
+  .callout.info   { background: var(--p3-bg); border: 1px solid var(--p3-b); }
+  .callout.info   p { color: #1D4ED8; }
+
+  /* ── Divider ── */
+  hr.sec-div {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* ── Shortcut table ── */
+  .kb-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px;
+    font-size: 13px;
+  }
+
+  .kb-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    color: var(--text);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  .kb-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .kbd {
+    display: inline-block;
+    padding: 1px 7px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid #CBD5E1;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* ── Three-layer diagram ── */
+  .layer-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0 24px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--sh);
+  }
+
+  .layer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .layer:last-child { border-bottom: none; }
+
+  .layer-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .layer-1 .layer-num { background: var(--p3-bg); color: var(--p3); }
+  .layer-2 .layer-num { background: var(--indigo-bg); color: var(--indigo); }
+  .layer-3 .layer-num { background: var(--teal-bg); color: var(--teal); }
+
+  .layer-body h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .layer-body p  { font-size: 12px; color: var(--muted); margin: 0; }
+
+  .layer-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 18px;
+    color: var(--border);
+  }
+
+  /* ── Stage flow ── */
+  .stage-flow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 16px 0 24px;
+    flex-wrap: wrap;
+  }
+
+  .stage-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .stage-pill.active {
+    background: var(--p3-bg);
+    border-color: var(--p3-b);
+    color: var(--p3);
+  }
+
+  .stage-arrow {
+    color: var(--border);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  /* ── Aging indicator demo ── */
+  .aging-demo {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+
+  .aging-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .age-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .age-y  { background: var(--amber); }
+  .age-r  { background: var(--p1); }
+  .age-ok { background: #D1D5DB; }
+
+  /* ── Capacity table ── */
+  .cap-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px;
+    font-size: 13px;
+  }
+
+  .cap-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  .cap-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* ── Views nav illustration ── */
+  .view-tabs {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 12px 0 24px;
+    box-shadow: var(--sh);
+  }
+
+  .view-tab {
+    flex: 1;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    cursor: default;
+  }
+
+  .view-tab:last-child { border-right: none; }
+
+  .view-tab.on {
+    background: var(--p3-bg);
+    color: var(--p3);
+  }
+
+  /* ── Workflow timeline ── */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0 24px;
+  }
+
+  .tl-item {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    position: relative;
+  }
+
+  .tl-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 40px;
+    bottom: -14px;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .tl-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .tl-ongoing { background: var(--teal-bg); }
+  .tl-daily   { background: var(--p3-bg);   }
+  .tl-weekly  { background: var(--amber-bg); }
+
+  .tl-body h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .tl-body p  { font-size: 13px; color: var(--muted); margin: 0; }
+
+  /* ── Footer ── */
+  .manual-footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .manual-footer p {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .manual-footer a {
+    color: var(--teal);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  /* ── Scroll to top ── */
+  #scroll-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 40px; height: 40px;
+    background: var(--galaxy);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    opacity: 0;
+    transition: opacity .2s;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #scroll-top.visible { opacity: 1; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main    { padding: 24px 20px; }
+    .hero    { padding: 28px 24px; }
+    .hero h1 { font-size: 24px; }
+    .card-grid { grid-template-columns: 1fr 1fr; }
+    .stage-flow { gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Focal</div>
+      <div class="sidebar-title">User Manual</div>
+      <div class="sidebar-ver">Version 9.27 · May 1, 2026</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Getting Started</div>
+      <a class="nav-item" href="#overview">Overview</a>
+      <a class="nav-item" href="#system">The Three-Layer System</a>
+      <a class="nav-item" href="#workflow">Recommended Workflow</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Views</div>
+      <a class="nav-item" href="#inbox">📥 Inbox</a>
+      <a class="nav-item" href="#all-tasks">📋 All Tasks</a>
+      <a class="nav-item" href="#today">📅 Today</a>
+      <a class="nav-item" href="#matrix">⬛ Matrix</a>
+      <a class="nav-item" href="#kanban">📊 Kanban</a>
+      <a class="nav-item" href="#analytics">📈 Analytics</a>
+      <a class="nav-item" href="#review">🔄 Weekly Review</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Features</div>
+      <a class="nav-item" href="#aging">⏱ Task Aging</a>
+      <a class="nav-item" href="#backlog">📋 Backlog</a>
+      <a class="nav-item" href="#filters">Filters & Stats</a>
+      <a class="nav-item" href="#add-edit">Add / Edit Tasks</a>
+      <a class="nav-item" href="#inline">Inline Editing</a>
+      <a class="nav-item" href="#confidential">🔒 Confidential</a>
+      <a class="nav-item" href="#demo-mode">🎭 Demo Mode</a>
+      <a class="nav-item" href="#recurring">Recurring Tasks</a>
+      <a class="nav-item" href="#settings">⚙️ Settings Panel</a>
+      <a class="nav-item" href="#ai">🤖 AI Features</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Reference</div>
+      <a class="nav-item" href="#shortcuts">Keyboard Shortcuts</a>
+      <a class="nav-item" href="#mobile">Mobile Support</a>
+      <a class="nav-item" href="#tips">Tips & Tricks</a>
+    </div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-eyebrow">User Manual</div>
+      <h1>Focal v9.29</h1>
+      <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
+      <div class="hero-badges">
+        <span class="hbadge">📥 Inbox</span>
+        <span class="hbadge">📋 All Tasks</span>
+        <span class="hbadge">📅 Today</span>
+        <span class="hbadge">⬛ Matrix</span>
+        <span class="hbadge">📊 Kanban</span>
+        <span class="hbadge">🔄 Weekly Review</span>
+        <span class="hbadge">📈 Analytics</span>
+        <span class="hbadge">⏱ Task Aging</span>
+        <span class="hbadge">No server required</span>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW ── -->
+    <section class="section" id="overview">
+      <div class="section-eyebrow">Introduction</div>
+      <h2>Overview</h2>
+      <p class="section-lead">Focal runs entirely in your browser as a set of four local files (Focal.html, Focal.css, Focal_data.js, Focal_app.js). All data is saved to your browser's localStorage — no account, no server, no sync needed.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <span class="card-icon">🏗️</span>
+          <h4>Local file set</h4>
+          <p>Open Focal.html in any browser — styles, data, and app logic load automatically.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">💾</span>
+          <h4>Auto-saved locally</h4>
+          <p>Every change saves instantly to localStorage. No manual save needed.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">📱</span>
+          <h4>Mobile responsive</h4>
+          <p>Works on desktop and mobile. Compact card layout on small screens.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🔒</span>
+          <h4>100% private</h4>
+          <p>Data never leaves your device. No analytics, no tracking.</p>
+        </div>
+      </div>
+
+      <h3>Seven views, one system</h3>
+      <div class="view-tabs">
+        <div class="view-tab on">⚡ Today</div>
+        <div class="view-tab">📊 Kanban</div>
+        <div class="view-tab">📥 Inbox</div>
+        <div class="view-tab">📋 Tasks</div>
+        <div class="view-tab">⬛ Matrix</div>
+        <div class="view-tab">📈 Analytics</div>
+        <div class="view-tab">🔄 Review</div>
+      </div>
+      <p>Each view surfaces the same task data through a different lens. <strong>Today opens by default</strong> — it's your daily action view. Kanban is for drag-and-drop daily/weekly planning. Inbox is your capture layer. All Tasks is the full reference and edit view. Matrix gives a strategic quadrant view. Analytics shows your task management patterns and trends. Review is your weekly maintenance ritual.</p>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── THREE-LAYER SYSTEM ── -->
+    <section class="section" id="system">
+      <div class="section-eyebrow">Architecture</div>
+      <h2>The Three-Layer System</h2>
+      <p class="section-lead">The app is designed around three distinct layers that handle different stages of task lifecycle — keeping active views clean even with 50+ total tasks.</p>
+
+      <div class="layer-diagram">
+        <div class="layer layer-1">
+          <div class="layer-num">1</div>
+          <div class="layer-body">
+            <h4>Inbox — Capture</h4>
+            <p>Frictionless. Add anything with just a title, no decisions needed. Nothing gets lost.</p>
+          </div>
+        </div>
+        <div class="layer-arrow">↓ triage</div>
+        <div class="layer layer-2">
+          <div class="layer-num">2</div>
+          <div class="layer-body">
+            <h4>Backlog — Organised but inactive</h4>
+            <p>Tasks you intend to do, reviewed weekly. Hidden from All Tasks, Today, and Matrix by default.</p>
+          </div>
+        </div>
+        <div class="layer-arrow">↓ activate</div>
+        <div class="layer layer-3">
+          <div class="layer-num">3</div>
+          <div class="layer-body">
+            <h4>Active — Current sprint</h4>
+            <p>To Do and In Progress tasks. Shown in all views. Aging alerts keep this layer healthy.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>The key insight:</strong> Capture and triage are deliberately separated. Capture at the moment things happen (fast, frictionless). Triage during the weekly review (slow, intentional). This prevents both cognitive overload and task loss.</p>
+      </div>
+
+      <h3>Capacity guidelines</h3>
+      <table class="cap-table">
+        <thead>
+          <tr><th>Layer</th><th>Recommended max</th><th>Signal to act</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Inbox</td><td>10–15 items</td><td>&gt;10 = process today</td></tr>
+          <tr><td>Active (To Do + In Progress)</td><td>15–20 tasks</td><td>&gt;20 = move some to Backlog</td></tr>
+          <tr><td>Backlog</td><td>No hard limit</td><td>Aging alerts surface dead weight</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── WORKFLOW ── -->
+    <section class="section" id="workflow">
+      <div class="section-eyebrow">Usage</div>
+      <h2>Recommended Workflow</h2>
+      <p class="section-lead">The system works best when used in three rhythms: ongoing capture, a daily 5-minute check, and a weekly 10-minute review.</p>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot tl-ongoing">⚡</div>
+          <div class="tl-body">
+            <h4>Ongoing — throughout the day</h4>
+            <p>New tasks go to <strong>Inbox</strong> immediately (just a title, no decisions). Active tasks get their status updated inline as work progresses.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-daily">📅</div>
+          <div class="tl-body">
+            <h4>Daily — 5 minutes</h4>
+            <p>Open the app — <strong>Today</strong> is the default view. Review Today's Plan (your Kanban commitments), then check Overdue and Due This Week. Drag items into the Kanban Today column to commit to them.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-weekly">🔄</div>
+          <div class="tl-body">
+            <h4>Weekly — 10–15 minutes</h4>
+            <p>Run the <strong>Weekly Review</strong>: Stage 1 clears the inbox, Stage 2 resolves aging tasks, Stage 3 reviews the backlog, Stage 4 runs a hygiene check, Stage 5 reprioritises your active tasks. This is the maintenance ritual that keeps the system healthy.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── INBOX ── -->
+    <section class="section" id="inbox">
+      <div class="section-eyebrow">View</div>
+      <h2>📥 Inbox</h2>
+      <p class="section-lead">The inbox is your capture layer — a holding area for anything that needs to be tracked before you've decided what to do with it.</p>
+
+      <h3>Capturing items (v9.21)</h3>
+      <p>The capture bar at the top of the Inbox is a smart textarea that expands as you type. It supports three modes:</p>
+      <ul class="blist">
+        <li><strong>Single line + Enter (or + Capture)</strong> — instantly saves one item to the inbox. An optional Note field is available for single-task captures.</li>
+        <li><strong>Multi-line paste + Capture</strong> — each non-empty line becomes a separate inbox item. Paste a list from anywhere (Claude, notes, email) and all lines land in the inbox in one click. Toast confirms how many were added.</li>
+        <li><strong>Single or multi-line + ✨ AI → Task</strong> — Claude structures the text and creates tasks directly. See AI Features below.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>The inbox is intentionally frictionless. No priority, no section, no due date required. Capture now, decide later. Use <kbd class="kbd">Shift</kbd>+<kbd class="kbd">Enter</kbd> to add a newline while typing; plain <kbd class="kbd">Enter</kbd> captures immediately.</p>
+      </div>
+
+      <h3>Inline triage fields (v8.4)</h3>
+      <p>Every inbox card displays all key fields directly — no need to open a triage panel for the basics:</p>
+      <ul class="blist">
+        <li><strong>Section</strong> — which category this task belongs to</li>
+        <li><strong>Priority</strong> — P1 through P4</li>
+        <li><strong>Status</strong> — To Do or In Progress</li>
+        <li><strong>Due date</strong> — date picker inline</li>
+        <li><strong>Urgency</strong> — Not Urgent / Urgent toggle</li>
+        <li><strong>Connections</strong> — type a name and press <kbd class="kbd">Enter</kbd> or comma to add; click × on a tag to remove</li>
+      </ul>
+      <p>All changes save immediately. When you're ready to promote to a task, use the action buttons.</p>
+
+      <h3>Action buttons</h3>
+      <p>Each inbox item has three actions in the top-right:</p>
+      <ul class="blist">
+        <li><strong>+ Notes</strong> — expands the panel to reveal the Move to Active / Backlog / Delete buttons</li>
+        <li><strong>🔒/🔓</strong> — confidential toggle</li>
+        <li><strong>Delete</strong> — remove immediately</li>
+      </ul>
+      <p>After setting fields inline, click <strong>+ Notes → Move to Active</strong> (or Backlog) to create the task with all your pre-set values carried over.</p>
+
+      <h3>✨ AI → Task — single or multi-task (v9.21)</h3>
+      <p>Type any description in plain English and click <strong>✨ AI → Task</strong>. Claude decides how many tasks to create:</p>
+      <ul class="blist">
+        <li><strong>Simple task</strong> — Claude returns one task, the Add Task modal opens pre-filled. Review and save.<br><em>Example: "P1 follow up with Alex on recruiter shortlist by Friday"</em></li>
+        <li><strong>Multi-task description</strong> (parent + subtasks, or several items in one sentence) — Claude returns multiple tasks, the batch preview panel appears so you can review and confirm before anything is created.<br><em>Example: "create a parent task for quarterly bonus review with a subtask for Jordan and one for Sam, both due end of next week"</em></li>
+      </ul>
+      <p>You never need to decide which mode to use — Claude reads the intent and routes automatically. When subtasks are detected, the preview shows them <strong>↳ indented</strong> under their parent, and the actual parent-child link is created when you confirm.</p>
+
+      <h3>✨ AI → Task — batch mode (v9.21)</h3>
+      <p>Paste a list of tasks (one per line) into the capture bar and click <strong>✨ AI → Task</strong>. Claude parses all lines in a single call. The preview panel shows each task's <strong>priority, title, section, and due date</strong> so you can verify assignments before committing. Click <strong>Create N tasks</strong> to save them all directly — no modal needed. Cancel discards without creating anything.</p>
+      <ul class="blist">
+        <li>For lists of <strong>15+ tasks</strong> the preview scrolls — use it to check Claude didn't merge or drop any lines.</li>
+        <li>If the task count in the preview doesn't match your input lines, a <strong>yellow warning</strong> appears so you know to review carefully.</li>
+        <li>Practical limit is around <strong>30–35 tasks per batch</strong>. For larger dumps, split into two pastes.</li>
+      </ul>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Intended workflow: ask Claude to extract all action items from your notes, email thread, or meeting recap — then paste the list straight into Focal and hit ✨ AI → Task. Each line becomes a fully structured task.</p>
+      </div>
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <p>All AI features require an Anthropic API key. If none is set, clicking any AI button opens <strong>⚙️ Settings → AI tab</strong> automatically.</p>
+      </div>
+
+      <h3>Process All mode</h3>
+      <p>Click <strong>⚡ Process All</strong> to enter a focused triage mode that walks through inbox items one at a time, keeping you from getting distracted by the rest of the list.</p>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <p>The inbox count badge on the Inbox tab includes both manual inbox items and pending email tasks.</p>
+      </div>
+
+      <h3>📋 Daily Tasks Feed — triage (v9.22, updated v9.25)</h3>
+      <p>An overnight job extracts action items from three sources — 📧 Outlook email, 💬 Microsoft Teams chat, and 📅 upcoming calendar meetings — and writes them to a local <code>tasks.json</code> file. Focal reads that file directly and shows any unprocessed items at the top of the Inbox view for quick triage.</p>
+
+      <h4>First-time setup</h4>
+      <p>On your first visit to Inbox, a <strong>Connect</strong> button appears at the top of the section. Click it — your browser will open a file picker. Navigate to the <code>tasks.json</code> file and select it. Focal stores a permission handle in IndexedDB so it can read and write the file automatically on every subsequent load — no repeat prompts needed.</p>
+
+      <h4>Triage cards</h4>
+      <p>Each pending task appears as a card showing:</p>
+      <ul>
+        <li>A colored left border and priority dot — <strong>red</strong> = High (high-priority sender, deadline ≤ 48 h, or meeting within 24 h), <strong>amber</strong> = Medium, <strong>grey</strong> = Low</li>
+        <li>The category pill (Board, Finance, HR, etc.) and due date if one was extracted</li>
+        <li>The full task sentence extracted from the source item</li>
+        <li>A source icon and attribution line — 📧 email shows sender + subject, 💬 Teams shows sender + chat name, 📅 meeting shows the meeting subject</li>
+      </ul>
+
+      <h4>Actions</h4>
+      <ul>
+        <li><strong>Add as Task</strong> — opens the task modal pre-filled with the extracted title, priority, due date, and a source note (e.g. "Meeting prep: …" for calendar items, "Teams msg from: …" for chats). Review, adjust, and save.</li>
+        <li><strong>Skip</strong> — dismisses the card without creating a task and marks it processed. It will not reappear.</li>
+      </ul>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <p>Once a task is processed (added or skipped) its <code>processed_at</code> timestamp is written back to <code>tasks.json</code>. The overnight extractor uses every <code>source_uri</code> in the file as its cross-source dedup index — never delete entries from that file.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── ALL TASKS ── -->
+    <section class="section" id="all-tasks">
+      <div class="section-eyebrow">View</div>
+      <h2>📋 All Tasks</h2>
+      <p class="section-lead">Your main working view. A full task table organised by sections (categories), with every task attribute visible and editable in place.</p>
+
+      <h3>Sections</h3>
+      <p>Tasks are grouped into sections (e.g., Finance, Operations, People, Projects). Each section has a collapsible header with an open task count badge. Click the section header to collapse or expand it.</p>
+
+      <h3>Priority</h3>
+      <div class="badge-row">
+        <span class="bdemo bp1"><span class="dot"></span>P1 Critical</span>
+        <span class="bdemo bp2"><span class="dot"></span>P2 High</span>
+        <span class="bdemo bp3"><span class="dot"></span>P3 Medium</span>
+        <span class="bdemo bp4"><span class="dot"></span>P4 Low</span>
+      </div>
+      <p>Click any priority badge to change it via a dropdown. P1 rows have a subtle red tint.</p>
+
+      <h3>Status</h3>
+      <div class="badge-row">
+        <span class="bdemo bst-todo">To Do</span>
+        <span class="bdemo bst-prog">In Progress</span>
+        <span class="bdemo bst-done">✓ Done</span>
+        <span class="bdemo bst-back">📋 Backlog</span>
+      </div>
+      <p>Click any status badge to change it. When a task is marked <strong>Done</strong> its row gets a strikethrough and reduced opacity. Backlog tasks are hidden from this view by default (see <a href="#backlog">Backlog</a>).</p>
+
+      <h3>Due dates</h3>
+      <p>Click the due date cell to open a floating date picker with Day and Week tabs. Overdue dates show in red, dates due within 3 days show in amber.</p>
+
+      <h3>Connections</h3>
+      <p>Click the connections cell to open an inline popover. Type to search people or topics from your connections list — add or remove with a click.</p>
+
+      <h3>Completing tasks</h3>
+      <p>Click the checkbox on the left of any row to toggle completion. Done tasks are <strong>hidden by default</strong> — click the <strong>✓ Done</strong> pill in the header to make them visible (pill lights up white when active).</p>
+      <p>If the task has subtasks, marking it Done <strong>automatically marks all its subtasks Done too</strong> (cascade). The toast shows the count: <em>“✓ Done (+2 subtasks)”</em>.</p>
+
+      <h3>Row drag-and-drop — subtask linking or reorder</h3>
+      <p>Drag one row onto another to get a <strong>“Make subtask?”</strong> dialog:</p>
+      <ul class="blist">
+        <li><strong>✓ Make subtask</strong> — links the dragged task as a child of the target. Subtasks appear indented with a ↳ prefix.</li>
+        <li><strong>No, just reorder</strong> — moves the dragged row above the target row with no parent relationship set.</li>
+        <li><strong>× (cancel)</strong> or <strong>Escape</strong> — dismisses the dialog with no changes.</li>
+      </ul>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── TODAY ── -->
+    <section class="section" id="today">
+      <div class="section-eyebrow">View</div>
+      <h2>⚡ Today</h2>
+      <p class="section-lead">The default opening view. Bridges your deliberate daily plan (Kanban) with time-based urgency. Shows three sections — only when non-empty.</p>
+
+      <div class="feature-block">
+        <h3>Three sections</h3>
+        <ul class="blist">
+          <li><strong>📊 Today's Plan</strong> — tasks you dragged into the Kanban Today column. Your committed work for the day, shown first regardless of due date. A <strong>capacity badge</strong> shows your load: green (1–3 tasks, good), amber (4, at capacity), red (5+, consider reducing focus).</li>
+          <li><strong>🔴 Overdue</strong> — past-due tasks not already in Today's Plan. Requires attention even if not planned.</li>
+          <li><strong>📅 Due This Week</strong> — tasks due within 7 days, not overdue, not in Today's Plan. Your bench — pull these into Kanban Today if you finish your plan early.</li>
+        </ul>
+        <p style="margin-top:8px;color:var(--muted);font-size:13px">Done and Backlog tasks are excluded. Tasks in Today's Plan are never duplicated in Overdue or Due This Week.</p>
+      </div>
+
+      <p>Click any card to open the edit modal, or right-click for quick actions (Mark as Done, Send to Backlog, Add subtask).</p>
+      <p>The <strong>search bar</strong> filters Today live as you type — results update across all three sections in real time, same as All Tasks.</p>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Make Today your morning check-in. If it shows more than 5–7 items regularly, it's a signal to either reschedule tasks or move some to Backlog.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── MATRIX ── -->
+    <section class=”section” id=”matrix”>
+      <div class=”section-eyebrow”>View</div>
+      <h2>⬛ Eisenhower Matrix</h2>
+      <p class=”section-lead”>The Matrix tab has two modes: <strong>View</strong> (quadrant overview) and <strong>✦ Prioritize</strong> (AI-assisted triage). Switch between them using the mode toggle at the top of the tab.</p>
+
+      <h3>View mode — the 2×2 quadrant</h3>
+      <p>The classic Eisenhower Matrix: Urgent vs Not Urgent on one axis, Important (P1/P2) vs Less Important (P3/P4) on the other. Backlog and Done tasks are excluded.</p>
+
+      <div class=”card-grid” style=”grid-template-columns: 1fr 1fr;”>
+        <div class=”card” style=”border-top: 3px solid var(--p1);”>
+          <h4>Q1 — Do First</h4>
+          <p>P1/P2 + Urgent. Critical tasks that need immediate attention.</p>
+        </div>
+        <div class=”card” style=”border-top: 3px solid var(--p3);”>
+          <h4>Q2 — Schedule</h4>
+          <p>P1/P2 + Not Urgent. Important strategic work to plan time for.</p>
+        </div>
+        <div class=”card” style=”border-top: 3px solid var(--amber);”>
+          <h4>Q3 — Delegate</h4>
+          <p>P3/P4 + Urgent. Low-importance but time-sensitive. Delegate if possible.</p>
+        </div>
+        <div class=”card” style=”border-top: 3px solid var(--p4);”>
+          <h4>Q4 — Eliminate</h4>
+          <p>P3/P4 + Not Urgent. Consider moving to Backlog or deleting.</p>
+        </div>
+      </div>
+
+      <h3>Drag and drop (View mode)</h3>
+      <p>Drag tasks between quadrants to update their priority and urgency fields simultaneously. Dropping a task into Q1 sets urgency = urgent and priority = P1/P2; Q4 sets urgency = not urgent and priority = P3/P4.</p>
+      <p>Drag one card <em>onto</em> another card (not the quadrant background) to get a <strong>”Make subtask?”</strong> dialog. Click <strong>✓ Make subtask</strong> to link them, or <strong>No, keep priorities</strong> to cancel without changing quadrant placement.</p>
+
+      <h3>Section filter (View mode)</h3>
+      <p>Use the section filter pills above the matrix to focus on tasks from a specific category.</p>
+
+      <hr style=”border:none;border-top:1px solid var(--border);margin:28px 0;”>
+
+      <h3>✦ Prioritize mode (v9.10)</h3>
+      <p>An AI-assisted triage session. The engine surfaces tasks that are overdue, due this week, or haven't been reviewed recently — and asks you three structured questions for each one. Accept the suggested priority or keep the current one; reviewed tasks disappear from the queue until next week. <strong>Focus 10</strong> limits the queue to the 10 most urgent candidates.</p>
+      <p>Prioritize mode is now also <strong>Stage 5 of the Weekly Review</strong> — the same triage engine runs automatically at the end of each review session. You no longer need to visit the Matrix tab separately to keep priorities current.</p>
+      <p>The stats bar shows a <strong>teal "To Prioritize" chip</strong> whenever tasks need review — click it to jump directly to Matrix Prioritize.</p>
+
+      <h4 style=”margin-top:20px;”>Triage controls — three segmented selectors</h4>
+      <p>For each task in the queue, set:</p>
+      <ul class=”blist”>
+        <li><strong>Impact</strong> — None / Some / High. How much does completing this task move a needle you care about?</li>
+        <li><strong>Time Pressure</strong> — Later / This Week / Now. When does this actually need to happen?</li>
+        <li><strong>Ownership</strong> — Delegate / Shared / Me. Who is really responsible?</li>
+      </ul>
+
+      <h4 style=”margin-top:20px;”>Suggestion engine</h4>
+      <p>After you set the three controls, the engine silently scores the task and displays a <strong>suggested priority</strong> (P1–P4) with a brief <strong>”Why?”</strong> rationale explaining the logic. The suggestion is advisory — you decide whether to accept it.</p>
+
+      <h4 style=”margin-top:20px;”>Actions</h4>
+      <ul class=”blist”>
+        <li><strong>✓ Accept</strong> — applies the suggested priority to the task and advances to the next card.</li>
+        <li><strong>Keep</strong> — keeps the current priority unchanged, records a review timestamp, and advances.</li>
+        <li><strong>Open</strong> — opens the full Edit modal so you can make deeper changes before continuing triage.</li>
+      </ul>
+
+      <h4 style=”margin-top:20px;”>Guardrail strip</h4>
+      <p>A live health bar shown at the top of Prioritize mode. It flags systemic problems in your task list so you don't just optimise individual tasks while the whole stack is unhealthy:</p>
+      <ul class=”blist”>
+        <li><strong>P1 Active</strong> — count of active P1 tasks. High counts (6+) warn that your critical lane is overloaded.</li>
+        <li><strong>In Progress</strong> — how many tasks are simultaneously In Progress. Too many signals lack of focus.</li>
+        <li><strong>Needs Review</strong> — tasks not reviewed in 30+ days. These priorities are probably stale.</li>
+        <li><strong>P1/P2 No Outcomes</strong> — important tasks with no Strategic Outcome linked. If you can't say why it matters, it probably shouldn't be P1.</li>
+        <li><strong>Overdue</strong> — past-due tasks that haven't been rescheduled or closed.</li>
+      </ul>
+
+      <h4 style=”margin-top:20px;”>Mini Matrix panel</h4>
+      <p>A read-only 2×2 quadrant on the right side of Prioritize mode. It updates live as you triage, so you can see how your priority stack is shifting without leaving the triage queue.</p>
+
+      <div class=”callout tip”>
+        <span class=”callout-icon”>💡</span>
+        <p><strong>Recommended cadence:</strong> Run Prioritize mode once a week (during Weekly Review) to keep your P1/P2 stack honest. The engine flags tasks that haven't been reviewed in 30+ days so nothing drifts silently.</p>
+      </div>
+
+      <hr style=”border:none;border-top:1px solid var(--border);margin:28px 0;”>
+
+      <h3>Strategic Outcomes</h3>
+      <p>Outcomes are the high-level results your tasks are working toward. Linking tasks to outcomes makes prioritisation explicit — if a P1 task can't be tied to an outcome you care about, it probably shouldn't be P1.</p>
+
+      <h4 style=”margin-top:16px;”>Default outcomes</h4>
+      <p>Focal ships with six default outcomes: <strong>ARR</strong>, <strong>NRR</strong>, <strong>EBITDA</strong>, <strong>Board Commitments</strong>, <strong>Leadership / People</strong>, and <strong>Strategic Projects</strong>. You can add, rename, or deactivate outcomes via the <strong>📊 Outcomes</strong> button.</p>
+
+      <h4 style=”margin-top:16px;”>Linking outcomes to tasks</h4>
+      <p>Each task can have up to <strong>2 outcomes</strong> linked. Set them in the Add/Edit modal or during Prioritize mode triage. Linked outcomes appear as small colored badges on task cards and rows. Tasks with no outcomes linked are flagged in the Guardrail strip if they are P1 or P2.</p>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── KANBAN ── -->
+    <section class="section" id="kanban">
+      <div class="section-eyebrow">View</div>
+      <h2>📊 Kanban Board</h2>
+      <p class="section-lead">A 4-column board for daily and weekly task prioritisation. Drag tasks between columns to plan your day and track progress through the week.</p>
+
+      <div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+        <div class="card" style="border-top: 3px solid #9CA3AF;">
+          <span class="card-icon">🟡</span>
+          <h4>Active Pool</h4>
+          <p>All active To Do / In Progress tasks not yet assigned to a column. Sorted by priority then due date.</p>
+        </div>
+        <div class="card" style="border-top: 3px solid #3B82F6;">
+          <span class="card-icon">📅</span>
+          <h4>This Week</h4>
+          <p>Tasks committed to this week. Drag here from Active Pool to plan your weekly workload.</p>
+        </div>
+        <div class="card" style="border-top: 3px solid #0D9488;">
+          <span class="card-icon">☀️</span>
+          <h4>Today</h4>
+          <p>Today’s focus. Drag tasks here from This Week or directly from Active Pool to set your daily plan.</p>
+        </div>
+        <div class="card" style="border-top: 3px solid #059669;">
+          <span class="card-icon">✅</span>
+          <h4>Done</h4>
+          <p>Completed tasks. Dragging a card here marks it Done. Use ↩ Clear to return tasks to Active Pool.</p>
+        </div>
+      </div>
+
+      <h3>Drag-and-drop rules</h3>
+      <ul class="blist">
+        <li>Drag any card to any column — movement is unrestricted.</li>
+        <li>Dropping into <strong>Done</strong> sets the task status to Done and removes it from active columns — whether you drop onto an existing Done card or into the empty column space.</li>
+        <li>Dropping out of <strong>Done</strong> (back to Pool, Week, or Today) reopens the task as To Do.</li>
+        <li>Dropping a <strong>recurring task</strong> into Done fires the recurrence logic: an archive copy is created and the original resets to the next cycle in Active Pool.</li>
+        <li>Dropping one card <em>onto another card</em> in any column <strong>except Done</strong> shows the "Make subtask?" dialog. Dropping onto a Done card always completes the task immediately — no dialog.</li>
+      </ul>
+
+      <h3>Move arrows — quick column navigation (v8.4)</h3>
+      <p>Hover over any card to reveal <strong>‹ ›</strong> arrow buttons on the right side. Click to move the card one column left or right without dragging. Useful when the destination column is crowded.</p>
+
+      <h3>Status play button (v8.4)</h3>
+      <p>Each card shows a small <strong>▶</strong> (play) button to the left of the task name. Click it to instantly toggle between <strong>To Do</strong> and <strong>In Progress</strong> without opening the edit modal. When In Progress, it shows ⏸ in amber.</p>
+
+      <h3>Section filter bar (v8.4)</h3>
+      <p>A row of section pills appears below the Kanban header. Click a section to show only tasks from that category across all four columns. <strong>Ctrl+click</strong> multiple sections to combine them. Click <strong>All</strong> to reset.</p>
+
+      <h3>Search</h3>
+      <p>The search bar filters all four Kanban columns live as you type. Clicking a search result scrolls directly to the matching card — the view stays in Kanban, no tab switch.</p>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>Daily planning habit:</strong> Start each morning by dragging 3–5 tasks from This Week to Today. Use the Done column as a real-time progress tracker throughout the day. Use the section filter to focus on one workstream at a time.</p>
+      </div>
+
+      <h3>🔄 New Week button</h3>
+      <p>At the start of each week, click <strong>🔄 New Week</strong> to reset the board. This returns all tasks in This Week and Today back to Active Pool. Done tasks are not affected. A confirmation dialog appears first.</p>
+
+      <h3>↩ Clear Done</h3>
+      <p>The <strong>↩ Clear</strong> button in the Done column header returns Kanban-completed tasks to Active Pool and resets their status to To Do. This only affects tasks dragged to Done via the Kanban board — tasks marked Done in other views (All Tasks, Today) are not affected.</p>
+
+      <h3>Done column — daily scorecard</h3>
+      <p>The Done column is a daily scorecard. When <strong>Show Done</strong> is toggled off (default), it shows only tasks completed <em>today</em>. When <strong>Show Done</strong> is on, it shows all completed tasks. Confidential tasks are always hidden from Done when the Confidential filter is active.</p>
+
+      <h3>Active Pool — category grouping</h3>
+      <p>Click the <strong>≡ Group</strong> button in the Active Pool header to toggle category grouping. When on, tasks are grouped by their section with collapsible headers — click any section header to expand or collapse it. When off (default), tasks are shown in a flat prioritised list.</p>
+
+      <h3>Active Pool — date sections (v8.6, v9.10, v9.21)</h3>
+      <p>When <strong>Group is OFF</strong>, the Active Pool automatically organises tasks into up to four sections — only shown when non-empty:</p>
+      <ul class="blist">
+        <li><strong>⚠️ Overdue (N)</strong> — tasks whose due date has already passed. <span style="color:var(--p1);font-weight:600">Red</span> header, pinned to the top so they are never buried. Count shown in the header.</li>
+        <li><strong>📅 Due This Week</strong> — tasks due on or before this Sunday. <span style="color:#d97706;font-weight:600">Amber</span> header. Drag these into This Week or Today before the deadline arrives.</li>
+        <li><strong>📆 Due Next Week</strong> — tasks due in the following calendar week (Monday–Sunday). <span style="color:#00b5b0;font-weight:600">Teal</span> header. Plan ahead.</li>
+        <li><strong>(unlabelled)</strong> — everything else: tasks with no due date or due further out.</li>
+      </ul>
+      <p>When <strong>Group is ON</strong>, section grouping takes precedence and per-date sections are not shown. Cards due this week still get the amber left border as a per-card indicator.</p>
+
+      <h3>Subtask relationships</h3>
+      <p>Drag one card <em>onto</em> another card (not into the column background) to get a <strong>"Make subtask?"</strong> dialog:</p>
+      <ul class="blist">
+        <li><strong>✓ Make subtask</strong> — links the dragged task as a child of the target task. If the parent is in This Week or Today, the child automatically moves to that same column. Subtasks appear indented with a teal left-border in all columns, with a ↳ prefix in All Tasks, and a parent context label in Today view.</li>
+        <li><strong>No, just move</strong> — moves the dragged task to the target’s column without creating a relationship.</li>
+      </ul>
+      <p>The same subtask dialog also works in <strong>All Tasks</strong> (row-to-row drag) and <strong>Matrix</strong> (card-to-card drag).</p>
+      <p>To remove a subtask relationship, open the task in Edit mode — the parent name appears with a <strong>× Remove</strong> button.</p>
+
+      <h3>Right-click context menu (v8.7)</h3>
+      <p>Right-click any task card or row to open a context menu. Available actions depend on the current view:</p>
+      <table class="cap-table">
+        <thead><tr><th>Action</th><th>All Tasks</th><th>Kanban</th><th>Today</th><th>Matrix</th></tr></thead>
+        <tbody>
+          <tr><td><strong>↳ Add subtask</strong></td><td>✓</td><td>✓</td><td>✓</td><td>—</td></tr>
+          <tr><td><strong>✏️ Edit task</strong></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td><strong>✓ Mark as Done</strong></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td><strong>📋 Send to Backlog</strong></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td><strong>→ / ← Move column</strong></td><td>—</td><td>✓</td><td>—</td><td>—</td></tr>
+          <tr><td><strong>🗑 Delete</strong></td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        </tbody>
+      </table>
+      <p>Context-aware: "Mark as Done" is hidden on already-Done tasks; "Send to Backlog" is hidden on Backlog tasks.</p>
+
+      <h3>Column quick-add (v8.8)</h3>
+      <p>Right-click anywhere on a column — the header or any empty space in the body — to instantly add a task directly to that column:</p>
+      <ul class="blist">
+        <li><strong>Active Pool</strong> — creates a To Do task placed in the pool.</li>
+        <li><strong>This Week</strong> — creates a To Do task placed in This Week.</li>
+        <li><strong>Today</strong> — creates an In Progress task placed in Today.</li>
+      </ul>
+      <p>The Add Task modal opens with the title <strong>"Add Task → [Column]"</strong> so you always know where the task will land. Save as normal — the task appears in the correct column immediately. The Done column is excluded from quick-add.</p>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>Fastest way to capture a new task for today:</strong> right-click the Today column → Add Task → type the name → Save. Done in 3 seconds without touching the header or dragging anything.</p>
+      </div>
+
+      <h3>Parent → column cascade</h3>
+      <p>When you drag a parent task to any column, <strong>all its children automatically follow</strong>:</p>
+      <ul class="blist">
+        <li>Move parent to <strong>Today</strong> → all children move to Today.</li>
+        <li>Move parent to <strong>This Week</strong> → all children move to This Week.</li>
+        <li>Move parent to <strong>Active Pool</strong> → all children return to Active Pool.</li>
+        <li>Move parent to <strong>Done</strong> → all children are marked Done (see below).</li>
+      </ul>
+      <p>Children are always grouped and rendered directly below their parent in every column, in the same order they appear in the Active Pool. If a child was previously in the Done column (status = Done) and its parent is moved back to an active column, the child’s status resets to <strong>To Do</strong> automatically.</p>
+
+      <h3>Parent → Done cascade</h3>
+      <p>Marking a parent task Done (by any method — checkbox, status dropdown, edit modal, or Kanban drag) <strong>automatically marks all its subtasks Done too</strong>. Subtasks of subtasks are also cascaded recursively. Recurring tasks are excluded (they reset to the next cycle, not truly Done).</p>
+
+      <h3>Sync with other views</h3>
+      <ul class="blist">
+        <li>Tasks marked Done in <strong>All Tasks</strong> automatically appear in the Kanban Done column.</li>
+        <li>Tasks in the Kanban <strong>Today</strong> column show a 📊 indicator in the Today view.</li>
+        <li>The Stats bar shows an <strong>In Kanban</strong> chip with the count of tasks currently in the Today column — click it to jump directly to the Kanban view.</li>
+      </ul>
+
+      <h3>Mobile usage</h3>
+      <p>On mobile, the four columns snap-scroll horizontally. Swipe left/right to navigate between columns. Dot indicators at the top show the current column. Touch drag works using the same gestures as desktop — press and hold a card, then drag it to the target column.</p>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <p>Backlog and Done tasks are excluded from Active Pool. Use the <strong>All Tasks</strong> view to activate a Backlog task before it appears in Kanban.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── WEEKLY REVIEW ── -->
+    <section class="section" id="review">
+      <div class="section-eyebrow">View</div>
+      <h2>🔄 Weekly Review</h2>
+      <p class="section-lead">A structured 5-stage process to clear the inbox, resolve aging tasks, review the backlog, run a hygiene check, and reprioritise your active tasks. The system's weekly maintenance ritual — takes 10–15 minutes.</p>
+
+      <div class="stage-flow">
+        <span class="stage-pill active">Stage 1: Inbox</span>
+        <span class="stage-arrow">→</span>
+        <span class="stage-pill">Stage 2: Aging</span>
+        <span class="stage-arrow">→</span>
+        <span class="stage-pill">Stage 3: Backlog</span>
+        <span class="stage-arrow">→</span>
+        <span class="stage-pill">Stage 4: Hygiene</span>
+        <span class="stage-arrow">→</span>
+        <span class="stage-pill">Stage 5: Prioritize</span>
+        <span class="stage-arrow">→</span>
+        <span class="stage-pill">✓ Done</span>
+      </div>
+
+      <h3>Home screen</h3>
+      <p>Before starting, the Review home screen shows a summary of what's waiting: <strong>Inbox / Aging / Backlog / Hygiene / Prioritize</strong> counts. The Hygiene count shows active tasks missing at least one of: a strategic outcome, a due date, or a connection. The Prioritize count shows tasks needing a priority review. Click <strong>Start Review →</strong> to begin.</p>
+
+      <h3>Stage 1 — Inbox triage</h3>
+      <p>Each inbox item is presented with three actions:</p>
+      <ul class="blist">
+        <li><strong>→ Active</strong> — opens the task modal to create a proper active task</li>
+        <li><strong>📋 Backlog</strong> — sends it to Backlog without further decisions</li>
+        <li><strong>🗑 Delete</strong> — removes it, no task created</li>
+      </ul>
+      <p>When the last inbox item is processed, the review auto-advances to Stage 2. Or click <strong>Skip to Aging →</strong> to skip remaining inbox items.</p>
+
+      <h3>Stage 2 — Aging tasks</h3>
+      <p>Shows tasks that haven't moved in too long (yellow = approaching threshold, red = past threshold). Each card shows the task name, status, and how many days it's been stale.</p>
+      <ul class="blist">
+        <li><strong>✓ Keep</strong> — resets the aging clock to today and dismisses the task from this review (snooze for another cycle)</li>
+        <li><strong>✏️ Edit</strong> — opens the task modal to update it</li>
+        <li><strong>📋 Backlog</strong> — moves it to Backlog status</li>
+        <li><strong>🗑 Delete</strong> — permanently deletes the task</li>
+      </ul>
+
+      <h3>Stage 3 — Backlog review</h3>
+      <p>Lists all Backlog tasks for a quick activate-or-archive pass:</p>
+      <ul class="blist">
+        <li><strong>▶ Activate</strong> — sets status to "To Do" and moves it to the active list</li>
+        <li><strong>✓ Keep</strong> — leaves it in Backlog for another week (won't re-appear this session)</li>
+        <li><strong>🗑 Delete</strong> — permanently deletes the task</li>
+      </ul>
+
+      <h3>Stage 4 — Hygiene check (v8.4)</h3>
+      <p>Lists active tasks that are missing one or more of the following:</p>
+      <ul class="blist">
+        <li><span style="background:#fef2f2;color:#DC2626;padding:1px 7px;border-radius:10px;font-size:12px;font-weight:600">No outcome</span> — not linked to any strategic outcome</li>
+        <li><span style="background:#fffbeb;color:#d97706;padding:1px 7px;border-radius:10px;font-size:12px;font-weight:600">No due date</span> — open-ended with no deadline</li>
+        <li><span style="background:#eef2ff;color:#6366F1;padding:1px 7px;border-radius:10px;font-size:12px;font-weight:600">No connections</span> — not linked to any person or organization</li>
+      </ul>
+      <p>For each flagged task, quick-fix buttons appear inline:</p>
+      <ul class="blist">
+        <li><strong>Quick due:</strong> +3d / +1w / +2w / +1m — sets a due date relative to today</li>
+        <li><strong>Suggested</strong> — auto-picks a due date based on priority (P1 = 3 days, P2 = 7 days, P3 = 14 days, P4 = 30 days)</li>
+        <li><strong>Outcome chips</strong> — click any active outcome to assign it immediately</li>
+        <li><strong>✏️ Edit</strong> — opens the full edit modal</li>
+        <li><strong>✓ Skip</strong> — accepts the task as-is for this review cycle</li>
+      </ul>
+
+      <h3>Stage 5 — Priority Review (v9.10)</h3>
+      <p>The same triage engine as Matrix Prioritize, embedded directly in the review flow. Shows tasks that haven't been prioritised recently, are overdue, or have a suggested priority different from their current one. For each task:</p>
+      <ul class="blist">
+        <li><strong>✓ Accept P#</strong> — applies the suggested priority and marks the task as reviewed (card disappears)</li>
+        <li><strong>— Keep P#</strong> — confirms the current priority as intentional and marks it reviewed (card disappears)</li>
+        <li><strong>✏ Open</strong> — opens the full edit modal to make changes</li>
+      </ul>
+      <p>You can also adjust Impact / Pressure / Owner controls on each card before accepting. Tasks that are reviewed disappear from the queue until next week (unless overdue or due this week).</p>
+      <p>If there are no tasks needing review, this stage is skipped automatically.</p>
+
+      <h3>Done screen</h3>
+      <p>After all stages complete, a ✓ Done confirmation screen appears with a <strong>Weekly Pulse</strong> summary showing your five key metrics for the week. Click <strong>Go to Today</strong> to return to normal work. The next time you navigate to the Review tab, it resets to the home screen.</p>
+
+      <h3>🤖 AI Weekly Debrief (v9.10)</h3>
+      <p>If an Anthropic API key is configured, the Done screen shows a <strong>✨ Generate AI Debrief</strong> button. Click it when you're ready — Claude will produce a 3–4 sentence executive summary covering what got done, what's still at risk, and one specific recommendation. Always uses Haiku for speed.</p>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>The debrief is generated fresh each time you complete a review — useful as a quick brief before a weekly leadership call, or as a reflective end-of-week note.</p>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>If all four stages are empty, clicking Start Review → immediately shows the Done screen. Use Hygiene consistently — tasks without outcomes and due dates tend to become zombie tasks over time.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── ANALYTICS ── -->
+    <section class="section" id="analytics">
+      <div class="section-eyebrow">View</div>
+      <h2>📈 Analytics (v9.21)</h2>
+      <p class="section-lead">Health-focused metrics that answer "am I working on the right things and is anything falling through the cracks?" — without any manual tracking. Every card, chip, and chart row is clickable to drill into the detail.</p>
+
+      <h3>How it works</h3>
+      <p>Every task action (creating, completing, changing priority, triaging inbox, moving Kanban cards, completing a Weekly Review) is silently logged. The analytics engine uses this log plus your live task data to compute the metrics below.</p>
+
+      <h3>Health Snapshot — clickable cards</h3>
+      <table class="cap-table">
+        <thead>
+          <tr><th>Card</th><th>What it shows</th><th>Click action</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Open P1s</strong></td><td>Count of active P1 tasks + how many have been open &gt;7 days</td><td>→ All Tasks filtered to P1</td></tr>
+          <tr><td><strong>Stale</strong></td><td>Active tasks that are aging — tasks unchanged beyond status-based thresholds (same logic as the Aging indicator)</td><td>→ All Tasks with Aging filter</td></tr>
+          <tr><td><strong>Inbox Items</strong></td><td>Current inbox size — zero is the goal</td><td>→ Inbox view</td></tr>
+          <tr><td><strong>Weekly Review</strong></td><td>Streak dots (●/○) for last 4 weeks</td><td>→ Weekly Review</td></tr>
+          <tr><td><strong>Focus (P1/P2)</strong></td><td>% of last 30d completions that were P1 or P2</td><td>— (informational)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Work by Area — bi-directional charts (v9.21)</h3>
+      <p>Three horizontal bar charts replace the old summary table. The left side (teal) shows <strong>current open tasks</strong>; the right side (amber) shows <strong>completed tasks in the selected period</strong>. All three charts share the same scale so you can compare sizes across sections, priorities, and people at a glance.</p>
+      <ul class="blist">
+        <li><strong>By Category</strong> — one bar pair per section. Click any row → scrolls to that section in All Tasks.</li>
+        <li><strong>By Priority</strong> — P1/P2/P3/P4 bar pairs. Click any row → filters All Tasks to that priority.</li>
+        <li><strong>By People</strong> — top 8 connections by involvement. Click any row → filters All Tasks to that person.</li>
+      </ul>
+      <p>A value of 0 shows a short grey stub bar so you can distinguish zero from missing data.</p>
+      <h4>Period filter</h4>
+      <p>Use the <strong>This Week / This Month / This Quarter / This Year</strong> buttons at the top of the section to change the window for the "completed" (right-side) bars. Open task counts always reflect the current live state regardless of period.</p>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>If a category shows many open tasks but zero completions for the month — that workstream is stalled. Click its row to investigate.</p>
+      </div>
+
+      <h3>Completions by Strategic Outcome (v9.0)</h3>
+      <p>A grid of mini bar charts — one per active Strategic Outcome (ARR, NRR, EBITDA, Board Commitments, Leadership/People, Strategic Projects). Each card shows total completions linked to that outcome in the last 90 days, plus a weekly trend. Use this to answer: "Am I actually moving the needle on ARR, or just clearing busywork?"</p>
+
+      <h3>6-Week Trend (v9.21)</h3>
+      <p>A bar chart showing weekly completions over the past 6 weeks. The current week bar is highlighted in teal. Helps spot recent throughput patterns.</p>
+
+      <h3>Export</h3>
+      <p>Click <strong>📥 Export Analytics JSON</strong> to download a full log of all events and weekly summaries as a JSON file.</p>
+
+      <h3>Storage</h3>
+      <p>Analytics data is stored in a separate <code>focal_log</code> localStorage key (not mixed with task data). Raw events are kept for 1 year, weekly snapshots are kept for 52 weeks. Storage grows with usage — the quota guard automatically trims to the most recent 500 events if localStorage fills up.</p>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>Research says:</strong> Monitoring goal progress reliably improves attainment (Harkin 2016 meta-analysis, effect size d=0.40). The key is making tracking automatic and metrics few — exactly what this tab does.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── TASK AGING ── -->
+    <section class="section" id="aging">
+      <div class="section-eyebrow">Feature</div>
+      <h2>⏱ Task Aging</h2>
+      <p class="section-lead">Aging indicators surface tasks that haven't changed status in too long — preventing "zombie tasks" that sit forgotten in the system.</p>
+
+      <h3>How it works</h3>
+      <p>Aging is based purely on <strong>inactivity</strong> — how many days have passed since the task's status last changed. Whether or not a task has a due date makes no difference to the aging indicator. Overdue tasks are surfaced separately via the <strong>Overdue filter pill</strong> in the filter bar.</p>
+
+      <h3>Status-based thresholds</h3>
+      <table class="cap-table">
+        <thead>
+          <tr><th>Status</th><th>Yellow (warning)</th><th>Red / Zombie (critical)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>To Do</td><td>14 days</td><td>30 days</td></tr>
+          <tr><td>In Progress</td><td>7 days</td><td>21 days</td></tr>
+          <tr><td>Backlog</td><td>30 days</td><td>90 days</td></tr>
+          <tr><td>Done</td><td colspan="2">Never shown</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Visual indicators</h3>
+      <div class="aging-demo">
+        <div class="aging-item"><span class="age-dot age-ok"></span> Normal — within threshold</div>
+        <div class="aging-item"><span class="age-dot age-y"></span> Yellow — approaching threshold</div>
+        <div class="aging-item"><span class="age-dot age-r"></span> Red — past threshold</div>
+      </div>
+      <ul class="blist">
+        <li>A <strong>colored dot</strong> appears in the aging column when a threshold is crossed</li>
+        <li><strong>Hover the dot</strong> to see a tooltip: e.g. "To Do for 18 days — consider updating"</li>
+        <li>The entire row gets a <strong>subtle background tint</strong> (yellow or red wash)</li>
+        <li>An <strong>⏱ Aging filter pill</strong> appears in the filter bar when aging tasks exist, showing a count</li>
+      </ul>
+
+      <h3>Resetting the aging clock</h3>
+      <p>Only a <strong>status change</strong> resets the aging clock. Editing notes, priority, connections, or the due date preserves the existing timestamp. The aging clock measures time since the last meaningful status transition.</p>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Stage 2 of the Weekly Review handles aging tasks in bulk. The <strong>Keep</strong> action resets the aging clock to today and immediately dismisses the task from the review — useful when a task is legitimately on hold and you want to snooze it for another cycle.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── BACKLOG ── -->
+    <section class="section" id="backlog">
+      <div class="section-eyebrow">Feature</div>
+      <h2>📋 Backlog</h2>
+      <p class="section-lead">Backlog is a 4th task status for tasks you intend to do someday but aren't actively working on. Backlog tasks are hidden from All Tasks, Today, and Matrix by default.</p>
+
+      <h3>Setting a task to Backlog</h3>
+      <p>Click the status badge on any task row and select <strong>Backlog</strong>. The task immediately disappears from the All Tasks view. The stats bar shows a <span class="bdemo bst-back" style="font-size:11px">📋 Backlog</span> count chip when backlogs exist.</p>
+
+      <h3>Show / Hide Backlog</h3>
+      <p>A <strong>📋 Backlog</strong> pill appears in the header whenever backlog tasks exist. Click it to make them visible in All Tasks — the pill lights up in indigo when active. Backlog tasks are hidden again on the next page load.</p>
+
+      <h3>Backlog filter pill</h3>
+      <p>Click the <strong>📋 Backlog</strong> pill in the filter bar to see only backlog tasks — useful for a quick review outside of the Weekly Review flow.</p>
+
+      <h3>Sending inbox items to Backlog</h3>
+      <p>In both the Inbox triage panel and the Weekly Review Stage 1, clicking <strong>📋 Backlog</strong> immediately creates a Backlog task without opening the edit modal. Fast and frictionless.</p>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <p>Section open count badges exclude Backlog tasks. The active task count only reflects To Do and In Progress tasks.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── FILTERS & STATS ── -->
+    <section class="section" id="filters">
+      <div class="section-eyebrow">Feature</div>
+      <h2>Filters &amp; Stats Bar</h2>
+      <p class="section-lead">The filter bar and stats bar let you quickly focus on what matters and get a snapshot of task health.</p>
+
+      <h3>Filter pills (v9.8)</h3>
+      <p>Click any pill to apply a filter exclusively. Click the <em>same</em> pill again to deselect it and return to All. The active pill is highlighted. Available filters:</p>
+      <ul class="blist">
+        <li><strong>All</strong> — clears all filters and shows everything (default)</li>
+        <li><strong>P1 Critical / P2 High</strong> — filter by priority</li>
+        <li><strong>In Progress</strong> — only in-progress tasks</li>
+        <li><strong>Overdue</strong> — tasks past their due date</li>
+        <li><strong>Due This Week</strong> — tasks due in the next 7 days</li>
+        <li><strong>🔁 Recurring</strong> — only recurring tasks</li>
+        <li><strong>🔒 Confidential</strong> — only confidential tasks</li>
+        <li><strong>📋 Backlog</strong> — only backlog tasks</li>
+        <li><strong>⏱ Aging</strong> — tasks past their aging threshold (appears automatically when aging tasks exist)</li>
+      </ul>
+
+      <h3>👤 By Person filter (v9.2)</h3>
+      <p>A <strong>👤 All People</strong> button at the right end of the filter bar opens a multi-select dropdown. Check one or more names (or groups) to filter <strong>all views</strong> — All Tasks, Today, Matrix, and Kanban — to tasks involving those connections. Uses OR logic: a task is shown if any of its connections matches any selected person or group.</p>
+      <ul class="blist">
+        <li><strong>Search (v9.28)</strong> — a search box at the top of the dropdown lets you type to instantly filter the list by name. Section headers hide automatically when their group is empty; "No match" appears if nothing fits.</li>
+        <li><strong>Multi-select</strong> — check multiple names; the button shows the count ("👤 3 people").</li>
+        <li><strong>Groups</strong> — named groups (e.g. "MT") appear at the top of the list. Selecting "MT" matches tasks connected to any member of that group.</li>
+        <li><strong>Clear</strong> — uncheck all, or use the "✕ Clear filter" link at the bottom of the dropdown.</li>
+        <li>Manage groups in <strong>⚙️ Settings → People</strong>.</li>
+      </ul>
+
+      <h3>Multi-select filters with Ctrl+click (v8.4)</h3>
+      <p>Hold <kbd class="kbd">Ctrl</kbd> (or <kbd class="kbd">⌘</kbd> on Mac) and click any filter pill to <strong>add it to the current selection</strong> rather than replacing it. This uses OR logic — tasks matching any of the selected filters are shown.</p>
+      <ul class="blist">
+        <li><strong>Ctrl+click P1</strong> then <strong>Ctrl+click P2</strong> → shows all P1 and P2 tasks</li>
+        <li><strong>Ctrl+click Overdue</strong> then <strong>Ctrl+click In Progress</strong> → shows overdue tasks OR in-progress tasks</li>
+        <li><strong>Ctrl+click an active filter</strong> → deselects it from the multi-selection</li>
+        <li><strong>Deselecting the last filter</strong> → automatically resets to All</li>
+        <li>Clicking <strong>All</strong> always resets to exclusive (clears multi-select)</li>
+      </ul>
+      <p>Hover over any pill for a tooltip reminder: <em>"Ctrl+click to combine filters"</em>.</p>
+      <p>The same multi-select behavior applies to the <strong>section filter bar in Kanban</strong> and the <strong>section filter pills in Matrix</strong>.</p>
+
+      <h3>Search</h3>
+      <p>Type in the search box to filter tasks by name in real time. Search combines with active filter pills.</p>
+
+      <h3>Stats bar (v9.10)</h3>
+      <p>Above the task list, clickable stat chips show at a glance. Every chip navigates or filters on click:</p>
+      <ul class="blist">
+        <li><strong>P1</strong> — count of P1 critical tasks (click to filter All Tasks to P1)</li>
+        <li><strong>In Progress</strong> — count of in-progress tasks (click to filter)</li>
+        <li><strong>Due Soon</strong> — count of tasks due this week (click to filter)</li>
+        <li><strong>Overdue</strong> — shown in red when &gt;0; click to filter overdue tasks</li>
+        <li><strong>Backlog</strong> — count of backlog tasks (click to filter) — shown when &gt;0</li>
+        <li><strong>In Kanban</strong> — teal chip; count of tasks in Kanban Today column — click to open Kanban view</li>
+        <li><strong>To Prioritize</strong> — teal chip; count of tasks awaiting priority review in the triage queue — click to jump directly to Matrix → Prioritize mode. Shown whenever tasks need review. This is your signal that the Prioritize engine has work to do.</li>
+        <li><strong>Total Open</strong> — total active tasks (click to clear all filters)</li>
+      </ul>
+
+      <h3>Header controls</h3>
+      <p>The header uses a grouped layout with three zones separated by dividers:</p>
+      <ul class="blist">
+        <li><strong>Toggle pills</strong> (left group) — dim by default, light up when active:
+          <ul>
+            <li><strong>✓ Done</strong> — shows/hides completed tasks (white when visible, hidden by default)</li>
+            <li><strong>📋 Backlog</strong> — shows/hides backlog tasks (indigo when visible; only appears when backlog tasks exist)</li>
+            <li><strong>🔒 Conf</strong> — shows/hides confidential tasks (purple when visible, hidden by default)</li>
+            <li><strong>🎭 Demo</strong> — toggles Demo mode (amber when on); masks all task names across every view with dots — section names, people, and categories remain visible. Session-only; resets on reload.</li>
+          </ul>
+        </li>
+        <li><strong>Icon buttons</strong> (middle group):
+          <ul>
+            <li><strong>⚙️</strong> — open the Category Manager modal (drag to reorder, click icon to change it, add/delete sections)</li>
+            <li><strong>📖</strong> — open this User Manual</li>
+          </ul>
+        </li>
+        <li><strong>+ Add Task</strong> (right, teal button) — open the Add Task modal</li>
+      </ul>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── CATEGORY MANAGER ── -->
+    <section class="section" id="categories">
+      <div class="section-eyebrow">Feature</div>
+      <h2>⚙️ Category Manager</h2>
+      <p class="section-lead">Manage your sections (categories) — the top-level buckets that group your tasks. Open via the ⚙️ icon in the header.</p>
+
+      <h3>Reorder sections</h3>
+      <p>Drag any section row by its ⠿ handle to reorder. The new order is reflected immediately across all views.</p>
+
+      <h3>Change section icon (v8.4)</h3>
+      <p>Click the emoji icon next to any section name to open an <strong>icon picker</strong> with 40 business/productivity icons. Click any icon to apply it immediately. The picker closes automatically.</p>
+
+      <h3>Add a new section</h3>
+      <p>At the bottom of the modal: click the emoji to pick an icon for the new section, type a name, and click <strong>+ Add</strong> (or press <kbd class="kbd">Enter</kbd>). The new section appears immediately in all views.</p>
+
+      <h3>Delete a section</h3>
+      <p>Click the 🗑 button next to a section. If the section has open tasks, a confirmation dialog shows how many tasks will be lost. Deletion is permanent — tasks in that section are removed with it.</p>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── ADD/EDIT ── -->
+    <section class="section" id="add-edit">
+      <div class="section-eyebrow">Feature</div>
+      <h2>Add / Edit Tasks</h2>
+      <p class="section-lead">The task modal is a full-featured form for creating and editing tasks. Open it with the + Add Task button, by pressing <kbd class="kbd">N</kbd>, or by clicking a task name in the list.</p>
+
+      <h3>Fields</h3>
+      <div class="feature-block">
+        <table class="kb-table">
+          <thead><tr><th>Field</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>Task description</td><td>Required. The main task name.</td></tr>
+            <tr><td>Notes / Next Step</td><td>Free text for context or the immediate next action.</td></tr>
+            <tr><td>Section</td><td>Which category/section this task belongs to.</td></tr>
+            <tr><td>Priority</td><td>P1 Critical → P4 Low.</td></tr>
+            <tr><td>Status</td><td>To Do / In Progress / Done / Backlog.</td></tr>
+            <tr><td>Due Date</td><td>Optional. Shown in Today view and stats bar when due soon.</td></tr>
+            <tr><td>Urgency</td><td>For Matrix view quadrant placement (Urgent / Not Urgent).</td></tr>
+            <tr><td>Task Type</td><td>One-time (default) or Recurring.</td></tr>
+            <tr><td>Recurrence</td><td>For recurring tasks: interval in days/weeks/months.</td></tr>
+            <tr><td>Confidential</td><td>Mark as sensitive — see <a href="#confidential">Confidential</a> section.</td></tr>
+            <tr><td>Connections</td><td>People or topics linked to this task. Autocomplete from your connections list.</td></tr>
+            <tr><td>🔗 Link / URL</td><td>Optional. Paste a URL (e.g. a Google Doc, Notion page, or meeting link). Saved on the task and shown as a clickable 🔗 link in All Tasks rows, Today cards, and Kanban cards.</td></tr>
+            <tr><td>Task Type — Decision (v9.0)</td><td>Set Task Type to <strong>⚖️ Decision</strong> for tasks that represent a decision to be made. The row shows a ⚖️ icon instead of ↩ for recurring, with a toggle to mark the decision as decided.</td></tr>
+            <tr><td>Decided (v9.0)</td><td>Visible only when Task Type is Decision. Set to <strong>✓ Decided</strong> once the decision has been made. The icon updates to a teal ⚖️ in the task row as a visual indicator.</td></tr>
+            <tr><td>Strategic Outcomes</td><td>Link the task to one or more of your six strategic outcomes (ARR, NRR, EBITDA, Board Commitments, Leadership/People, Strategic Projects). Used in Matrix view and Analytics.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Modal footer buttons</h3>
+      <ul class="blist">
+        <li><strong>Cancel</strong> — close the modal without saving.</li>
+        <li><strong>🗑 Delete</strong> — permanently delete the task (visible in <strong>Edit</strong> mode only, not Add). A confirmation dialog appears first.</li>
+        <li><strong>Save Task</strong> — save and close. Pressing <kbd class="kbd">Enter</kbd> in the Task Description field also saves.</li>
+      </ul>
+
+      <h3>Section quick-add</h3>
+      <p>Each section in the All Tasks view has a <strong>+ Add</strong> button in its header row that opens the modal pre-set to that section.</p>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── INLINE EDITING ── -->
+    <section class="section" id="inline">
+      <div class="section-eyebrow">Feature</div>
+      <h2>Inline Editing</h2>
+      <p class="section-lead">Most task fields can be edited directly in the task list row without opening the modal — keeping you in flow.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <span class="card-icon">✏️</span>
+          <h4>Task name &amp; notes</h4>
+          <p>Double-click to edit inline. Press <kbd class="kbd">Enter</kbd> to save, <kbd class="kbd">Esc</kbd> to cancel.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🏷️</span>
+          <h4>Priority badge</h4>
+          <p>Click to open a P1/P2/P3/P4 dropdown directly on the row.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🔵</span>
+          <h4>Status badge</h4>
+          <p>Click to open a status dropdown with all four options.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">📅</span>
+          <h4>Due date</h4>
+          <p>Click the date cell to open a floating date picker with Day and Week tabs. Auto-flips upward near the bottom of the screen.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🔗</span>
+          <h4>Connections</h4>
+          <p>Click the connections cell to open an inline popover. Add or remove connections with chips.</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">📧</span>
+          <h4>Email task</h4>
+          <p>Click the email icon on any row to open your mail client with the task pre-filled.</p>
+        </div>
+      </div>
+
+      <h3>Drag and drop reordering</h3>
+      <p>Drag task rows to reorder them within or between sections. In the Matrix view, drag tasks between quadrants to update both priority and urgency simultaneously.</p>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── CONFIDENTIAL ── -->
+    <section class="section" id="confidential">
+      <div class="section-eyebrow">Feature</div>
+      <h2>🔒 Confidential</h2>
+      <p class="section-lead">Mark sensitive tasks to hide them from casual view — useful when the app is visible on screen during calls or meetings.</p>
+
+      <h3>Marking tasks confidential</h3>
+      <p>Set <strong>Confidential: Yes</strong> in the task modal, or click the 🔒 toggle on any existing task row.</p>
+
+      <h3>Hiding / showing confidential tasks</h3>
+      <p>Click the <strong>🔒</strong> icon in the header to toggle confidential visibility. When hidden, confidential rows are completely removed from view (not just blurred). Confidential tasks are hidden by default on load.</p>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <p>Confidential mode hides rows visually — data is still stored in localStorage. For truly sensitive data, use a separate encrypted system.</p>
+      </div>
+    </section>
+
+    <!-- ── DEMO MODE ── -->
+    <section class="section" id="demo-mode">
+      <div class="section-eyebrow">Feature</div>
+      <h2>🎭 Demo Mode</h2>
+      <p class="section-lead">Instantly mask all task names and notes across every view — safe for screen-sharing, demos, or live presentations without exposing sensitive task content.</p>
+
+      <h3>Enabling demo mode</h3>
+      <p>Click the <strong>🎭 Demo</strong> button in the header (left of Done). The button turns amber when active. Click again to restore real content.</p>
+
+      <h3>What gets masked</h3>
+      <p>When demo mode is on, every task title and note is replaced word-for-word with <code>●</code> characters matching the original word lengths — preserving the visual rhythm of the text without revealing content. Masking applies across all views: All Tasks, Today, Kanban, Matrix, Weekly Review, and the AI Debrief panel.</p>
+      <p>The following are <strong>not</strong> masked: section names, people/connections, priority labels, due dates, outcomes, and status badges — so the app still looks structurally complete during a demo.</p>
+
+      <h3>Persistence</h3>
+      <p>Demo mode is session-only — it resets automatically on page reload. It is not saved to localStorage.</p>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── RECURRING ── -->
+    <section class="section" id="recurring">
+      <div class="section-eyebrow">Feature</div>
+      <h2>Recurring Tasks</h2>
+      <p class="section-lead">Mark a task as Recurring to auto-advance its due date each time you complete it.</p>
+
+      <ol class="steps">
+        <li>Open the task modal and set <strong>Task Type = Recurring</strong>.</li>
+        <li>Set the <strong>Recurrence interval</strong> (e.g. every 7 days, every 1 month).</li>
+        <li>When you check the task complete, the system:
+          <ul class="blist" style="margin-top:6px; margin-bottom:0">
+            <li>Saves a completed archive copy of the task</li>
+            <li>Advances the original task's due date by the interval</li>
+            <li>Resets the original task status to "To Do"</li>
+            <li>Shows a toast confirming the next cycle date</li>
+          </ul>
+        </li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Recurring tasks are great for regular reviews, monthly reports, weekly 1:1 prep, and any task with a fixed cadence.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── SETTINGS PANEL ── -->
+    <section class="section" id="settings">
+      <div class="section-eyebrow">Feature</div>
+      <h2>⚙️ Settings Panel (v9.10)</h2>
+      <p class="section-lead">Click the <strong>⚙️</strong> button in the top header bar to open the unified Settings panel. Four tabs cover all app configuration in one place.</p>
+
+      <h3>⚙️ Categories tab</h3>
+      <p>Manage your task sections. Reorder sections by dragging the ⠣ handle, change icons by clicking the emoji, add new sections, or delete unused ones.</p>
+
+      <h3>👤 People tab (v9.2)</h3>
+      <p>Manage your <strong>known connections</strong> list and <strong>groups</strong>.</p>
+      <p><strong>Individuals</strong> — people and organizations that auto-complete in task forms and appear in the By Person filter.</p>
+      <ul class="blist">
+        <li><strong>Add</strong> — type a name and press <kbd class="kbd">Enter</kbd> or click <strong>+ Add</strong>. Updates the filter dropdown immediately.</li>
+        <li><strong>Delete (×)</strong> — removes them from the list. Does not remove from existing tasks.</li>
+      </ul>
+      <p><strong>Groups</strong> — named sets of people. Selecting a group in the filter matches tasks connected to <em>any</em> member of that group.</p>
+      <ul class="blist">
+        <li><strong>Add Group</strong> — click <strong>+ Add Group</strong>, enter a group name (e.g. "MT"), click member chips to select people, then click <strong>Save Group</strong>.</li>
+        <li><strong>Edit members (✎ Edit)</strong> — click to expand member chips; click a chip to toggle membership. Changes save immediately.</li>
+        <li><strong>Delete (🗑)</strong> — removes the group and clears it from any active filter.</li>
+      </ul>
+      <p>Any groups you configure in <code>Focal_data.js</code> before first run will appear here. You can add, edit, and delete groups at any time in Settings.</p>
+
+      <h3>🤖 AI tab</h3>
+      <p>Configure the Anthropic API integration. The <strong>Test Connection</strong> and <strong>Save</strong> buttons appear only on this tab.</p>
+      <ul class="blist">
+        <li><strong>API Key</strong> — paste your Anthropic API key (starts with <code>sk-ant-</code>). Stored only in your browser's localStorage — never sent anywhere except directly to <code>api.anthropic.com</code>. Get your key at <strong>console.anthropic.com</strong>.</li>
+        <li><strong>Model</strong> — choose between <strong>Claude Haiku</strong> (fast, low cost — default) or <strong>Claude Sonnet</strong> (more capable, higher cost).</li>
+        <li><strong>Test Connection</strong> — sends a minimal test call to verify your key works.</li>
+        <li><strong>Save</strong> — persists the key and model choice.</li>
+      </ul>
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <p>Your API key is stored in <code>localStorage</code> — it is not encrypted. Focal is designed for personal single-device use. Do not use a shared or public device.</p>
+      </div>
+
+      <h3>📊 Outcomes tab (v9.9)</h3>
+      <p>Manage your <strong>Strategic Outcomes</strong> — the six impact categories used to tag tasks and track completions in Analytics.</p>
+      <ul class="blist">
+        <li><strong>Add outcome</strong> — enter a name, pick a color, and save. Appears immediately in task forms and Analytics.</li>
+        <li><strong>Rename / recolor</strong> — click the edit icon on any outcome to update its name or color.</li>
+        <li><strong>Toggle active</strong> — hide an outcome from task forms and analytics without deleting it. Useful for seasonal or project-specific outcomes.</li>
+        <li><strong>Delete</strong> — removes the outcome. Existing tasks that referenced it are unaffected (the tag is simply no longer displayed).</li>
+      </ul>
+      <p>The six default outcomes are: <strong>ARR</strong>, <strong>NRR</strong>, <strong>EBITDA</strong>, <strong>Board Commitments</strong>, <strong>Leadership / People</strong>, and <strong>Strategic Projects</strong>. Previously this was managed via a separate Outcomes button on the Matrix tab — it has been consolidated here.</p>
+
+      <h3>📧 Email Tasks tab (v9.22–9.23)</h3>
+      <p>Manage the connection to your <code>tasks.json</code> file — the overnight Outlook extractor output.</p>
+      <ul class="blist">
+        <li><strong>Connected file</strong> — when a file is linked, its filename is shown. The file handle is stored in IndexedDB so Focal can read and write it automatically on every load.</li>
+        <li><strong>Change File</strong> — opens the file picker to select a different <code>tasks.json</code>. Use this if you move the file or want to point to a different extractor output.</li>
+        <li><strong>Disconnect</strong> — removes the stored handle and clears all pending email tasks from the Inbox. The <code>tasks.json</code> file itself is not modified.</li>
+        <li><strong>Connect File</strong> (shown when no file is linked) — same as the first-time prompt in Inbox.</li>
+      </ul>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── AI FEATURES ── -->
+    <section class="section" id="ai">
+      <div class="section-eyebrow">Feature</div>
+      <h2>🤖 AI Features (v9.21)</h2>
+      <p class="section-lead">Focal integrates directly with the Anthropic Claude API — no additional accounts or services required. Configure your API key in <strong>⚙️ Settings → AI tab</strong>. AI is available at every task creation point in the app.</p>
+
+      <h3>✨ Inbox — AI → Task (single line)</h3>
+      <p>Type one task in plain English in the Inbox capture bar and click <strong>✨ AI → Task</strong>. Claude pre-fills the Add Task modal with a clean title, notes, section, priority, urgency, due date, connections, and outcomes. You review in the modal before saving.</p>
+
+      <h3>✨ Inbox — AI → Task (batch, v9.21)</h3>
+      <p>Paste a multi-line list into the capture bar and click <strong>✨ AI → Task</strong>. Claude parses all lines in one call, scaling the token budget dynamically with list size. The preview panel shows priority, title, section, and due date per task — scroll to review the full list before confirming. A mismatch warning appears if Claude returned fewer tasks than input lines. Click <strong>Create N tasks</strong> to save all, or Cancel to discard.</p>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Practical limit: ~30 tasks per batch. For larger dumps split into two pastes. If you see a truncation error, that's the signal to split.</p>
+      </div>
+
+      <h3>✨ Modal — AI-fill (v9.21)</h3>
+      <p>Available on the Add Task modal at every creation point — All Tasks, Today, Matrix, Kanban, keyboard shortcut <kbd class="kbd">N</kbd>. Type a free-form description or prompt in the Task Description field, then click <strong>✨ AI-fill</strong>. Claude parses your text and fills <em>all</em> fields: the description is replaced with a clean concise title, and Priority, Due Date, Section, Urgency, Type, Connections, and Outcomes are populated. Review and save as normal.</p>
+      <p>This also works when <strong>editing</strong> an existing task — rewrite the description and re-run AI-fill to re-structure it.</p>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>The modal is protected from accidental dismissal — clicking outside the form or pressing <kbd class="kbd">Esc</kbd> will not close it while the description field has content. Use the <strong>×</strong> button to explicitly close and discard.</p>
+      </div>
+
+      <h3>🔁 AI Weekly Debrief</h3>
+      <p>Available on the <strong>Weekly Review Done screen</strong> after completing all review stages. Claude reads your week's data — completed tasks, open P1s, aging items, inbox count — and generates a concise executive summary in 3–4 sentences. Useful as a pre-call brief or end-of-week reflection note.</p>
+
+      <h3>Which model to use</h3>
+      <div class="feature-block">
+        <table class="kb-table">
+          <thead><tr><th>Model</th><th>Best for</th><th>Cost</th></tr></thead>
+          <tbody>
+            <tr><td>Claude Haiku (default)</td><td>All AI capture paths, quick debrief</td><td>Very low</td></tr>
+            <tr><td>Claude Sonnet</td><td>Richer debrief narrative, nuanced batch parsing</td><td>Moderate</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Haiku is the recommended default for all capture and fill operations. Switch to Sonnet only if you find the quality insufficient for complex batch imports or debrief narratives.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── SHORTCUTS ── -->
+    <section class="section" id="shortcuts">
+      <div class="section-eyebrow">Reference</div>
+      <h2>Keyboard Shortcuts</h2>
+      <p class="section-lead">Keyboard shortcuts for common actions in the app.</p>
+
+      <table class="kb-table">
+        <thead>
+          <tr><th>Key</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><kbd class="kbd">N</kbd></td><td>Open Add Task modal</td></tr>
+          <tr><td><kbd class="kbd">Esc</kbd></td><td>Close modal / close popover / cancel inline edit</td></tr>
+          <tr><td><kbd class="kbd">Enter</kbd></td><td>Save inline edit (task name or notes)</td></tr>
+          <tr><td><kbd class="kbd">Enter</kbd></td><td>Save task modal (when cursor is in the Task Description field)</td></tr>
+          <tr><td><kbd class="kbd">Enter</kbd></td><td>Add inbox item (in capture input)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── MOBILE ── -->
+    <section class="section" id="mobile">
+      <div class="section-eyebrow">Reference</div>
+      <h2>Mobile Support</h2>
+      <p class="section-lead">The app is fully responsive below 768px with a compact layout optimised for touch.</p>
+
+      <ul class="blist">
+        <li>Header collapses to logo and Add Task button only</li>
+        <li>Table headers are hidden; rows become compact card layout</li>
+        <li>Mobile meta strip shows all key fields (priority, status, due date, connections) in a single row below the task name</li>
+        <li>Fixed bottom navigation bar: Today | Tasks | FAB(+) | Kanban | Inbox</li>
+        <li>Weekly Review is accessible via the Review tab (on mobile: scroll or use bottom nav)</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>The mobile layout is best for quick status checks and inbox capture. For triaging, editing, and the weekly review, the desktop view is recommended.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
+    <!-- ── TIPS ── -->
+    <section class="section" id="tips">
+      <div class="section-eyebrow">Reference</div>
+      <h2>Tips &amp; Tricks</h2>
+
+      <div class="feature-block">
+        <h3>Keep the active list short</h3>
+        <p>Aim for &lt;20 active tasks (To Do + In Progress). If it grows beyond that, run a mini-review: move Q4 matrix tasks to Backlog, and anything not started in 2+ weeks to Backlog.</p>
+      </div>
+
+      <div class="feature-block">
+        <h3>Use Inbox as a capture reflex</h3>
+        <p>Whenever something comes up in a meeting, a call, or mid-task — add it to Inbox immediately with just a title. Don't try to prioritise or categorise in the moment. Process the inbox during the weekly review.</p>
+      </div>
+
+      <div class="feature-block">
+        <h3>Weekly Review is non-negotiable</h3>
+        <p>The system degrades quickly without the weekly review. Inbox grows, aging tasks accumulate, backlog becomes invisible. Protect 10 minutes every week for this — it's what keeps the system trustworthy.</p>
+      </div>
+
+      <div class="feature-block">
+        <h3>Use Matrix for strategic prioritisation</h3>
+        <p>When everything feels urgent and important, the Matrix view forces a real ranking. If Q1 is overflowing, something in there isn't actually Q1 — move it to Q2 or delegate it.</p>
+      </div>
+
+      <div class="feature-block">
+        <h3>Use Backlog intentionally</h3>
+        <p>Backlog is not a dumping ground — it's an intentional "later" list. Every item in it is a commitment to review it weekly. If something has been in Backlog for 3+ review cycles without activation, consider deleting it.</p>
+      </div>
+
+      <div class="feature-block">
+        <h3>Aging dots are questions, not alarms</h3>
+        <p>A red aging dot doesn't mean a task is failing — it means it deserves a decision. Is it still relevant? Should it be updated, backlogged, or deleted? The "Keep" action in the weekly review is a valid answer.</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="manual-footer">
+      <p>Focal v9.29 — May 2026</p>
+      <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
+    </div>
+
+  </main>
+</div>
+
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+  // Scroll to top button
+  window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scroll-top');
+    btn.classList.toggle('visible', window.scrollY > 300);
+  });
+
+  // Highlight active nav item on scroll
+  const sections = document.querySelectorAll('.section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  function updateNav() {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 80) current = s.id;
+    });
+    navItems.forEach(a => {
+      const href = a.getAttribute('href');
+      a.classList.toggle('active', href === '#' + current);
+    });
+  }
+
+  window.addEventListener('scroll', updateNav);
+  updateNav();
+</script>
+</body>
+</html>

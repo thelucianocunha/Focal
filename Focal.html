@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Focal — Task Management</title>
+<link rel="icon" type="image/png" href="focal-logo-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="Focal.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hl">
+    <img class="logo" src="focal-logo.png" alt="Focal">
+    <div class="hdiv"></div>
+    <span class="htagline">See clearly. Act decisively.</span>
+    <span class="vbadge" id="vbadge"></span>
+  </div>
+  <div class="hr">
+    <button class="hpill" id="btnDemo" onclick="toggleDemo()" title="Demo mode — masks task names">🎭 Demo</button>
+    <button class="hpill" id="btnDone" onclick="toggleDone()" title="Toggle completed tasks">✓ Done</button>
+    <button class="hpill" id="btnBacklog" onclick="toggleBacklogView()" style="display:none" title="Toggle backlog tasks">📋 Backlog</button>
+    <button class="hpill" id="btnConf" onclick="toggleConfView()" title="Toggle confidential tasks">🔒 Conf</button>
+    <div class="hdivider"></div>
+    <button class="hibtn" id="btnSettings" onclick="openSettingsPanel('categories')" title="Settings">⚙️</button>
+    <a class="hibtn" href="Focal_USER_MANUAL.html" target="_blank" title="Help / Manual">📖</a>
+    <div class="hdivider"></div>
+    <button class="hbtn pri" onclick="openAdd()">+ Add Task</button>
+  </div>
+</header>
+
+<!-- VIEW TABS -->
+<div class="vtabs">
+  <div class="vtab on" id="tab-today"  onclick="sw('today')">⚡ Today</div>
+  <div class="vtab"    id="tab-kanban" onclick="sw('kanban')">📊 Kanban</div>
+  <div class="vtab"    id="tab-inbox"  onclick="sw('inbox')">📥 Inbox <span class="tbadge" id="tbadge-inbox" style="display:none"></span></div>
+  <div class="vtab"    id="tab-tasks"  onclick="sw('tasks')">📋 All Tasks</div>
+  <div class="vtab"    id="tab-matrix" onclick="sw('matrix')">🎯 Matrix</div>
+  <div class="vtab"    id="tab-analytics" onclick="sw('analytics')">📈 Analytics</div>
+  <div class="vtab"    id="tab-review" onclick="sw('review')">🔄 Review</div>
+</div>
+
+<!-- STATS -->
+<div class="sbar" id="sbar"></div>
+
+<!-- FILTER BAR -->
+<div class="fbar">
+  <div class="sw srch-wrap">
+    <svg class="si2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="sinput" type="text" placeholder="Search tasks, connections…" id="srch" oninput="srchInput()" onkeydown="srchKeydown(event)" autocomplete="off">
+    <div class="srch-sug" id="srchSug"></div>
+  </div>
+  <div class="fsep"></div>
+  <div class="pills">
+    <span class="pill on" data-f="all"     onclick="setF('all',this,event)" title="Show all tasks">All</span>
+    <span class="pill"    data-f="p1"      onclick="setF('p1',this,event)"  title="Ctrl+click to combine filters">P1 Critical</span>
+    <span class="pill"    data-f="p2"      onclick="setF('p2',this,event)"  title="Ctrl+click to combine filters">P2 High</span>
+    <span class="pill"    data-f="prog"    onclick="setF('prog',this,event)" title="Ctrl+click to combine filters">In Progress</span>
+    <span class="pill"    data-f="overdue" onclick="setF('overdue',this,event)" title="Ctrl+click to combine filters">Overdue</span>
+    <span class="pill"    data-f="week"    onclick="setF('week',this,event)" title="Ctrl+click to combine filters">Due This Week</span>
+    <span class="pill"    data-f="rec"     onclick="setF('rec',this,event)"  title="Ctrl+click to combine filters">🔁 Recurring</span>
+    <span class="pill"    data-f="conf"    onclick="setF('conf',this,event)" title="Ctrl+click to combine filters">🔒 Confidential</span>
+    <span class="pill"    data-f="backlog" onclick="setF('backlog',this,event)" title="Ctrl+click to combine filters">📋 Backlog</span>
+    <span class="pill"    data-f="aging"   onclick="setF('aging',this,event)" id="pill-aging" style="display:none" title="Ctrl+click to combine filters">⏱ Aging</span>
+  </div>
+  <div class="person-dd" id="personDd">
+    <button class="person-dd-btn" id="personDdBtn" onclick="togglePersonDd()" title="Filter by person / connection">👤 All People</button>
+    <div class="person-dd-menu" id="personDdMenu" style="display:none"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="vpanel" id="view-inbox">
+    <div id="ix-pa-bar"></div>
+    <div class="ix-cap">
+      <textarea class="ix-cap-ta" id="ixCapText" placeholder="Capture tasks — one per line, or paste a list. Enter = quick save to inbox, ✨ = AI structure." onkeydown="ixCapKey(event)" oninput="ixCapResize(this)" rows="1"></textarea>
+      <input class="ix-cap-note" id="ixCapNote" placeholder="Note (single task)…" onkeydown="if(event.key==='Enter')ixCapture()">
+      <button class="ix-add" onclick="ixCapture()">+ Capture</button>
+      <button class="ix-ai-btn" id="aiCapBtn" onclick="nlCapture()">✨ AI → Task</button>
+    </div>
+    <div id="nlBatchPreview" style="display:none"></div>
+    <div id="et-section"></div>
+    <div class="ix-wrap" id="ixList"></div>
+  </div>
+  <div class="vpanel"    id="view-tasks"></div>
+  <div class="vpanel on" id="view-today">
+    <div class="th" id="tdH"></div>
+    <div class="tsub" id="tdS"></div>
+    <div id="tdC"></div>
+  </div>
+  <div class="vpanel" id="view-review"><div id="wr-content"></div></div>
+  <!-- Subtask confirm dialog -->
+  <div id="kbSubDlg" style="display:none;position:fixed;z-index:2000;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.15);max-width:320px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:12px;font-weight:600;color:var(--muted)">Link as subtask?</span>
+      <button class="mx" style="font-size:16px;line-height:1" onclick="kCancelSubDlg()">×</button>
+    </div>
+    <div id="kbSubDlgTxt" style="font-size:13px;line-height:1.5;margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px">
+      <button class="bpri" style="font-size:12px;padding:4px 12px" onclick="kSetSubtask(true)">✓ Make subtask</button>
+      <button class="bsec" id="kbSubDlgNoBtn" style="font-size:12px;padding:4px 12px" onclick="kSetSubtask(false)">No, just move</button>
+    </div>
+  </div>
+  <!-- Context menu -->
+  <div class="ctx-menu" id="ctxMenu">
+    <div class="ctx-item" id="ctxAddSub" onclick="ctxDoAddSub()">↳ Add subtask</div>
+    <div class="ctx-item" id="ctxEdit" onclick="ctxDoEdit()">✏️ Edit task</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item" id="ctxDone" onclick="ctxDoDone()">✓ Mark as Done</div>
+    <div class="ctx-item" id="ctxBacklog" onclick="ctxDoBacklog()">📋 Send to Backlog</div>
+    <div class="ctx-sep" id="ctxSepNav"></div>
+    <div class="ctx-item" id="ctxMoveRight" onclick="ctxDoMove(1)">→ Move right</div>
+    <div class="ctx-item" id="ctxMoveLeft" onclick="ctxDoMove(-1)">← Move left</div>
+    <div class="ctx-sep" id="ctxSepDel"></div>
+    <div class="ctx-item ctx-del" id="ctxDelete" onclick="ctxDoDelete()">🗑 Delete</div>
+  </div>
+  <!-- Column quick-add menu -->
+  <div class="ctx-menu" id="kColMenu">
+    <div class="ctx-item" id="kColAddItem" onclick="kColAddTask()">＋ Add task here</div>
+  </div>
+  <!-- KANBAN PANEL -->
+  <div class="vpanel" id="view-kanban">
+    <div class="kb-bar">
+      <span class="kb-title">📊 Kanban Board — plan your day</span>
+      <button class="kb-newweek" onclick="kbNewWeek()">🔄 New Week</button>
+    </div>
+    <div class="kb-fbar" id="kb-fbar"></div>
+    <div class="kb-dots" id="kb-dots"></div>
+    <div class="kb-wrap" id="kb-wrap">
+      <div class="kb-col kb-pool" id="kb-col-pool" oncontextmenu="kColCtxMenu(event,'pool')">
+        <div class="kb-ch"><span class="kb-cname">Active Pool</span><span class="kb-count" id="kb-cnt-pool">0</span><button class="kb-grp-btn" id="kb-grp-btn" onclick="toggleKbGrpPool()" title="Toggle category grouping">≡ Group</button></div>
+        <div class="kb-body" id="kb-body-pool"></div>
+      </div>
+      <div class="kb-col" id="kb-col-week" oncontextmenu="kColCtxMenu(event,'week')">
+        <div class="kb-ch"><span class="kb-cname">This Week</span><span class="kb-count" id="kb-cnt-week">0</span><span class="kb-hint" id="kb-hint-week"></span></div>
+        <div class="kb-body" id="kb-body-week"></div>
+      </div>
+      <div class="kb-col" id="kb-col-today" oncontextmenu="kColCtxMenu(event,'today')">
+        <div class="kb-ch"><span class="kb-cname">Today</span><span class="kb-count" id="kb-cnt-today">0</span></div>
+        <div class="kb-body" id="kb-body-today"></div>
+      </div>
+      <div class="kb-col" id="kb-col-done">
+        <div class="kb-ch"><span class="kb-cname">Done</span><span class="kb-count" id="kb-cnt-done">0</span><button class="kb-cbtn" onclick="kbClearDone()" title="Return Kanban-done tasks to Active Pool">↩ Clear</button></div>
+        <div class="kb-body" id="kb-body-done"></div>
+      </div>
+    </div>
+  </div>
+  <div class="vpanel" id="view-matrix">
+    <div class="mfbar" id="mfbar"></div>
+    <!-- View mode -->
+    <div id="pm-view-wrap">
+      <div class="mgrid" id="mgrid">
+        <div class="quad q1"><div class="qh">🔴 P1 — Urgent + Important<br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none">Do immediately</small></div><div id="q1"></div></div>
+        <div class="quad q2"><div class="qh">🟢 P2 — Not Urgent + Important<br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none">Schedule time</small></div><div id="q2"></div></div>
+        <div class="quad q3"><div class="qh">🟡 P3 — Urgent + Not Important<br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none">Delegate if possible</small></div><div id="q3"></div></div>
+        <div class="quad q4"><div class="qh">⚪ P4 — Not Urgent + Not Important<br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none">Eliminate / defer</small></div><div id="q4"></div></div>
+      </div>
+    </div>
+    <!-- Prioritize mode -->
+    <div id="pm-prio-wrap" style="display:none">
+      <div class="pm-guard" id="pm-guard"></div>
+      <div class="pm-layout">
+        <div class="pm-queue" id="pm-queue"></div>
+        <div class="pm-mini" id="pm-mini"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+<div class="vpanel" id="view-analytics"></div>
+
+<!-- MODAL -->
+<div class="ovl" id="ovl" onclick="ovlClose(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mh">
+      <span class="mt" id="mtitle">Add Task</span>
+      <button class="mx" onclick="closeModal()">×</button>
+    </div>
+    <div class="mb">
+      <div class="fg"><div class="fl-row"><label class="fl">Task Description *</label><button class="modal-ai-btn" id="modalAiBtn" onclick="nlFillModal()" title="Describe the task above and let AI fill the rest">✨ AI-fill</button></div><input class="fi" id="fTask" placeholder="What needs to be done?" onkeydown="if(event.key==='Enter'){event.preventDefault();saveTask();}"></div>
+      <div class="fg"><label class="fl">Notes / Next Step</label><textarea class="fta" id="fNote" placeholder="Add context or next action…"></textarea></div>
+      <div class="fg"><label class="fl">🔗 Link / URL</label><input class="fi" id="fUrl" type="url" placeholder="https://…"></div>
+      <div class="fg" id="fParentRow" style="display:none">
+        <label class="fl">↳ Subtask of</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="fParentName" style="font-size:13px;color:var(--teal);font-weight:500"></span>
+          <button type="button" class="bsec" style="padding:2px 8px;font-size:11px" onclick="clearEditParent()">× Remove</button>
+        </div>
+      </div>
+      <div class="fr2">
+        <div class="fg">
+          <label class="fl">Section</label>
+          <select class="fs" id="fSec"></select>
+        </div>
+        <div class="fg">
+          <label class="fl">Priority</label>
+          <select class="fs" id="fPri">
+            <option value="P1">P1 — Critical</option>
+            <option value="P2" selected>P2 — High</option>
+            <option value="P3">P3 — Medium</option>
+            <option value="P4">P4 — Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr3">
+        <div class="fg">
+          <label class="fl">Status</label>
+          <select class="fs" id="fStat">
+            <option value="To Do" selected>To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+            <option value="Backlog">Backlog</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Due Date</label>
+          <input class="fi" id="fDue" type="date">
+        </div>
+        <div class="fg">
+          <label class="fl">Urgency (Matrix)</label>
+          <select class="fs" id="fUrg">
+            <option value="1">Urgent</option>
+            <option value="0" selected>Not Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr3">
+        <div class="fg">
+          <label class="fl">Task Type</label>
+          <select class="fs" id="fType" onchange="onTypeChange()">
+            <option value="once">One-time</option>
+            <option value="recurring">🔁 Recurring</option>
+            <option value="decision">⚖️ Decision</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Recurrence</label>
+          <select class="fs" id="fRInterval">
+            <option value="monthly" selected>Monthly</option>
+            <option value="weekly">Weekly</option>
+            <option value="quarterly">Quarterly</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">🔒 Confidential</label>
+          <select class="fs" id="fConf" onchange="confSelectStyle()">
+            <option value="0" selected>No</option>
+            <option value="1">🔒 Yes — Confidential</option>
+          </select>
+        </div>
+      </div>
+      <!-- DECIDED (shown only for Decision type) -->
+      <div class="fg" id="fDecidedRow" style="display:none">
+        <label class="fl">Decision Status</label>
+        <select class="fs" id="fDecided">
+          <option value="0">⏳ Pending decision</option>
+          <option value="1">✓ Decided</option>
+        </select>
+      </div>
+      <!-- CONNECTIONS -->
+      <div class="fg">
+        <label class="fl">Connections — People / Organizations</label>
+        <div class="conn-wrap">
+          <input class="fi" id="fConnInput" placeholder="Type a name or company (e.g. Alex, Acme Corp)…" autocomplete="off"
+            oninput="connSuggest()" onkeydown="connKeydown(event)">
+          <div class="conn-sug" id="connSug"></div>
+        </div>
+        <div class="conn-chips" id="connChips"></div>
+      </div>
+      <!-- OUTCOMES -->
+      <div class="fg">
+        <label class="fl">Strategic Outcomes (max 2)</label>
+        <div id="fOutcomeChips" class="outcome-sel"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="bsec" onclick="closeModal()">Cancel</button>
+      <button class="bdel" id="mDelBtn" onclick="modalDeleteTask()" style="display:none">🗑 Delete</button>
+      <button class="bpri" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- OUTCOME MANAGER OVERLAY -->
+<div class="pm-ovl" id="pm-ovl" onclick="pmOvlClose(event)"></div>
+
+<!-- SETTINGS MODAL -->
+<div class="ovl" id="settingsOvl" onclick="settingsOvlClose(event)">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:480px">
+    <div class="mh"><span class="mt">⚙️ Settings</span><button class="mx" onclick="closeSettings()">×</button></div>
+    <div class="stab-nav">
+      <button class="stab on" id="stab-categories" onclick="switchSettingsTab('categories')">⚙️ Categories</button>
+      <button class="stab" id="stab-people" onclick="switchSettingsTab('people')">👤 People</button>
+      <button class="stab" id="stab-ai" onclick="switchSettingsTab('ai')">🤖 AI</button>
+      <button class="stab" id="stab-outcomes" onclick="switchSettingsTab('outcomes')">📊 Outcomes</button>
+      <button class="stab" id="stab-email" onclick="switchSettingsTab('email')">📧 Email Tasks</button>
+    </div>
+    <div class="stab-body" id="stab-body-categories">
+      <div style="padding:16px 20px" id="secMgrBody"></div>
+    </div>
+    <div class="stab-body" id="stab-body-people" style="display:none">
+      <div id="peopleMgrBody"></div>
+    </div>
+    <div class="stab-body" id="stab-body-outcomes" style="display:none">
+      <div id="outcomesMgrBody"></div>
+    </div>
+    <div class="stab-body" id="stab-body-ai" style="display:none">
+      <div class="mb">
+        <div class="fg">
+          <label class="fl">Anthropic API Key</label>
+          <input class="fi" id="fApiKey" type="password" placeholder="sk-ant-…" autocomplete="off">
+          <small style="font-size:11px;color:var(--muted);margin-top:2px;display:block">Stored locally in your browser only. Used for AI natural language capture and weekly debrief. Get your key at console.anthropic.com.</small>
+        </div>
+        <div class="fg">
+          <label class="fl">AI Model</label>
+          <select class="fs" id="fAiModel">
+            <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — Fast &amp; economical (recommended)</option>
+            <option value="claude-sonnet-4-6">Claude Sonnet 4.6 — Higher quality</option>
+          </select>
+        </div>
+        <div id="aiKeyStatus" style="font-size:12px;padding:8px 12px;border-radius:6px;display:none"></div>
+      </div>
+    </div>
+    <div class="stab-body" id="stab-body-email" style="display:none">
+      <div id="emailSettingsBody" style="padding:16px 20px"></div>
+    </div>
+    <div class="mf">
+      <button class="bsec" onclick="closeSettings()">Close</button>
+      <button class="bsec" id="sf-test" onclick="testApiKey()" style="display:none;border-color:var(--teal);color:var(--teal)">Test Connection</button>
+      <button class="bpri" id="sf-save" onclick="saveSettings()" style="display:none">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MOBILE NAV -->
+<nav class="mnav">
+  <div class="mni">
+    <div class="nit on" id="mnav-today" onclick="sw('today')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Today
+    </div>
+    <div class="nit" id="mnav-tasks" onclick="sw('tasks')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks
+    </div>
+    <button class="fab" onclick="openAdd()">+</button>
+    <div class="nit" id="mnav-kanban" onclick="sw('kanban')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="13" rx="1"/><rect x="16" y="3" width="6" height="9" rx="1"/></svg>Kanban
+    </div>
+    <div class="nit" id="mnav-inbox" onclick="sw('inbox')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Inbox
+    </div>
+  </div>
+</nav>
+
+<script src="Focal_data.default.js"></script>
+<script src="Focal_app.js"></script>
+</body>
+</html>
