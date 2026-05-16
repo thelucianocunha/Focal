@@ -39,14 +39,26 @@ This CLA is necessary so that the author retains the ability to offer commercial
 - Changes that require a build system, npm, or a server
 - New dependencies (the app is intentionally zero-dependency)
 - Features that only make sense for one person's workflow — open an issue to discuss first
-- Breaking the 4-file architecture (`Focal.html`, `Focal.css`, `Focal_app.js`, `Focal_data.js`)
+- Breaking the 4-file architecture (`Focal.html`, `Focal.css`, `Focal_app.js`, `Focal_data.default.js`)
 
 ## Code style
 
 - No frameworks, no build tools — vanilla JS, HTML, CSS only
 - Navigate `Focal_app.js` using the section markers (e.g. `═══ KANBAN ═══`)
-- All task data and user-configurable values live in `Focal_data.js` — nothing hardcoded in the JS or HTML
+- All task data and user-configurable values live in `Focal_data.default.js` — nothing hardcoded in the JS or HTML
 - No comments unless the *why* is non-obvious
+
+## Versioning
+
+Focal uses **Semantic Versioning (`MAJOR.MINOR.PATCH`)**:
+
+| Bump | When |
+|------|------|
+| `PATCH` | Bug fix or doc correction — no new features |
+| `MINOR` | New feature, backwards compatible (resets PATCH to 0) |
+| `MAJOR` | Breaking localStorage schema change, full rewrite, rebrand |
+
+Update `VER` and `VDATE` in `Focal_data.default.js` with every change. See [02-Architecture](docs/02-Architecture.md) for full details.
 
 ## Reporting bugs
 
