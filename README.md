@@ -2,7 +2,20 @@
 
 > See clearly. Act decisively.
 
+[![Version](https://img.shields.io/badge/version-10.1.0-00B5B0?style=flat-square)](https://github.com/thelucianocunha/Focal/releases)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC_BY--NC_4.0-4A90D9?style=flat-square)](LICENSE)
+[![Zero dependencies](https://img.shields.io/badge/dependencies-zero-34D399?style=flat-square)](#)
+
+**[▶ Try it in your browser](https://thelucianocunha.github.io/Focal/Focal.html)** &nbsp;·&nbsp; **[📖 User Manual](https://thelucianocunha.github.io/Focal/Focal_USER_MANUAL.html)**
+
+---
+
 Focal is a lightweight, privacy-first task management app designed for leaders who need to stay on top of priorities without complexity. It runs entirely in your browser — no server, no account, no tracking. Your data never leaves your device.
+
+<!-- Screenshots — add to assets/screenshots/ and uncomment once available
+![Today view — light mode](assets/screenshots/today-light.png)
+![Kanban view — dark mode](assets/screenshots/kanban-dark.png)
+-->
 
 ## Features
 
@@ -13,14 +26,15 @@ Focal is a lightweight, privacy-first task management app designed for leaders w
 - **Weekly Review** — structured end-of-week reflection with AI debrief (optional)
 - **Inbox** — fast capture with AI-powered task structuring (optional)
 - **Analytics** — task completion trends and patterns over time
+- **Dark mode** — full dark theme via Settings → Theme
 - **Subtasks**, **recurring tasks**, **connections**, **strategic outcomes**, **confidential flag**
 - **Demo mode** — masks all content for screen sharing
 - **Zero dependencies** — one HTML file, one CSS file, one JS file, one data file
 
 ## Getting started
 
-1. Download or clone this repository
-2. Open `Focal.html` in any modern browser (Chrome, Edge, Firefox, Safari)
+1. **[Open in browser](https://thelucianocunha.github.io/Focal/Focal.html)** — no download needed
+2. Or clone the repo and open `Focal.html` in any modern browser (Chrome, Edge, Firefox, Safari)
 3. That's it — no install, no server, no account
 
 See [Getting Started](docs/01-Getting-Started.md) for a full walkthrough.
@@ -32,7 +46,7 @@ Focal integrates with the [Anthropic API](https://www.anthropic.com) for:
 - AI-fill when adding tasks
 - Weekly Debrief summary
 
-To enable: open Settings → 🤖 AI, paste your Anthropic API key. Your key is stored only in your browser's localStorage and sent only to Anthropic's API — never to any other server.
+To enable: open Settings → AI, paste your Anthropic API key. Your key is stored only in your browser's localStorage and sent only to Anthropic's API — never to any other server.
 
 ## Privacy
 
