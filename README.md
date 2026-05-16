@@ -12,10 +12,13 @@
 
 Focal is a lightweight, privacy-first task management app designed for leaders who need to stay on top of priorities without complexity. It runs entirely in your browser — no server, no account, no tracking. Your data never leaves your device.
 
-<!-- Screenshots — add to assets/screenshots/ and uncomment once available
-![Today view — light mode](assets/screenshots/today-light.png)
-![Kanban view — dark mode](assets/screenshots/kanban-dark.png)
--->
+| Today — light mode | Today — dark mode |
+|---|---|
+| ![Today view — light mode](assets/screenshots/today-light.png) | ![Today view — dark mode](assets/screenshots/today-dark.png) |
+
+| Kanban — light mode | Kanban — dark mode |
+|---|---|
+| ![Kanban view — light mode](assets/screenshots/kanban-light.png) | ![Kanban view — dark mode](assets/screenshots/kanban-dark.png) |
 
 ## Features
 
