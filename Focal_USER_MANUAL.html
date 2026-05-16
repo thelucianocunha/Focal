@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v9.29</title>
+<title>Focal — User Manual v9.30</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -762,7 +762,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v9.29</h1>
+      <h1>Focal v9.30</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -975,7 +975,7 @@
 
       <div class="callout info">
         <span class="callout-icon">ℹ️</span>
-        <p>The inbox count badge on the Inbox tab includes both manual inbox items and pending email tasks.</p>
+        <p>The inbox count badge on the Inbox tab includes both manual inbox items and pending imported tasks.</p>
       </div>
 
       <h3>📋 Daily Tasks Feed — triage (v9.22, updated v9.25)</h3>
@@ -1843,13 +1843,66 @@
       </ul>
       <p>The six default outcomes are: <strong>ARR</strong>, <strong>NRR</strong>, <strong>EBITDA</strong>, <strong>Board Commitments</strong>, <strong>Leadership / People</strong>, and <strong>Strategic Projects</strong>. Previously this was managed via a separate Outcomes button on the Matrix tab — it has been consolidated here.</p>
 
-      <h3>📧 Email Tasks tab (v9.22–9.23)</h3>
+      <h3 id="task-import">📥 Task Import tab (v9.22–9.30)</h3>
       <p>Manage the connection to your <code>tasks.json</code> file — the overnight Outlook extractor output.</p>
       <ul class="blist">
         <li><strong>Connected file</strong> — when a file is linked, its filename is shown. The file handle is stored in IndexedDB so Focal can read and write it automatically on every load.</li>
         <li><strong>Change File</strong> — opens the file picker to select a different <code>tasks.json</code>. Use this if you move the file or want to point to a different extractor output.</li>
-        <li><strong>Disconnect</strong> — removes the stored handle and clears all pending email tasks from the Inbox. The <code>tasks.json</code> file itself is not modified.</li>
+        <li><strong>Disconnect</strong> — removes the stored handle and clears all pending imported tasks from the Inbox. The <code>tasks.json</code> file itself is not modified.</li>
         <li><strong>Connect File</strong> (shown when no file is linked) — same as the first-time prompt in Inbox.</li>
+      </ul>
+
+      <h4>How does this work?</h4>
+      <p>An overnight script (Power Automate, a scheduled Python script, or similar) reads your Outlook mailbox, Teams messages, and upcoming calendar meetings, extracts action items, and writes them to a local <code>tasks.json</code> file. Focal reads that file directly from your disk using the browser's File System Access API — nothing is uploaded to any server.</p>
+
+      <h4>Required JSON schema</h4>
+      <p>The <code>tasks.json</code> file must be a JSON array. Each item must have at minimum:</p>
+      <pre style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px 16px;font-size:12px;overflow-x:auto;line-height:1.6">[
+  {
+    "id": "unique-string-per-item",
+    "source": "outlook",
+    "subject": "Re: Q2 forecast review",
+    "from": "jane.doe@example.com",
+    "body": "Can you send me the updated slide deck before Thursday?",
+    "category": "email",
+    "processed_at": null
+  }
+]</pre>
+      <p>Field notes:</p>
+      <ul class="blist">
+        <li><code>id</code> — any unique string (e.g. message ID or UUID). Focal uses this to avoid showing the same item twice.</li>
+        <li><code>source</code> — <code>"outlook"</code>, <code>"teams"</code>, or <code>"calendar"</code>. Controls the icon shown in Inbox.</li>
+        <li><code>subject</code> / <code>from</code> / <code>body</code> — displayed in the Inbox card for context.</li>
+        <li><code>category</code> — optional label (<code>"email"</code>, <code>"chat"</code>, <code>"meeting"</code>).</li>
+        <li><code>processed_at</code> — set to <code>null</code> for new items. Focal writes a timestamp here after you triage the item, so re-runs of the extractor don't re-surface it.</li>
+      </ul>
+
+      <h4>Sample Power Automate prompt</h4>
+      <p>Use this prompt with your automation tool or AI assistant to build the extractor:</p>
+      <pre style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px 16px;font-size:12px;overflow-x:auto;line-height:1.6">Create a Power Automate flow that runs nightly and writes a tasks.json file
+to a local folder. It should:
+1. Read the last 24 hours of Outlook emails where I am in To or CC and the
+   email contains an action request (words like "can you", "please", "by
+   Friday", "action required").
+2. Read Teams messages where I am @mentioned in the last 24 hours.
+3. Read my calendar for meetings in the next 48 hours that need prep.
+4. Write all items to C:\Users\[you]\tasks.json as a JSON array with fields:
+   id, source ("outlook"/"teams"/"calendar"), subject, from, body, category,
+   processed_at (null for new items).
+5. Only include items where processed_at is null (never overwrite existing
+   processed items).</pre>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>If Power Automate is not available, a short Python script using <code>exchangelib</code> or the Microsoft Graph API achieves the same result. The only requirement is a valid <code>tasks.json</code> in the correct schema on your local disk.</p>
+      </div>
+
+      <h4>Troubleshooting</h4>
+      <ul class="blist">
+        <li><strong>No items appear after connecting</strong> — check that all items in the file have <code>processed_at: null</code>. Items with a non-null timestamp are considered already triaged.</li>
+        <li><strong>File permission error</strong> — the browser may have lost the stored file handle after a restart. Click <strong>Change File</strong> to re-select the file and grant access again.</li>
+        <li><strong>Items disappear after triage</strong> — this is expected. Focal writes <code>processed_at</code> to the file after each triage action, removing the item from the Inbox on the next load.</li>
+        <li><strong>Duplicate items</strong> — ensure your extractor assigns a stable, unique <code>id</code> per message. If IDs change between runs, items will appear again.</li>
       </ul>
     </section>
 
@@ -1858,8 +1911,8 @@
     <!-- ── AI FEATURES ── -->
     <section class="section" id="ai">
       <div class="section-eyebrow">Feature</div>
-      <h2>🤖 AI Features (v9.21)</h2>
-      <p class="section-lead">Focal integrates directly with the Anthropic Claude API — no additional accounts or services required. Configure your API key in <strong>⚙️ Settings → AI tab</strong>. AI is available at every task creation point in the app.</p>
+      <h2>🤖 AI Features (v9.21, updated v9.30)</h2>
+      <p class="section-lead">Focal integrates directly with the Anthropic Claude API — no additional accounts or services required. Configure your API key in <strong>⚙️ Settings → AI tab</strong>. AI buttons are hidden throughout the app until a key is saved — once configured, they appear automatically in the Inbox capture bar, the task modal, and the Weekly Review.</p>
 
       <h3>✨ Inbox — AI → Task (single line)</h3>
       <p>Type one task in plain English in the Inbox capture bar and click <strong>✨ AI → Task</strong>. Claude pre-fills the Add Task modal with a clean title, notes, section, priority, urgency, due date, connections, and outcomes. You review in the modal before saving.</p>
@@ -1982,7 +2035,7 @@
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v9.29 — May 2026</p>
+      <p>Focal v9.30 — May 16, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

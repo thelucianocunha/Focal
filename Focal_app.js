@@ -766,6 +766,7 @@ function openAdd(secId){
   document.getElementById('fConnInput').value=''; renderConnChips();
   renderModalOutcomes();
   document.getElementById('mDelBtn').style.display='none';
+  syncAiVisibility();
   document.getElementById('ovl').classList.add('on');
   setTimeout(()=>document.getElementById('fTask').focus(),80);
 }
@@ -793,6 +794,7 @@ function openEdit(id,secId){
     else{editingParent=null;pr.style.display='none';}
   } else pr.style.display='none';
   document.getElementById('mDelBtn').style.display='';
+  syncAiVisibility();
   document.getElementById('ovl').classList.add('on');
   setTimeout(()=>document.getElementById('fTask').focus(),80);
 }
@@ -1332,6 +1334,7 @@ function ixCapture(){
 
 function renderInbox(){
   renderEmailTasks();
+  syncAiVisibility();
   updateInboxBadge();
   const list=document.getElementById('ixList'); if(!list) return;
   const items=S.inbox||[];
@@ -2347,6 +2350,7 @@ function saveSettings(){
   S.settings.aiModel=document.getElementById('fAiModel').value;
   saveS();
   const hasKey=!!S.settings.claudeKey;
+  syncAiVisibility();
   showToast(hasKey?'✓ AI settings saved':'⚠ No API key — AI features disabled');
   // stay open so user can verify; they close manually
 }
@@ -2753,10 +2757,11 @@ function etAddTask(taskId){
 
 function renderEmailSettingsTab(){
   const el=document.getElementById('emailSettingsBody'); if(!el) return;
+  const helpLink=`<a href="Focal_USER_MANUAL.html#task-import" target="_blank" style="font-size:11px;color:var(--accent);text-decoration:none;margin-left:auto">? How does this work</a>`;
   if(_etHandle){
-    el.innerHTML=`<div class="fg"><label class="fl">Connected file</label><div style="display:flex;align-items:center;gap:10px;margin-top:4px"><span style="font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(_etHandle.name)}</span><button class="bsec" onclick="etConnect()">Change File</button><button class="bsec" style="color:var(--p1);border-color:var(--p1)" onclick="etDisconnect()">Disconnect</button></div><small style="font-size:11px;color:var(--muted);margin-top:6px;display:block">Focal reads this file on every Inbox visit and writes processed_at timestamps back after each triage action. Covers 📧 email, 💬 Teams chat, and 📅 calendar meeting prep tasks.</small></div>`;
+    el.innerHTML=`<div class="fg"><div style="display:flex;align-items:center;margin-bottom:4px"><label class="fl" style="margin:0">Connected file</label>${helpLink}</div><div style="display:flex;align-items:center;gap:10px;margin-top:4px"><span style="font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(_etHandle.name)}</span><button class="bsec" onclick="etConnect()">Change File</button><button class="bsec" style="color:var(--p1);border-color:var(--p1)" onclick="etDisconnect()">Disconnect</button></div><small style="font-size:11px;color:var(--muted);margin-top:6px;display:block">Focal reads this file on every Inbox visit and writes processed_at timestamps back after each triage action. Covers 📧 email, 💬 Teams chat, and 📅 calendar meeting prep tasks.</small></div>`;
   } else {
-    el.innerHTML=`<div class="fg"><label class="fl">Tasks File</label><p style="font-size:13px;color:var(--muted);margin:6px 0 12px">No file connected. Select your tasks.json file to enable daily triage of email, Teams, and meeting prep tasks in the Inbox view.</p><button class="bpri" onclick="etConnect()">Connect File</button></div>`;
+    el.innerHTML=`<div class="fg"><div style="display:flex;align-items:center;margin-bottom:4px"><label class="fl" style="margin:0">Tasks File</label>${helpLink}</div><p style="font-size:13px;color:var(--muted);margin:6px 0 12px">No file connected. Select your tasks.json file to enable daily triage of email, Teams, and meeting prep tasks in the Inbox view.</p><button class="bpri" onclick="etConnect()">Connect File</button></div>`;
   }
 }
 
@@ -2798,6 +2803,15 @@ function renderEmailTasks(){
   el.innerHTML=`<div class="et-section-hdr"><span>📋 Tasks</span><span class="et-count">${_etTasks.length} pending</span></div><div class="et-cards">${cards}</div>`;
 }
 
+// ═══ AI VISIBILITY ═══
+function syncAiVisibility(){
+  const hasKey=!!(S.settings&&S.settings.claudeKey);
+  const cap=document.getElementById('aiCapBtn');
+  const modal=document.getElementById('modalAiBtn');
+  if(cap) cap.style.display=hasKey?'':'none';
+  if(modal) modal.style.display=hasKey?'':'none';
+}
+
 // ═══ KEYBOARD ═══
 // Keyboard
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){if(!modalHasContent())closeModal();closeDrops();kCancelSubDlg();closeCtxMenu();closeKColMenu();closeSettings();} if(e.key==='n'&&!e.ctrlKey&&!e.metaKey&&document.activeElement.tagName==='BODY') openAdd(); });
@@ -2810,6 +2824,7 @@ renderAll();
 renderMatrixFilter();
 computeWeekSummary();
 populatePersonFilter();
+syncAiVisibility();
 etLoad();
 // Initialize pill disabled states for default view
 (function(){ const v=curView; const noFilters=v==='inbox'||v==='review'||v==='analytics'; const noBacklog=v==='today'||v==='kanban'||v==='matrix'; document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('pill-disabled',noFilters||(noBacklog&&p.dataset.f==='backlog'))); })();
