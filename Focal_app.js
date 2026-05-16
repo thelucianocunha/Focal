@@ -14,7 +14,7 @@ let matrixSectionFilter=new Set(['all']), matrixMode='view', pmFilter='all', pmF
 let kanbanSectionFilter=new Set(['all']);
 let ctxTaskId=null,ctxTaskSec=null,ctxTaskCol=null,ctxView=null;
 let personFilter=[];
-let _editGrpId=null, _newGrpMembers=[], _newGrpName='';
+let _editGrpId=null, _newGrpMembers=[], _newGrpName='', _pplLetter='';
 let analyticsP='month';
 
 // ═══ PERSISTENCE ═══
@@ -2366,8 +2366,12 @@ function renderPeopleTab(){
   if(S.knownConnections.length!==before) saveS();
   const all=S.knownConnections.slice().sort();
   const groups=(S.personGroups||[]).slice().sort((a,b)=>a.name.localeCompare(b.name));
-  const rows=all.length?all.map(n=>`<div class="ppl-row"><span class="ppl-name">${escHtml(n)}</span><button class="ppl-del" onclick="deletePerson('${escAttr(n)}')" title="Remove">×</button></div>`).join('')
-    :`<div style="padding:12px 20px;color:var(--muted);font-size:13px">No people yet — add someone below.</div>`;
+  const letters=[...new Set(all.map(n=>n[0]?.toUpperCase()).filter(Boolean))].sort();
+  const showAlpha=letters.length>5;
+  const alphaBar=showAlpha?`<div class="ppl-alpha-bar"><button class="ppl-alpha-btn${!_pplLetter?' on':''}" onclick="setPplLetter('')">All</button>${letters.map(l=>`<button class="ppl-alpha-btn${_pplLetter===l?' on':''}" onclick="setPplLetter('${l}')">${l}</button>`).join('')}</div>`:'';
+  const filtered=(_pplLetter&&showAlpha)?all.filter(n=>n[0]?.toUpperCase()===_pplLetter):all;
+  const rows=filtered.length?filtered.map(n=>`<div class="ppl-row"><span class="ppl-name">${escHtml(n)}</span><button class="ppl-del" onclick="deletePerson('${escAttr(n)}')" title="Remove">×</button></div>`).join('')
+    :(all.length?`<div style="padding:12px 20px;color:var(--muted);font-size:13px">No people starting with "${_pplLetter}".</div>`:`<div style="padding:12px 20px;color:var(--muted);font-size:13px">No people yet — add someone below.</div>`);
   let gh=`<div class="ppl-grp-hdr">Groups <button class="bsec" style="font-size:11px;padding:2px 8px;margin-left:6px" onclick="openAddGroup()">+ Add Group</button></div>`;
   groups.forEach(g=>{
     const isEdit=_editGrpId===g.id;
@@ -2395,8 +2399,9 @@ function renderPeopleTab(){
       <div style="display:flex;gap:8px;margin-top:10px"><button class="bpri" onclick="saveNewGroup()">Save Group</button><button class="bsec" onclick="cancelAddGroup()">Cancel</button></div>
     </div></div>`;
   }
-  body.innerHTML=rows+`<div class="ppl-add-row"><input class="fi" id="pplAddInp" placeholder="Add person or organization…" onkeydown="if(event.key==='Enter')addPerson()"><button class="bpri" style="flex-shrink:0" onclick="addPerson()">+ Add</button></div>`+gh;
+  body.innerHTML=alphaBar+rows+`<div class="ppl-add-row"><input class="fi" id="pplAddInp" placeholder="Add person or organization…" onkeydown="if(event.key==='Enter')addPerson()"><button class="bpri" style="flex-shrink:0" onclick="addPerson()">+ Add</button></div>`+gh;
 }
+function setPplLetter(l){ _pplLetter=l; renderPeopleTab(); }
 function addPerson(){
   const inp=document.getElementById('pplAddInp'); if(!inp) return;
   const name=(inp.value||'').trim(); if(!name) return;
