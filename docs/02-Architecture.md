@@ -100,9 +100,16 @@ All views share a two-layer filter pipeline:
 
 ## Versioning
 
-- Version lives in `Focal_data.default.js`: `VER` and `VDATE`
-- Minor feature = bump minor (9.0 → 9.1)
-- Major release = bump major (9.x → 10.0); archive files to `Archive/` first
+Focal uses **Semantic Versioning: `MAJOR.MINOR.PATCH`**
+
+| Segment | When |
+|---------|------|
+| `PATCH` | Bug fixes, doc corrections — no new features |
+| `MINOR` | New features, backwards compatible (resets PATCH to 0) |
+| `MAJOR` | Breaking localStorage schema change, full rewrite, rebrand (resets MINOR+PATCH) |
+
+- Version lives in `Focal_data.default.js`: `VER` (e.g. `'10.1.2'`) and `VDATE`
+- Before any MAJOR bump: archive current files to parent `Tasks/Archive/` first
 - localStorage key: `focal_v1` — migration guards in `loadS()` handle upgrades from older keys
 
 ## localStorage keys

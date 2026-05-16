@@ -62,7 +62,7 @@ The public starter data file. Committed to git. Loaded by `Focal.html` on every 
 
 Structure:
 ```js
-const VER   = '10.x';
+const VER   = '10.0.0';
 const VDATE = 'Month DD, YYYY';
 const FILE_DATA = {
   version, updated,
