@@ -46,7 +46,7 @@ To enable: open Settings → 🤖 AI, paste your Anthropic API key. Your key is 
 Focal is free for **non-commercial use** under [CC BY-NC 4.0](LICENSE).
 
 Commercial use (companies, paid products, client deployments) requires a commercial license.
-**Email luciano@lucianocunha.com** for commercial licensing.
+**Email theluciano@gmail.com** for commercial licensing.
 
 ## Documentation
 

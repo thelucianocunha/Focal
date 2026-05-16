@@ -21,7 +21,7 @@ Contributions that respect these constraints are most likely to be accepted. Con
 - Bug fixes (with clear reproduction steps)
 - Accessibility improvements
 - Mobile/responsive improvements
-- Performance optimisations
+- Performance optimizations
 - Documentation improvements
 - New features that fit the existing philosophy (open an issue first)
 
@@ -59,4 +59,4 @@ By submitting a PR you agree to the CLA described in [CONTRIBUTING.md](../CONTRI
 
 ## Questions?
 
-Open a GitHub Issue or email luciano@lucianocunha.com.
+Open a GitHub Issue or email theluciano@gmail.com.

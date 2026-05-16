@@ -243,4 +243,4 @@ git reset HEAD~1 --soft    # keeps your changes, undoes the commit
 
 ## Questions?
 
-Open a GitHub Issue or email luciano@lucianocunha.com.
+Open a GitHub Issue or email theluciano@gmail.com.

@@ -11,7 +11,7 @@ Focal is free to use for **non-commercial purposes** under the [CC BY-NC 4.0 lic
 
 ## How to get a commercial license
 
-Email **luciano@lucianocunha.com** with:
+Email **theluciano@gmail.com** with:
 
 1. Your name and organization
 2. How you intend to use Focal

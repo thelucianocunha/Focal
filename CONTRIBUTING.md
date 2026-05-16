@@ -58,4 +58,4 @@ Open a GitHub Issue with:
 
 ---
 
-*Questions? Email luciano@lucianocunha.com*
+*Questions? Email theluciano@gmail.com*

@@ -23,7 +23,7 @@ Welcome to the Focal knowledge base. These docs are designed to be read in [Obsi
 - **No server** — runs 100% locally
 - **No account** — all data in browser localStorage
 - **License** — CC BY-NC 4.0 (free for personal use; email for commercial)
-- **Commercial license** — luciano@lucianocunha.com
+- **Commercial license** — theluciano@gmail.com
 
 ## Related files (root of the repo)
 
