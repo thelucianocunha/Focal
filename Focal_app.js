@@ -2843,9 +2843,173 @@ function syncAiVisibility(){
   if(modal) modal.style.display=hasKey?'':'none';
 }
 
+// ═══ FEEDBACK ═══
+const FB_EMAIL = 'theluciano@gmail.com';
+
+function openFeedback() {
+  document.getElementById('fbMsg').value = '';
+  document.getElementById('fbCharCount').textContent = '0';
+  document.getElementById('fbCat').value = 'bug';
+  document.getElementById('fbCtxBody').style.display = 'none';
+  document.getElementById('fbCtxToggle').textContent = '▶ What we\'ll include with this report';
+  document.getElementById('fbCopyBtn').style.display = 'none';
+  document.getElementById('feedbackOvl').style.display = 'flex';
+  setTimeout(() => document.getElementById('fbMsg').focus(), 50);
+}
+function closeFeedback() {
+  document.getElementById('feedbackOvl').style.display = 'none';
+}
+function fbOvlClose(e) {
+  if (e.target === document.getElementById('feedbackOvl')) closeFeedback();
+}
+function fbCountChars() {
+  document.getElementById('fbCharCount').textContent = document.getElementById('fbMsg').value.length;
+}
+function fbToggleCtx() {
+  const body = document.getElementById('fbCtxBody');
+  const btn  = document.getElementById('fbCtxToggle');
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  btn.textContent = (open ? '▼' : '▶') + ' What we\'ll include with this report';
+  if (open) renderFbCtx();
+}
+function fbCollectCtx() {
+  const allTasks = (S.sections || []).flatMap(s => s.tasks || []);
+  const sc = { 'To Do': 0, 'In Progress': 0, 'Done': 0, 'Backlog': 0 };
+  allTasks.forEach(t => { if (sc[t.status] !== undefined) sc[t.status]++; });
+  const theme = (S.settings && S.settings.theme) || 'light';
+  const hasKey = !!(S.settings && S.settings.claudeKey);
+  const aiModel = (S.settings && S.settings.aiModel) || 'claude-haiku-4-5-20251001';
+  let lsKB = 0;
+  try { const d = localStorage.getItem('focal_v1'); if (d) lsKB = Math.round(d.length / 1024); } catch(e) {}
+  const ua = navigator.userAgent;
+  const browser = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Unknown';
+  const os = /Windows/.test(ua) ? 'Windows' : /Mac OS X/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : /iPhone|iPad/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' : 'Unknown';
+  const now = new Date();
+  const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  return {
+    version: typeof VER !== 'undefined' ? VER : '?',
+    vdate: typeof VDATE !== 'undefined' ? VDATE : '?',
+    dateStr, browser, os,
+    screen: screen.width + '×' + screen.height,
+    theme, hasKey, aiModel,
+    activeView: curView || '?',
+    sections: (S.sections || []).length,
+    connections: (S.knownConnections || []).length,
+    outcomes: (S.outcomes || []).length,
+    groups: (S.personGroups || []).length,
+    inbox: (S.inbox || []).length,
+    total: allTasks.length,
+    sc,
+    recurring: allTasks.filter(t => t.type === 'recurring').length,
+    lsKB
+  };
+}
+function renderFbCtx() {
+  const el = document.getElementById('fbCtxBody');
+  if (!el) return;
+  const c = fbCollectCtx();
+  const rows = [
+    ['Version', `${c.version} (${c.vdate})`],
+    ['Active view', c.activeView],
+    ['Theme', c.theme],
+    ['AI configured', c.hasKey ? 'Yes — ' + c.aiModel : 'No'],
+    ['Browser / OS', `${c.browser} / ${c.os}`],
+    ['Screen', c.screen],
+    ['Tasks — To Do', c.sc['To Do']],
+    ['Tasks — In Progress', c.sc['In Progress']],
+    ['Tasks — Done', c.sc['Done']],
+    ['Tasks — Backlog', c.sc['Backlog']],
+    ['Tasks — Total', c.total],
+    ['Recurring tasks', c.recurring],
+    ['Sections', c.sections],
+    ['Connections', c.connections],
+    ['Outcomes', c.outcomes],
+    ['Person groups', c.groups],
+    ['Inbox items', c.inbox],
+    ['Data size', '~' + c.lsKB + ' KB'],
+    ['Timestamp', c.dateStr],
+  ];
+  el.innerHTML = `<table class="fb-ctx-tbl">${rows.map(([k,v])=>`<tr><td>${escHtml(String(k))}</td><td>${escHtml(String(v))}</td></tr>`).join('')}</table>`;
+}
+function fbBuildMarkdown() {
+  const cat = document.getElementById('fbCat');
+  const catText = cat.options[cat.selectedIndex].text;
+  const msg = (document.getElementById('fbMsg').value || '').trim();
+  const c = fbCollectCtx();
+  return [
+    `# Focal Feedback — ${catText}`,
+    '',
+    `**Submitted:** ${c.dateStr}`,
+    `**Version:** ${c.version} (${c.vdate})`,
+    `**Category:** ${catText}`,
+    '',
+    '## Message',
+    '',
+    msg || '*(no message provided)*',
+    '',
+    '---',
+    '',
+    '## App Context',
+    '',
+    '| Field | Value |',
+    '|-------|-------|',
+    `| Version | ${c.version} (${c.vdate}) |`,
+    `| Active View | ${c.activeView} |`,
+    `| Theme | ${c.theme} |`,
+    `| AI Configured | ${c.hasKey ? 'Yes — ' + c.aiModel : 'No'} |`,
+    `| Browser | ${c.browser} |`,
+    `| OS | ${c.os} |`,
+    `| Screen | ${c.screen} |`,
+    `| Data Size | ~${c.lsKB} KB |`,
+    '',
+    '## Task Stats',
+    '',
+    '| Status | Count |',
+    '|--------|-------|',
+    `| To Do | ${c.sc['To Do']} |`,
+    `| In Progress | ${c.sc['In Progress']} |`,
+    `| Done | ${c.sc['Done']} |`,
+    `| Backlog | ${c.sc['Backlog']} |`,
+    `| **Total** | **${c.total}** |`,
+    '',
+    '## Configuration',
+    '',
+    `- Sections: ${c.sections}`,
+    `- Connections: ${c.connections}`,
+    `- Outcomes: ${c.outcomes}`,
+    `- Person Groups: ${c.groups}`,
+    `- Inbox Items: ${c.inbox}`,
+    `- Recurring Tasks: ${c.recurring}`,
+  ].join('\n');
+}
+function fbSend() {
+  const msg = (document.getElementById('fbMsg').value || '').trim();
+  if (!msg) { showToast('Please enter a message before sending.'); return; }
+  const cat = document.getElementById('fbCat');
+  const catText = cat.options[cat.selectedIndex].text;
+  const subject = `[Focal Feedback] ${catText} — v${typeof VER !== 'undefined' ? VER : '?'}`;
+  const body = fbBuildMarkdown();
+  const mailto = `mailto:${FB_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  if (mailto.length > 8000) {
+    document.getElementById('fbCopyBtn').style.display = '';
+    showToast('Feedback is long — use the Copy button, then paste into a new email.');
+    return;
+  }
+  window.location.href = mailto;
+  setTimeout(() => { closeFeedback(); showToast('✉ Opening your email client…'); }, 300);
+}
+function fbCopy() {
+  const body = fbBuildMarkdown();
+  navigator.clipboard.writeText(body).then(() => {
+    showToast('📋 Feedback copied to clipboard!');
+    closeFeedback();
+  }).catch(() => showToast('Could not copy — please select the text manually.'));
+}
+
 // ═══ KEYBOARD ═══
 // Keyboard
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){if(!modalHasContent())closeModal();closeDrops();kCancelSubDlg();closeCtxMenu();closeKColMenu();closeSettings();} if(e.key==='n'&&!e.ctrlKey&&!e.metaKey&&document.activeElement.tagName==='BODY') openAdd(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){if(!modalHasContent())closeModal();closeDrops();kCancelSubDlg();closeCtxMenu();closeKColMenu();closeSettings();closeFeedback();} if(e.key==='n'&&!e.ctrlKey&&!e.metaKey&&document.activeElement.tagName==='BODY') openAdd(); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.ctx-menu')){closeCtxMenu();closeKColMenu();} if(!e.target.closest('#personDd')){ const m=document.getElementById('personDdMenu'); if(m) m.style.display='none'; } });
 
 // ═══ INIT ═══

@@ -24,6 +24,7 @@
     <button class="hpill" id="btnDone" onclick="toggleDone()" title="Toggle completed tasks">✓ Done</button>
     <button class="hpill" id="btnBacklog" onclick="toggleBacklogView()" style="display:none" title="Toggle backlog tasks">📋 Backlog</button>
     <button class="hpill" id="btnConf" onclick="toggleConfView()" title="Toggle confidential tasks">🔒 Conf</button>
+    <button class="hpill" id="btnFeedback" onclick="openFeedback()" title="Send feedback about Focal">💬 Feedback</button>
     <div class="hdivider"></div>
     <button class="hibtn" id="btnSettings" onclick="openSettingsPanel('categories')" title="Settings">⚙️</button>
     <a class="hibtn" href="Focal_USER_MANUAL.html" target="_blank" title="Help / Manual">📖</a>
@@ -337,6 +338,43 @@
       <button class="bsec" onclick="closeSettings()">Close</button>
       <button class="bsec" id="sf-test" onclick="testApiKey()" style="display:none;border-color:var(--teal);color:var(--teal)">Test Connection</button>
       <button class="bpri" id="sf-save" onclick="saveSettings()" style="display:none">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="ovl" id="feedbackOvl" onclick="fbOvlClose(event)" style="display:none">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:480px">
+    <div class="mh"><span class="mt">💬 Send Feedback</span><button class="mx" onclick="closeFeedback()">×</button></div>
+    <div class="mb">
+      <div class="fg">
+        <label class="fl">Category</label>
+        <select class="fs" id="fbCat">
+          <option value="bug">🐛 Bug Report — something isn't working</option>
+          <option value="feature">💡 Feature Request — new functionality</option>
+          <option value="ui">🎨 UI/Design — visual or usability issue</option>
+          <option value="perf">⚡ Performance — slowness or sluggishness</option>
+          <option value="docs">📖 Documentation — unclear help or manual</option>
+          <option value="workflow">🔄 Workflow/UX — flow could work better</option>
+          <option value="data">🔒 Data/Privacy — data concern</option>
+          <option value="praise">🙌 General Praise — something you love</option>
+          <option value="question">❓ Question — not sure how something works</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Your Message <span style="color:var(--p1)">*</span></label>
+        <textarea class="fta" id="fbMsg" placeholder="Describe the issue, idea, or question…" oninput="fbCountChars()" rows="5" style="resize:vertical"></textarea>
+        <div style="text-align:right;font-size:11px;color:var(--dim);margin-top:3px"><span id="fbCharCount">0</span> chars</div>
+      </div>
+      <div class="fb-ctx-wrap">
+        <button class="fb-ctx-toggle" onclick="fbToggleCtx()" id="fbCtxToggle">▶ What we'll include with this report</button>
+        <div class="fb-ctx-body" id="fbCtxBody" style="display:none"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="bsec" onclick="closeFeedback()">Cancel</button>
+      <button class="bsec" id="fbCopyBtn" onclick="fbCopy()" style="display:none">📋 Copy</button>
+      <button class="bpri" onclick="fbSend()">✉ Send Feedback</button>
     </div>
   </div>
 </div>

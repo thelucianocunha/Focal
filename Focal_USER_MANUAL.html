@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.1.0</title>
+<title>Focal — User Manual v10.2.0</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -746,6 +746,7 @@
       <a class="nav-item" href="#recurring">Recurring Tasks</a>
       <a class="nav-item" href="#settings">⚙️ Settings Panel</a>
       <a class="nav-item" href="#appearance">🎨 Appearance / Dark Mode</a>
+      <a class="nav-item" href="#feedback">💬 Feedback</a>
       <a class="nav-item" href="#ai">🤖 AI Features</a>
     </div>
 
@@ -763,7 +764,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.1.0</h1>
+      <h1>Focal v10.2.0</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -1915,6 +1916,55 @@ to a local folder. It should:
 
     <hr class="sec-div">
 
+    <!-- ── FEEDBACK ── -->
+    <section class="section" id="feedback">
+      <div class="section-eyebrow">Feature — v10.2.0</div>
+      <h2>💬 In-App Feedback</h2>
+      <p class="section-lead">Click the <strong>💬 Feedback</strong> button in the top header to send feedback, report a bug, or request a feature. The form automatically attaches app context so reports are actionable without back-and-forth.</p>
+
+      <h3>How it works</h3>
+      <ol class="blist">
+        <li>Click <strong>💬 Feedback</strong> in the header (between Conf and ⚙️ Settings).</li>
+        <li>Select a <strong>Category</strong> from the dropdown.</li>
+        <li>Type your message in the <strong>Your Message</strong> field (required).</li>
+        <li>Optionally expand <strong>▶ What we'll include</strong> to preview the auto-attached context.</li>
+        <li>Click <strong>✉ Send Feedback</strong> — your default email client opens with a pre-filled Markdown message ready to send.</li>
+      </ol>
+
+      <h3>Category options</h3>
+      <div class="feature-block">
+        <table class="kb-table">
+          <thead><tr><th>Category</th><th>When to use</th></tr></thead>
+          <tbody>
+            <tr><td>🐛 Bug Report</td><td>Something isn't working as expected</td></tr>
+            <tr><td>💡 Feature Request</td><td>New functionality you'd like to see</td></tr>
+            <tr><td>🎨 UI/Design</td><td>Visual or usability issue</td></tr>
+            <tr><td>⚡ Performance</td><td>Slowness or sluggishness</td></tr>
+            <tr><td>📖 Documentation</td><td>Unclear help or manual content</td></tr>
+            <tr><td>🔄 Workflow/UX</td><td>A flow that could work better</td></tr>
+            <tr><td>🔒 Data/Privacy</td><td>Data concern or question</td></tr>
+            <tr><td>🙌 General Praise</td><td>Something you love about the app</td></tr>
+            <tr><td>❓ Question</td><td>Not sure how something works</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Auto-attached context</h3>
+      <p>Every feedback report includes: app version, active view, theme, AI configuration status, browser and OS, screen resolution, task counts by status, section/connection/outcome counts, inbox size, and a timestamp. This is shown in the <strong>▶ What we'll include</strong> disclosure before sending — no surprises.</p>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>The email is formatted in Markdown so it can be read cleanly by a human or processed by an AI assistant for triage and routing.</p>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>If your email client doesn't open automatically, a <strong>📋 Copy</strong> button appears — click it to copy the full Markdown report to the clipboard and paste it into any email.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
     <!-- ── AI FEATURES ── -->
     <section class="section" id="ai">
       <div class="section-eyebrow">Feature</div>
@@ -2042,7 +2092,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.1.0 — May 16, 2026</p>
+      <p>Focal v10.2.0 — May 17, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 
