@@ -4,8 +4,6 @@
 
 Focal is a lightweight, privacy-first task management app designed for leaders who need to stay on top of priorities without complexity. It runs entirely in your browser — no server, no account, no tracking. Your data never leaves your device.
 
-![Focal screenshot](docs/screenshot.png)
-
 ## Features
 
 - **All Tasks** — full task list with priority, status, due date, connections, and outcomes
@@ -25,7 +23,7 @@ Focal is a lightweight, privacy-first task management app designed for leaders w
 2. Open `Focal.html` in any modern browser (Chrome, Edge, Firefox, Safari)
 3. That's it — no install, no server, no account
 
-See [[01-Getting-Started]] for a full walkthrough.
+See [Getting Started](docs/01-Getting-Started.md) for a full walkthrough.
 
 ## AI features (optional)
 
@@ -56,12 +54,12 @@ Full documentation is in the `docs/` folder, readable in [Obsidian](https://obsi
 
 | File | Contents |
 |------|----------|
-| [[01-Getting-Started]] | Install, first run, basic workflow |
-| [[02-Architecture]] | 4-file structure, how the app works |
-| [[03-File-Structure]] | What every file contains |
-| [[04-Customizing]] | Personalising sections, outcomes, connections |
-| [[05-Contributing]] | How to contribute code |
-| [[06-Git-Setup]] | Git workflow for contributors |
+| [Getting Started](docs/01-Getting-Started.md) | Install, first run, basic workflow |
+| [Architecture](docs/02-Architecture.md) | 4-file structure, how the app works |
+| [File Structure](docs/03-File-Structure.md) | What every file contains |
+| [Customizing](docs/04-Customizing.md) | Personalizing sections, outcomes, connections |
+| [Contributing](docs/05-Contributing.md) | How to contribute code |
+| [Git Setup](docs/06-Git-Setup.md) | Git workflow for contributors |
 
 The in-app user manual (open via 📖 in the header) covers every feature in detail.
 
