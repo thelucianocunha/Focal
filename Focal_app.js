@@ -2819,7 +2819,7 @@ function renderAppearanceTab(){
   const el=document.getElementById('appearanceMgrBody');
   if(!el) return;
   const cur=(S.settings&&S.settings.theme)||'light';
-  const opts=[{v:'light',label:'☀️ Light',note:'Default'},{v:'dark',label:'🌙 Dark',note:''}];
+  const opts=[{v:'light',label:'☀️ Light Mode',note:'Default'},{v:'dark',label:'🌙 Dark Mode',note:''}];
   el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Choose how Focal looks on your screen.</p>
 <div style="display:flex;flex-direction:column;gap:8px">
 ${opts.map(o=>`<label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;border:1px solid ${cur===o.v?'var(--teal)':'var(--border)'};border-radius:8px;background:${cur===o.v?'var(--teal-dim)':'transparent'}">

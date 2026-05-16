@@ -974,8 +974,11 @@ html.dark .tp-act{background:var(--teal);color:#fff}
 html.dark .tp-act:hover{background:var(--teal-h)}
 html.dark .ix-cap-ta,html.dark .ix-cap-note{background:var(--surface2);color:var(--text);border-color:var(--border)}
 html.dark .an-card,html.dark .an-breakdown,html.dark .an-outcome-card{background:var(--surface)}
-html.dark .an-bidir-chart{background:var(--surface)}
+html.dark .an-bidir-chart,html.dark .an-chart{background:var(--surface)}
+html.dark .an-area-row{background:var(--surface)}
+html.dark .an-export{background:var(--surface2);color:var(--text)}
 html.dark .an-period-btn{background:var(--surface2)}
+html.dark .sec-add-inp,html.dark .sec-add-icon{background:var(--surface2);color:var(--text);border-color:var(--border)}
 html.dark .mnav{background:var(--surface);border-top-color:var(--border)}
 html.dark .kb-cbtn{background:var(--surface2)}
 html.dark .wrbtn{background:var(--surface2)}
