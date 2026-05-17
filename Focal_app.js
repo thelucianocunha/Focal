@@ -410,7 +410,7 @@ function renderStats(){
   let kbTod=0; S.sections.forEach(s=>s.tasks.forEach(t=>{ if(t.kanbanCol==='today') kbTod++; }));
   const bb=document.getElementById('btnBacklog'); if(bb) bb.style.display=back>0?'':'none';
   let aging=0; S.sections.forEach(s=>s.tasks.forEach(t=>{ if(ageLevel(t)!=='none') aging++; }));
-  const ap=document.getElementById('pill-aging'); if(ap){ ap.textContent=`⏱ Aging${aging?` (${aging})`:''}`; ap.style.display=aging>0?'':'none'; }
+  const ap=document.getElementById('pill-aging'); if(ap){ ap.innerHTML=`<span data-icon="clock"></span> Aging${aging?` (${aging})`:''}`; ap.style.display=aging>0?'':'none'; paintIcons(ap); }
   document.getElementById('sbar').innerHTML=`
     <div class="si" onclick="statClick('p1')" title="Filter: P1 Critical"><div class="sn r">${p1}</div><div class="sl">P1 Critical</div></div>
     <div class="si" onclick="statClick('prog')" title="Filter: In Progress"><div class="sn t">${prog}</div><div class="sl">In Progress</div></div>
@@ -423,7 +423,7 @@ function renderStats(){
     <div class="si" onclick="statClick('all')" title="Show all tasks"><div class="sn">${open}</div><div class="sl">Total Open</div></div>
   `;
   const tt=document.getElementById('tab-today');
-  if(tt){ const {plan:_tp,overdue:_to,week:_tw}=getTodayTasks(); const n=_tp.length+_to.length+_tw.length; tt.innerHTML=`⚡ Today${n>0?` <span class="tbadge">${n}</span>`:''}`; }
+  if(tt){ const {plan:_tp,overdue:_to,week:_tw}=getTodayTasks(); const n=_tp.length+_to.length+_tw.length; tt.innerHTML=`<span data-icon="zap"></span> Today${n>0?` <span class="tbadge">${n}</span>`:''}`; paintIcons(tt); }
   updateInboxBadge();
 }
 
@@ -2376,9 +2376,11 @@ function clearPersonFilter(){
 }
 function updatePersonDdLabel(){
   const btn=document.getElementById('personDdBtn'); if(!btn) return;
-  if(!personFilter.length){ btn.textContent='👤 All People'; btn.classList.remove('active'); return; }
-  if(personFilter.length===1){ btn.textContent='👤 '+personFilter[0]; btn.classList.add('active'); return; }
-  btn.textContent=`👤 ${personFilter.length} people`; btn.classList.add('active');
+  const ico=`<span data-icon="user"></span> `;
+  if(!personFilter.length){ btn.innerHTML=ico+'All People'; btn.classList.remove('active'); }
+  else if(personFilter.length===1){ btn.innerHTML=ico+escHtml(personFilter[0]); btn.classList.add('active'); }
+  else { btn.innerHTML=ico+escHtml(personFilter.length+' people'); btn.classList.add('active'); }
+  paintIcons(btn);
 }
 function filterPersonDd(q){
   const menu=document.getElementById('personDdMenu'); if(!menu) return;
@@ -2442,12 +2444,41 @@ const _ICONS={
   link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
   inbox:'<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
   unlink:'<path d="M18.84 12.25l1.72-1.71a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M5.17 11.75l-1.72 1.71a5 5 0 0 0 7.07 7.07l1.71-1.71"/><line x1="8" y1="2" x2="8" y2="5"/><line x1="2" y1="8" x2="5" y2="8"/><line x1="16" y1="19" x2="16" y2="22"/><line x1="19" y1="16" x2="22" y2="16"/>',
+  // v10.6 additions
+  zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  kanban:'<rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="13" rx="1"/><rect x="16" y="3" width="6" height="9" rx="1"/>',
+  'list-checks':'<line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/>',
+  'grid-2x2':'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  'bar-chart':'<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/><line x1="3" y1="20" x2="21" y2="20"/>',
+  'refresh-cw':'<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>',
+  archive:'<polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  repeat:'<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  'message-square':'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  'check-circle':'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+  scale:'<path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+  'eye-off':'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>',
+  rotate:'<polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>',
+  'lightning':'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  filter:'<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
 };
 function icon(name,size,stroke){
   size=size||16; stroke=stroke||1.75;
   const path=_ICONS[name];
   if(!path) return '';
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
+// Paints every <span data-icon="name"> in the document with its Lucide SVG.
+// Called once at init and after any DOM-injection that adds new data-icon spans.
+function paintIcons(root){
+  (root||document).querySelectorAll('[data-icon]:not([data-painted])').forEach(el=>{
+    const name=el.getAttribute('data-icon');
+    const size=parseInt(el.getAttribute('data-icon-size'),10)||14;
+    if(_ICONS[name]){ el.innerHTML=icon(name,size); el.setAttribute('data-painted',''); el.style.display='inline-flex'; el.style.verticalAlign='middle'; }
+  });
 }
 
 // ═══ SETTINGS ═══
@@ -3300,8 +3331,15 @@ function renderEmailTasks(){
 }
 
 // ═══ APPEARANCE ═══
+// Three theme values: 'light' | 'dark' | 'auto'. Auto follows the OS preference
+// via prefers-color-scheme and reacts live to OS changes (see _osThemeMedia listener).
+function _osPrefersDark(){
+  return !!(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
 function applyTheme(){
-  document.documentElement.classList.toggle('dark',(S.settings&&S.settings.theme)==='dark');
+  const pref=(S.settings&&S.settings.theme)||'light';
+  const dark = pref==='dark' || (pref==='auto' && _osPrefersDark());
+  document.documentElement.classList.toggle('dark',dark);
 }
 function setTheme(t){
   if(!S.settings) S.settings={};
@@ -3310,6 +3348,15 @@ function setTheme(t){
   applyTheme();
   renderAppearanceTab();
 }
+// Live OS-theme listener: when user is in Auto mode and toggles Windows/macOS dark mode,
+// the app flips immediately without a reload.
+(function _initOsThemeListener(){
+  if(!window.matchMedia) return;
+  const m=window.matchMedia('(prefers-color-scheme: dark)');
+  const h=()=>{ if((typeof S!=='undefined')&&S.settings&&S.settings.theme==='auto') applyTheme(); };
+  if(m.addEventListener) m.addEventListener('change',h);
+  else if(m.addListener) m.addListener(h);
+})();
 function setDensity(d){
   if(!S.settings) S.settings={};
   S.settings.density=d;
@@ -3341,6 +3388,7 @@ function renderAppearanceTab(){
   const themeOpts=[
     {v:'light',label:'Light',icon:'sun'},
     {v:'dark', label:'Dark', icon:'moon'},
+    {v:'auto', label:'Auto', icon:'monitor'},
   ];
   const densityOpts=[
     {v:'compact',label:'Compact'},
@@ -3351,7 +3399,7 @@ function renderAppearanceTab(){
     <div class="fcl-fieldrow">
       <div>
         <div class="fcl-fieldrow-label">Appearance</div>
-        <div class="fcl-fieldrow-hint">Match your system or pick one. Dark uses cool navy/slate; light uses warm off-white.</div>
+        <div class="fcl-fieldrow-hint">Light or Dark force the theme. Auto follows your operating system setting and reacts live when you toggle it.</div>
       </div>
       <div>
         <div class="fcl-seg" role="radiogroup" aria-label="Appearance">
@@ -3624,6 +3672,7 @@ const _ovlObserver=new MutationObserver(muts=>{
 applyTheme();
 applyDensity();
 applyReduceMotion();
+paintIcons();
 renderAll();
 renderMatrixFilter();
 computeWeekSummary();

@@ -1134,6 +1134,70 @@ html[data-density="roomy"] .fcl-list-row{padding:15px 16px}
 html[data-density="roomy"] .kb-body{gap:10px}
 
 /* ═══════════════════════════════════════════════════════════════════
+   CONTRAST FIX (v10.6.0) — dark text on every teal-background button.
+   White on teal is ~2.99:1 (fails WCAG AA). #062018 on teal is ~8.7:1
+   (AAA). Selectors below override the legacy `color:#fff` paired with
+   `background:var(--teal)` / `var(--accent)` across both modes.
+   ═══════════════════════════════════════════════════════════════════ */
+.hbtn.pri,
+.fab,
+.ix-add,
+.et-add,
+.et-conn-btn,
+.dpd.sel,
+.kb-fpill.on,
+.kb-grp-btn.on,
+.wrbtn.wr-start,
+.pq-accept,
+.ppl-alpha-btn.on,
+.an-period-btn.active,
+.kb-newweek:hover,
+.kc-arr:hover,
+.kc-play:hover,
+.wr-ai-btn:hover{
+  color:#062018;
+}
+html.dark .pill.on,
+html.dark .mpill.on,
+html.dark .bpri,
+html.dark .dptab.on,
+html.dark .tp-act,
+html.dark .pq-focus-btn:hover,
+html.dark .pq-focus-btn.on,
+html.dark .pq-seg-btn.on,
+html.dark .kb-newweek:hover{
+  color:#062018;
+}
+/* New design-system primary in light mode — was #FFFFFF, now matches dark mode's choice */
+:root:not(.dark) .fcl-btn--primary{color:#062018}
+:root:not(.dark){--fcl-accent-fg:#062018}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PALETTE ALIGNMENT (v10.6) — legacy --bg/--surface/etc vars in dark
+   mode adopt the design's navy-slate scale so the whole app reads as
+   one cohesive theme. Light mode unchanged.
+   ═══════════════════════════════════════════════════════════════════ */
+html.dark{
+  --bg:#0A1020;        /* was #111827 — now --fcl-bg-app */
+  --surface:#111A2F;   /* was #1F2937 — now --fcl-bg-shell */
+  --surface2:#1F2C4D;  /* was #374151 — now --fcl-bg-surface-2 */
+  --border:#243358;    /* was #4B5563 — now --fcl-border */
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FCL SIDEBAR FOOTER FIX (v10.6) — Settings sidebar's footer
+   ("Focal v…") was getting pushed out of the visible area on the
+   People tab in some viewport heights. Pin nav-groups area as the
+   scrollable region; footer stays anchored to bottom.
+   ═══════════════════════════════════════════════════════════════════ */
+.fcl-sidebar #fcl-nav-groups{flex:1 1 auto;overflow-y:auto;min-height:0}
+.fcl-sidebar-footer{flex:0 0 auto}
+
+/* Icons painted inline via data-icon — keep them aligned with text */
+[data-icon][data-painted]{display:inline-flex;align-items:center;vertical-align:middle}
+[data-icon][data-painted] svg{display:block}
+
+/* ═══════════════════════════════════════════════════════════════════
    FCL DESIGN SYSTEM (v10.5) — port of the Settings handoff tokens.
    Lives alongside the legacy --galaxy/--surface/--muted system; only
    the new Settings shell + future redesign work uses --fcl-*.

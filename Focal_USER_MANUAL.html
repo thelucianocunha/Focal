@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.5.1</title>
+<title>Focal — User Manual v10.6.0</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -713,7 +713,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Focal</div>
       <div class="sidebar-title">User Manual</div>
-      <div class="sidebar-ver">Version 10.5.1 · May 17, 2026</div>
+      <div class="sidebar-ver">Version 10.6.0 · May 17, 2026</div>
     </div>
 
     <div class="nav-group">
@@ -764,7 +764,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.5.1</h1>
+      <h1>Focal v10.6.0</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -1916,6 +1916,43 @@ to a local folder. It should:
 
     <hr class="sec-div">
 
+    <!-- ── DESIGN CASCADE v10.6.0 ── -->
+    <section class="section" id="design-cascade">
+      <div class="section-eyebrow">Polish — v10.6.0</div>
+      <h2>🎨 App-Wide Polish</h2>
+      <p class="section-lead">v10.6.0 cascades the v10.5 Settings redesign across the rest of Focal: contrast fixes, consistent line icons everywhere, the design's navy-slate palette in dark mode, and a third theme option that follows your OS.</p>
+
+      <h3>Auto theme — follows Windows / macOS</h3>
+      <p>The Theme tab now has three options: <strong>Light</strong>, <strong>Dark</strong>, and <strong>Auto</strong>. Auto follows your operating system's color-scheme preference and reacts <em>live</em> — toggle Windows or macOS dark mode while Focal is open and the app flips immediately, no reload.</p>
+
+      <h3>Contrast fixes — every teal-background button</h3>
+      <p>Bold white text on teal was failing WCAG AA contrast (about 3:1). v10.6.0 switches the foreground to a near-black with a hint of dark teal (<code>#062018</code>), giving 8.7:1 (AAA) on every primary button: <em>Add Task</em>, the mobile <em>+</em> floating action button, <em>Capture</em>, <em>Add as Task</em>, active filter pills, Kanban filter pills, Matrix mode toggles, and date-picker selections. Both light and dark mode get the fix.</p>
+
+      <h3>Lucide line icons app-wide</h3>
+      <p>Emoji icons have been replaced with consistent Lucide-style line icons across:</p>
+      <ul class="blist">
+        <li><strong>Header buttons</strong> — Demo, Done, Backlog, Conf, Feedback, Settings, Manual, Add Task</li>
+        <li><strong>View tabs</strong> — Today, Kanban, Inbox, All Tasks, Matrix, Analytics, Review</li>
+        <li><strong>Filter pills</strong> — Recurring, Confidential, Backlog, Aging</li>
+        <li><strong>Mobile nav</strong> — Today, Tasks, Kanban, Inbox (was inline custom SVGs, now Lucide family)</li>
+        <li><strong>Person dropdown</strong>, AI buttons (Capture, AI-fill)</li>
+      </ul>
+      <p>The previous duplicate <code>📋</code> icon is now split: <strong>All Tasks</strong> uses Lucide's <em>list-checks</em>, <strong>Backlog</strong> uses <em>archive</em>. Each meaning gets a distinct shape.</p>
+
+      <h3>Dark navy palette</h3>
+      <p>Dark mode legacy variables (<code>--bg</code>, <code>--surface</code>, <code>--surface2</code>, <code>--border</code>) now adopt the design's navy-slate scale (<code>#0A1020</code> / <code>#111A2F</code> / <code>#1F2C4D</code> / <code>#243358</code>) so the whole app reads as one cohesive theme instead of half neutral-gray, half navy. Light mode unchanged.</p>
+
+      <h3>Sidebar footer fix</h3>
+      <p>The Settings sidebar's footer ("Focal v…") was disappearing on the People tab in some viewports. The nav groups now scroll independently while the footer stays pinned to the bottom.</p>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Settings → 🎨 Theme → set to <strong>Auto</strong>, then toggle your OS dark mode to see Focal flip live.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
     <!-- ── SETTINGS REDESIGN v10.5.0 ── -->
     <section class="section" id="settings-redesign">
       <div class="section-eyebrow">Redesign — v10.5.0</div>
@@ -2216,7 +2253,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.5.1 — May 17, 2026</p>
+      <p>Focal v10.6.0 — May 17, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

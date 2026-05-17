@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="focal-logo-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="Focal.css">
-<script>(function(){try{const s=JSON.parse(localStorage.getItem('focal_v1'));if(s&&s.settings&&s.settings.theme==='dark')document.documentElement.classList.add('dark');}catch(e){}})();</script>
+<script>(function(){try{const s=JSON.parse(localStorage.getItem('focal_v1'));const t=s&&s.settings&&s.settings.theme;const osDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t==='auto'&&osDark))document.documentElement.classList.add('dark');}catch(e){}})();</script>
 </head>
 <body>
 
@@ -20,28 +20,28 @@
     <span class="vbadge" id="vbadge"></span>
   </div>
   <div class="hr">
-    <button class="hpill" id="btnDemo" onclick="toggleDemo()" title="Demo mode — masks task names">🎭 Demo</button>
-    <button class="hpill" id="btnDone" onclick="toggleDone()" title="Toggle completed tasks">✓ Done</button>
-    <button class="hpill" id="btnBacklog" onclick="toggleBacklogView()" style="display:none" title="Toggle backlog tasks">📋 Backlog</button>
-    <button class="hpill" id="btnConf" onclick="toggleConfView()" title="Toggle confidential tasks">🔒 Conf</button>
-    <button class="hpill" id="btnFeedback" onclick="openFeedback()" title="Send feedback about Focal">💬 Feedback</button>
+    <button class="hpill" id="btnDemo" onclick="toggleDemo()" title="Demo mode — masks task names"><span data-icon="eye-off"></span> Demo</button>
+    <button class="hpill" id="btnDone" onclick="toggleDone()" title="Toggle completed tasks"><span data-icon="check"></span> Done</button>
+    <button class="hpill" id="btnBacklog" onclick="toggleBacklogView()" style="display:none" title="Toggle backlog tasks"><span data-icon="archive"></span> Backlog</button>
+    <button class="hpill" id="btnConf" onclick="toggleConfView()" title="Toggle confidential tasks"><span data-icon="lock"></span> Conf</button>
+    <button class="hpill" id="btnFeedback" onclick="openFeedback()" title="Send feedback about Focal"><span data-icon="message-square"></span> Feedback</button>
     <div class="hdivider"></div>
-    <button class="hibtn" id="btnSettings" onclick="openSettingsPanel('categories')" title="Settings">⚙️</button>
-    <a class="hibtn" href="Focal_USER_MANUAL.html" target="_blank" title="Help / Manual">📖</a>
+    <button class="hibtn" id="btnSettings" onclick="openSettingsPanel('categories')" title="Settings" aria-label="Settings"><span data-icon="settings"></span></button>
+    <a class="hibtn" href="Focal_USER_MANUAL.html" target="_blank" title="Help / Manual" aria-label="Manual"><span data-icon="book"></span></a>
     <div class="hdivider"></div>
-    <button class="hbtn pri" onclick="openAdd()">+ Add Task</button>
+    <button class="hbtn pri" onclick="openAdd()"><span data-icon="plus"></span> Add Task</button>
   </div>
 </header>
 
 <!-- VIEW TABS -->
 <div class="vtabs" role="tablist" aria-label="Views">
-  <div class="vtab on" id="tab-today"     role="tab" tabindex="0"  aria-selected="true"  onclick="sw('today')">⚡ Today</div>
-  <div class="vtab"    id="tab-kanban"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('kanban')">📊 Kanban</div>
-  <div class="vtab"    id="tab-inbox"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('inbox')">📥 Inbox <span class="tbadge" id="tbadge-inbox" style="display:none" aria-hidden="true"></span></div>
-  <div class="vtab"    id="tab-tasks"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('tasks')">📋 All Tasks</div>
-  <div class="vtab"    id="tab-matrix"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('matrix')">🎯 Matrix</div>
-  <div class="vtab"    id="tab-analytics" role="tab" tabindex="-1" aria-selected="false" onclick="sw('analytics')">📈 Analytics</div>
-  <div class="vtab"    id="tab-review"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('review')">🔄 Review</div>
+  <div class="vtab on" id="tab-today"     role="tab" tabindex="0"  aria-selected="true"  onclick="sw('today')"><span data-icon="zap"></span> Today</div>
+  <div class="vtab"    id="tab-kanban"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('kanban')"><span data-icon="kanban"></span> Kanban</div>
+  <div class="vtab"    id="tab-inbox"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('inbox')"><span data-icon="inbox"></span> Inbox <span class="tbadge" id="tbadge-inbox" style="display:none" aria-hidden="true"></span></div>
+  <div class="vtab"    id="tab-tasks"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('tasks')"><span data-icon="list-checks"></span> All Tasks</div>
+  <div class="vtab"    id="tab-matrix"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('matrix')"><span data-icon="grid-2x2"></span> Matrix</div>
+  <div class="vtab"    id="tab-analytics" role="tab" tabindex="-1" aria-selected="false" onclick="sw('analytics')"><span data-icon="bar-chart"></span> Analytics</div>
+  <div class="vtab"    id="tab-review"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('review')"><span data-icon="refresh-cw"></span> Review</div>
 </div>
 
 <!-- STATS -->
@@ -62,13 +62,13 @@
     <span class="pill"    data-f="prog"    role="button" tabindex="0" aria-pressed="false" onclick="setF('prog',this,event)" title="Ctrl+click to combine filters">In Progress</span>
     <span class="pill"    data-f="overdue" role="button" tabindex="0" aria-pressed="false" onclick="setF('overdue',this,event)" title="Ctrl+click to combine filters">Overdue</span>
     <span class="pill"    data-f="week"    role="button" tabindex="0" aria-pressed="false" onclick="setF('week',this,event)" title="Ctrl+click to combine filters">Due This Week</span>
-    <span class="pill"    data-f="rec"     role="button" tabindex="0" aria-pressed="false" onclick="setF('rec',this,event)"  title="Ctrl+click to combine filters">🔁 Recurring</span>
-    <span class="pill"    data-f="conf"    role="button" tabindex="0" aria-pressed="false" onclick="setF('conf',this,event)" title="Ctrl+click to combine filters">🔒 Confidential</span>
-    <span class="pill"    data-f="backlog" role="button" tabindex="0" aria-pressed="false" onclick="setF('backlog',this,event)" title="Ctrl+click to combine filters">📋 Backlog</span>
-    <span class="pill"    data-f="aging"   role="button" tabindex="0" aria-pressed="false" onclick="setF('aging',this,event)" id="pill-aging" style="display:none" title="Ctrl+click to combine filters">⏱ Aging</span>
+    <span class="pill"    data-f="rec"     role="button" tabindex="0" aria-pressed="false" onclick="setF('rec',this,event)"  title="Ctrl+click to combine filters"><span data-icon="repeat"></span> Recurring</span>
+    <span class="pill"    data-f="conf"    role="button" tabindex="0" aria-pressed="false" onclick="setF('conf',this,event)" title="Ctrl+click to combine filters"><span data-icon="lock"></span> Confidential</span>
+    <span class="pill"    data-f="backlog" role="button" tabindex="0" aria-pressed="false" onclick="setF('backlog',this,event)" title="Ctrl+click to combine filters"><span data-icon="archive"></span> Backlog</span>
+    <span class="pill"    data-f="aging"   role="button" tabindex="0" aria-pressed="false" onclick="setF('aging',this,event)" id="pill-aging" style="display:none" title="Ctrl+click to combine filters"><span data-icon="clock"></span> Aging</span>
   </div>
   <div class="person-dd" id="personDd">
-    <button class="person-dd-btn" id="personDdBtn" onclick="togglePersonDd()" title="Filter by person / connection">👤 All People</button>
+    <button class="person-dd-btn" id="personDdBtn" onclick="togglePersonDd()" title="Filter by person / connection"><span data-icon="user"></span> All People</button>
     <div class="person-dd-menu" id="personDdMenu" style="display:none"></div>
   </div>
 </div>
@@ -81,7 +81,7 @@
       <textarea class="ix-cap-ta" id="ixCapText" placeholder="Capture tasks — one per line, or paste a list. Enter = quick save to inbox, ✨ = AI structure." onkeydown="ixCapKey(event)" oninput="ixCapResize(this)" rows="1"></textarea>
       <input class="ix-cap-note" id="ixCapNote" placeholder="Note (single task)…" onkeydown="if(event.key==='Enter')ixCapture()">
       <button class="ix-add" onclick="ixCapture()">+ Capture</button>
-      <button class="ix-ai-btn" id="aiCapBtn" onclick="nlCapture()">✨ AI → Task</button>
+      <button class="ix-ai-btn" id="aiCapBtn" onclick="nlCapture()"><span data-icon="sparkles"></span> AI → Task</button>
     </div>
     <div id="nlBatchPreview" style="display:none"></div>
     <div id="et-section"></div>
@@ -183,7 +183,7 @@
       <button class="mx" onclick="closeModal()" aria-label="Close dialog">×</button>
     </div>
     <div class="mb">
-      <div class="fg"><div class="fl-row"><label class="fl">Task Description *</label><button class="modal-ai-btn" id="modalAiBtn" onclick="nlFillModal()" title="Describe the task above and let AI fill the rest">✨ AI-fill</button></div><input class="fi" id="fTask" placeholder="What needs to be done?" onkeydown="if(event.key==='Enter'){event.preventDefault();saveTask();}"></div>
+      <div class="fg"><div class="fl-row"><label class="fl">Task Description *</label><button class="modal-ai-btn" id="modalAiBtn" onclick="nlFillModal()" title="Describe the task above and let AI fill the rest"><span data-icon="sparkles" data-icon-size="12"></span> AI-fill</button></div><input class="fi" id="fTask" placeholder="What needs to be done?" onkeydown="if(event.key==='Enter'){event.preventDefault();saveTask();}"></div>
       <div class="fg"><label class="fl">Notes / Next Step</label><textarea class="fta" id="fNote" placeholder="Add context or next action…"></textarea></div>
       <div class="fg"><label class="fl">🔗 Link / URL</label><input class="fi" id="fUrl" type="url" placeholder="https://…"></div>
       <div class="fg" id="fParentRow" style="display:none">
@@ -386,17 +386,17 @@
 <nav class="mnav" aria-label="Mobile navigation">
   <div class="mni">
     <div class="nit on" id="mnav-today" role="button" tabindex="0" aria-label="Today view" onclick="sw('today')">
-      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Today
+      <span data-icon="zap" data-icon-size="20"></span>Today
     </div>
     <div class="nit" id="mnav-tasks" role="button" tabindex="0" aria-label="All Tasks view" onclick="sw('tasks')">
-      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks
+      <span data-icon="list-checks" data-icon-size="20"></span>Tasks
     </div>
     <button class="fab" onclick="openAdd()" aria-label="Add task">+</button>
     <div class="nit" id="mnav-kanban" role="button" tabindex="0" aria-label="Kanban view" onclick="sw('kanban')">
-      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="13" rx="1"/><rect x="16" y="3" width="6" height="9" rx="1"/></svg>Kanban
+      <span data-icon="kanban" data-icon-size="20"></span>Kanban
     </div>
     <div class="nit" id="mnav-inbox" role="button" tabindex="0" aria-label="Inbox view" onclick="sw('inbox')">
-      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Inbox
+      <span data-icon="inbox" data-icon-size="20"></span>Inbox
     </div>
   </div>
 </nav>
