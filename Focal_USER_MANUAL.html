@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.4.1</title>
+<title>Focal — User Manual v10.5.0</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -713,7 +713,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Focal</div>
       <div class="sidebar-title">User Manual</div>
-      <div class="sidebar-ver">Version 10.4.1 · May 17, 2026</div>
+      <div class="sidebar-ver">Version 10.5.0 · May 17, 2026</div>
     </div>
 
     <div class="nav-group">
@@ -764,7 +764,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.4.1</h1>
+      <h1>Focal v10.5.0</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -1916,6 +1916,52 @@ to a local folder. It should:
 
     <hr class="sec-div">
 
+    <!-- ── SETTINGS REDESIGN v10.5.0 ── -->
+    <section class="section" id="settings-redesign">
+      <div class="section-eyebrow">Redesign — v10.5.0</div>
+      <h2>⚙️ Settings — New Sidebar Layout</h2>
+      <p class="section-lead">v10.5.0 replaces Focal's cramped horizontal Settings tabs with a sidebar dialog. All sections stay visible at once, navigation is grouped by purpose, and the content pane has room to breathe.</p>
+
+      <h3>Layout</h3>
+      <ul class="blist">
+        <li><strong>Sidebar (left, 248px)</strong> — three groups: <em>Workspace</em> (Categories · People · Outcomes), <em>Intelligence</em> (AI · Task Feed), <em>System</em> (Backup · Theme).</li>
+        <li><strong>Content pane (right)</strong> — each section opens with an icon + title + one-line subtitle, then the body. The content pane scrolls internally; the sidebar stays fixed.</li>
+        <li><strong>Last-opened tab is remembered</strong> — reopening Settings returns you to where you were.</li>
+        <li><strong>Mobile-responsive</strong> — below ~720px width, the sidebar collapses into a horizontal scroller above the content.</li>
+      </ul>
+
+      <h3>New design system</h3>
+      <p>Settings now uses Focal's new <code>--fcl-*</code> design tokens — cool slate/navy in dark mode, clean off-white in light mode. Lucide-style line icons replace emoji throughout Settings (gear, tag, users, sparkles, target, database, palette, etc.) for visual consistency. Toggle switches, segmented controls, and badge dots match the v1 handoff exactly.</p>
+
+      <h3>Theme tab — what's new</h3>
+      <ul class="blist">
+        <li><strong>Appearance</strong> is now a segmented control (Light · Dark) instead of stacked radio buttons.</li>
+        <li><strong>Density</strong> (new) — Compact / Cozy / Roomy. Sets <code>data-density</code> on the document root for future component opt-in. Cozy is default.</li>
+        <li><strong>Reduce motion</strong> (new) — an explicit toggle, in addition to honoring the OS-level <code>prefers-reduced-motion</code> setting automatically.</li>
+      </ul>
+
+      <h3>AI tab — what's new</h3>
+      <ul class="blist">
+        <li><strong>Field-row layout</strong> with hint text beside each control, matching the design spec.</li>
+        <li><strong>Show/hide API key</strong> eye-toggle next to the password input — clicking switches the field between dots and plain text. Never defaults to visible.</li>
+        <li><strong>Test connection</strong> and <strong>Save</strong> buttons moved into the AI body itself (previously in a global modal footer).</li>
+      </ul>
+
+      <h3>Backup tab — what's new</h3>
+      <ul class="blist">
+        <li><strong>Card-style "Auto-backup" section</strong> with a CONNECTED badge dot, file/last-save/error rows, and aligned action buttons.</li>
+        <li><strong>Lucide icons</strong> on every action: Download (Export), Upload (Import), Save (Save now), Refresh (Restore), Unlink (Disconnect), Link (Connect).</li>
+        <li><strong>Safety snapshots list</strong> renders as a clean code-chip list when present.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Settings, density, and reduce-motion preferences live in <code>S.settings</code>. They sync via auto-backup just like your tasks.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
     <!-- ── BACKUP & RESTORE v10.4.0 ── -->
     <section class="section" id="backup">
       <div class="section-eyebrow">Feature — v10.4.0</div>
@@ -2170,7 +2216,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.4.1 — May 17, 2026</p>
+      <p>Focal v10.5.0 — May 17, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

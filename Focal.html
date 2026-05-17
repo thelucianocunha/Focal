@@ -290,58 +290,54 @@
 <!-- OUTCOME MANAGER OVERLAY -->
 <div class="pm-ovl" id="pm-ovl" onclick="pmOvlClose(event)"></div>
 
-<!-- SETTINGS MODAL -->
-<div class="ovl" id="settingsOvl" onclick="settingsOvlClose(event)" role="dialog" aria-modal="true" aria-label="Settings" aria-hidden="true">
-  <div class="modal" onclick="event.stopPropagation()" style="max-width:480px">
-    <div class="mh"><span class="mt">⚙️ Settings</span><button class="mx" onclick="closeSettings()" aria-label="Close settings">×</button></div>
-    <div class="stab-nav">
-      <button class="stab on" id="stab-categories" onclick="switchSettingsTab('categories')">Categories</button>
-      <button class="stab" id="stab-people" onclick="switchSettingsTab('people')">People</button>
-      <button class="stab" id="stab-ai" onclick="switchSettingsTab('ai')">AI</button>
-      <button class="stab" id="stab-outcomes" onclick="switchSettingsTab('outcomes')">Outcomes</button>
-      <button class="stab" id="stab-email" onclick="switchSettingsTab('email')">📨 Task Feed</button>
-      <button class="stab" id="stab-data" onclick="switchSettingsTab('data')">💾 Backup</button>
-      <button class="stab" id="stab-appearance" onclick="switchSettingsTab('appearance')">Theme</button>
-    </div>
-    <div class="stab-body" id="stab-body-categories">
-      <div style="padding:16px 20px" id="secMgrBody"></div>
-    </div>
-    <div class="stab-body" id="stab-body-people" style="display:none">
-      <div id="peopleMgrBody"></div>
-    </div>
-    <div class="stab-body" id="stab-body-outcomes" style="display:none">
-      <div id="outcomesMgrBody"></div>
-    </div>
-    <div class="stab-body" id="stab-body-ai" style="display:none">
-      <div class="mb">
-        <div class="fg">
-          <label class="fl">Anthropic API Key</label>
-          <input class="fi" id="fApiKey" type="password" placeholder="sk-ant-…" autocomplete="off">
-          <small style="font-size:11px;color:var(--muted);margin-top:2px;display:block">Stored locally in your browser only. Used for AI natural language capture and weekly debrief. Get your key at console.anthropic.com.</small>
-        </div>
-        <div class="fg">
-          <label class="fl">AI Model</label>
-          <select class="fs" id="fAiModel">
-            <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — Fast &amp; economical (recommended)</option>
-            <option value="claude-sonnet-4-6">Claude Sonnet 4.6 — Higher quality</option>
-          </select>
-        </div>
-        <div id="aiKeyStatus" style="font-size:12px;padding:8px 12px;border-radius:6px;display:none"></div>
+<!-- SETTINGS MODAL (v10.5 sidebar shell) -->
+<div class="ovl fcl-settings" id="settingsOvl" onclick="settingsOvlClose(event)" role="dialog" aria-modal="true" aria-labelledby="fcl-section-title" aria-hidden="true">
+  <div class="fcl-shell" onclick="event.stopPropagation()">
+    <!-- Sidebar -->
+    <nav class="fcl-sidebar" aria-label="Settings sections">
+      <div class="fcl-brand">
+        <span class="fcl-brand-icon" id="fcl-brand-icon"></span>
+        <span class="fcl-brand-name">Settings</span>
       </div>
-    </div>
-    <div class="stab-body" id="stab-body-email" style="display:none">
-      <div id="emailSettingsBody" style="padding:16px 20px"></div>
-    </div>
-    <div class="stab-body" id="stab-body-data" style="display:none">
-      <div id="dataMgrBody" style="padding:16px 20px"></div>
-    </div>
-    <div class="stab-body" id="stab-body-appearance" style="display:none">
-      <div id="appearanceMgrBody" style="padding:16px 20px"></div>
-    </div>
-    <div class="mf">
-      <button class="bsec" onclick="closeSettings()">Close</button>
-      <button class="bsec" id="sf-test" onclick="testApiKey()" style="display:none;border-color:var(--teal);color:var(--teal)">Test Connection</button>
-      <button class="bpri" id="sf-save" onclick="saveSettings()" style="display:none">Save</button>
+      <div id="fcl-nav-groups"></div>
+      <div class="fcl-sidebar-footer">
+        <span id="fcl-footer-ver">Focal</span>
+      </div>
+    </nav>
+
+    <!-- Content pane -->
+    <div class="fcl-content">
+      <div class="fcl-topbar">
+        <div class="fcl-topbar-l">
+          <h2 class="fcl-topbar-title" id="fcl-section-title"><span id="fcl-section-icon"></span><span id="fcl-section-name">Settings</span></h2>
+          <p class="fcl-topbar-desc" id="fcl-section-desc"></p>
+        </div>
+        <button class="fcl-close" onclick="closeSettings()" aria-label="Close settings" id="fcl-close-btn"></button>
+      </div>
+      <div class="fcl-body" id="fcl-body">
+        <!-- Existing tab body containers; one visible at a time (display managed by switchSettingsTab) -->
+        <div class="stab-body" id="stab-body-categories">
+          <div id="secMgrBody"></div>
+        </div>
+        <div class="stab-body" id="stab-body-people" style="display:none">
+          <div id="peopleMgrBody"></div>
+        </div>
+        <div class="stab-body" id="stab-body-outcomes" style="display:none">
+          <div id="outcomesMgrBody"></div>
+        </div>
+        <div class="stab-body" id="stab-body-ai" style="display:none">
+          <div id="aiSettingsBody"></div>
+        </div>
+        <div class="stab-body" id="stab-body-email" style="display:none">
+          <div id="emailSettingsBody"></div>
+        </div>
+        <div class="stab-body" id="stab-body-data" style="display:none">
+          <div id="dataMgrBody"></div>
+        </div>
+        <div class="stab-body" id="stab-body-appearance" style="display:none">
+          <div id="appearanceMgrBody"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

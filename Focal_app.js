@@ -2413,39 +2413,180 @@ function togDecided(id,secId){
   saveS(); renderAll(); showToast(t.decided?'⚖️ Decision marked as decided':'⚖️ Decision pending');
 }
 
+// ═══ ICONS ═══
+// Vendored Lucide-style line icons. 24x24 viewBox, currentColor stroke.
+// Add new icons here by name; pass into icon(name,size,stroke) helper.
+const _ICONS={
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  tag:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',
+  users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  sparkles:'<path d="M12 3l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3z"/>',
+  target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+  palette:'<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+  refresh:'<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+  search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  close:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  database:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+  moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  sun:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>',
+  monitor:'<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+  eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff:'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>',
+  edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+  trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  inbox:'<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  unlink:'<path d="M18.84 12.25l1.72-1.71a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M5.17 11.75l-1.72 1.71a5 5 0 0 0 7.07 7.07l1.71-1.71"/><line x1="8" y1="2" x2="8" y2="5"/><line x1="2" y1="8" x2="5" y2="8"/><line x1="16" y1="19" x2="16" y2="22"/><line x1="19" y1="16" x2="22" y2="16"/>',
+};
+function icon(name,size,stroke){
+  size=size||16; stroke=stroke||1.75;
+  const path=_ICONS[name];
+  if(!path) return '';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
+
 // ═══ SETTINGS ═══
+// Sidebar nav structure (v10.5 redesign).
+const _SETTINGS_GROUPS=[
+  { id:'workspace', title:'Workspace', items:[
+    { id:'categories', label:'Categories', icon:'tag',     desc:'Sections and quick-add'},
+    { id:'people',     label:'People',     icon:'users',   desc:'Connections and groups'},
+    { id:'outcomes',   label:'Outcomes',   icon:'target',  desc:'Strategic outcomes your tasks contribute to'},
+  ]},
+  { id:'intelligence', title:'Intelligence', items:[
+    { id:'ai',    label:'AI',          icon:'sparkles', desc:'Anthropic API key and model'},
+    { id:'email', label:'Task Feed',   icon:'inbox',    desc:'External JSON file feeding the Inbox'},
+  ]},
+  { id:'system', title:'System', items:[
+    { id:'data',       label:'Backup', icon:'database', desc:'Backup, restore, and auto-save'},
+    { id:'appearance', label:'Theme',  icon:'palette',  desc:'Appearance, density, motion'},
+  ]},
+];
+const _SETTINGS_FLAT=_SETTINGS_GROUPS.flatMap(g=>g.items);
+const _findSetting=id=>_SETTINGS_FLAT.find(s=>s.id===id);
+
 let _settingsTab='categories';
 
+function _renderSettingsNav(){
+  const el=document.getElementById('fcl-nav-groups'); if(!el) return;
+  el.innerHTML=_SETTINGS_GROUPS.map(g=>`
+    <div class="fcl-group">
+      <div class="fcl-group-label">${escHtml(g.title)}</div>
+      ${g.items.map(it=>`<button class="fcl-nav-item ${it.id===_settingsTab?'on':''}" data-tab="${escAttr(it.id)}" onclick="switchSettingsTab('${escJs(it.id)}')" aria-current="${it.id===_settingsTab?'page':'false'}"><span class="fcl-nav-icon">${icon(it.icon,16)}</span><span>${escHtml(it.label)}</span></button>`).join('')}
+    </div>
+  `).join('');
+  // brand + close icons
+  document.getElementById('fcl-brand-icon').innerHTML=icon('settings',16);
+  document.getElementById('fcl-close-btn').innerHTML=icon('close',16,2);
+  document.getElementById('fcl-footer-ver').textContent='Focal v'+(typeof VER!=='undefined'?VER:'');
+}
+function _updateSettingsHeader(){
+  const it=_findSetting(_settingsTab); if(!it) return;
+  document.getElementById('fcl-section-icon').innerHTML=icon(it.icon,18,2);
+  document.getElementById('fcl-section-name').textContent=it.label;
+  document.getElementById('fcl-section-desc').textContent=it.desc||'';
+}
+
 function openSettingsPanel(tab){
-  tab=tab||'categories';
+  tab=tab||(S.settings&&S.settings.lastSettingsTab)||'categories';
+  if(!_findSetting(tab)) tab='categories';
   renderSecMgr();
   renderPeopleTab();
   renderOutcomesTab();
-  const s=S.settings||{};
-  document.getElementById('fApiKey').value=s.claudeKey||'';
-  document.getElementById('fAiModel').value=s.aiModel||'claude-haiku-4-5-20251001';
-  document.getElementById('aiKeyStatus').style.display='none';
   switchSettingsTab(tab);
+  _renderSettingsNav();
   document.getElementById('settingsOvl').classList.add('on');
 }
 function switchSettingsTab(tab){
   _settingsTab=tab;
   ['categories','people','ai','outcomes','email','appearance','data'].forEach(t=>{
     const body=document.getElementById('stab-body-'+t); if(body) body.style.display=t===tab?'':'none';
-    const btn=document.getElementById('stab-'+t); if(btn) btn.classList.toggle('on',t===tab);
   });
-  document.getElementById('sf-test').style.display=tab==='ai'?'':'none';
-  document.getElementById('sf-save').style.display=tab==='ai'?'':'none';
+  // update sidebar active state in place (avoids full nav re-render)
+  document.querySelectorAll('.fcl-nav-item').forEach(b=>{
+    const on=b.dataset.tab===tab;
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-current',on?'page':'false');
+  });
+  _updateSettingsHeader();
+  if(tab==='ai') renderAiTab();
   if(tab==='email') renderEmailSettingsTab();
   if(tab==='appearance') renderAppearanceTab();
   if(tab==='data') renderDataTab();
+  // persist last-opened tab
+  if(!S.settings) S.settings={};
+  if(S.settings.lastSettingsTab!==tab){ S.settings.lastSettingsTab=tab; saveS(); }
 }
-function openSettings(){ openSettingsPanel('ai'); }
+function openSettings(){ openSettingsPanel(); }
 function closeSettings(){
   document.getElementById('settingsOvl').classList.remove('on');
   rebuildSecDropdown(); renderAll(); applyF(); renderMatrixFilter();
 }
 function settingsOvlClose(e){ if(e.target===document.getElementById('settingsOvl')) closeSettings(); }
+
+// AI tab — renders the FieldRow form. Show/hide password, Test, Save inline.
+function renderAiTab(){
+  const el=document.getElementById('aiSettingsBody'); if(!el) return;
+  const s=S.settings||{};
+  const key=s.claudeKey||'';
+  const model=s.aiModel||'claude-haiku-4-5-20251001';
+  el.innerHTML=`
+    <div class="fcl-fieldrow">
+      <div>
+        <div class="fcl-fieldrow-label">Provider</div>
+        <div class="fcl-fieldrow-hint">Where Focal sends AI prompts. Anthropic only for now.</div>
+      </div>
+      <div><select class="fcl-input" style="max-width:320px" disabled><option>Anthropic — Claude</option></select></div>
+    </div>
+    <div class="fcl-fieldrow">
+      <div>
+        <div class="fcl-fieldrow-label">API key<span class="req">*</span></div>
+        <div class="fcl-fieldrow-hint">Stored locally in your browser. Never sent to Focal servers. Get a key at console.anthropic.com.</div>
+      </div>
+      <div>
+        <div style="display:flex;gap:6px;align-items:center;max-width:420px">
+          <input class="fcl-input" id="fApiKey" type="password" placeholder="sk-ant-…" autocomplete="off" value="${escAttr(key)}" oninput="_aiDirty()">
+          <button class="fcl-btn fcl-btn--ghost" type="button" id="fApiKeyEye" onclick="_aiToggleKeyVis()" aria-label="Show/hide API key" style="padding:8px 10px">${icon('eye',16)}</button>
+        </div>
+        <div id="aiKeyStatus" style="font-size:12px;padding:8px 12px;border-radius:6px;margin-top:8px;display:none"></div>
+      </div>
+    </div>
+    <div class="fcl-fieldrow">
+      <div>
+        <div class="fcl-fieldrow-label">Model</div>
+        <div class="fcl-fieldrow-hint">Haiku is faster and cheaper. Sonnet handles harder structuring.</div>
+      </div>
+      <div>
+        <select class="fcl-input" id="fAiModel" style="max-width:420px" onchange="_aiDirty()">
+          <option value="claude-haiku-4-5-20251001"${model==='claude-haiku-4-5-20251001'?' selected':''}>Claude Haiku 4.5 — Fast &amp; economical (recommended)</option>
+          <option value="claude-sonnet-4-6"${model==='claude-sonnet-4-6'?' selected':''}>Claude Sonnet 4.6 — Higher quality</option>
+        </select>
+      </div>
+    </div>
+    <div class="fcl-fieldrow" style="border-bottom:0">
+      <div>
+        <div class="fcl-fieldrow-label">Actions</div>
+        <div class="fcl-fieldrow-hint">Test verifies the key connects to Anthropic. Save persists locally.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="fcl-btn" type="button" onclick="testApiKey()">${icon('check',14)} Test connection</button>
+        <button class="fcl-btn fcl-btn--primary" type="button" onclick="saveSettings()">${icon('save',14)} Save</button>
+      </div>
+    </div>
+  `;
+}
+function _aiToggleKeyVis(){
+  const inp=document.getElementById('fApiKey'); if(!inp) return;
+  const btn=document.getElementById('fApiKeyEye');
+  if(inp.type==='password'){ inp.type='text'; btn.innerHTML=icon('eyeoff',16); }
+  else { inp.type='password'; btn.innerHTML=icon('eye',16); }
+}
+function _aiDirty(){ /* placeholder for future "unsaved changes" affordance */ }
 function saveSettings(){
   if(!S.settings) S.settings={};
   S.settings.claudeKey=document.getElementById('fApiKey').value.trim();
@@ -2454,7 +2595,6 @@ function saveSettings(){
   const hasKey=!!S.settings.claudeKey;
   syncAiVisibility();
   showToast(hasKey?'✓ AI settings saved':'⚠ No API key — AI features disabled');
-  // stay open so user can verify; they close manually
 }
 
 // People manager
@@ -2950,47 +3090,64 @@ function renderDataTab(){
   const fsaOk=_FSA_SUPPORTED();
   const lastSync=_bkLastSyncAt?new Date(_bkLastSyncAt).toLocaleTimeString():'—';
   const fileName=connected&&_bkHandle.name?escHtml(_bkHandle.name):'(file)';
-  // Show any prerestore safety snapshots so user knows they exist
   let snapshots=[];
   try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&(k.startsWith('focal_v1_prerestore_')||k.startsWith('focal_v1_corrupted_'))) snapshots.push(k); } }catch{}
   el.innerHTML=`
-    <div style="display:flex;flex-direction:column;gap:18px">
-      <div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:6px">📦 Manual backup</div>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Download a snapshot of your current Focal data as a JSON file, or restore from one. Works in every browser.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="bsec" onclick="bkExport()">⬇ Export JSON</button>
-          <label class="bsec" style="cursor:pointer">⬆ Import JSON<input type="file" accept="application/json,.json" style="display:none" onchange="bkImportFile(this.files[0]);this.value=''"></label>
-        </div>
-      </div>
-      <div style="height:1px;background:var(--border)"></div>
-      <div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:6px">🔄 Auto-backup ${connected?'<span style="font-size:11px;font-weight:500;color:var(--teal);background:var(--teal-dim);padding:2px 7px;border-radius:8px;margin-left:6px">CONNECTED</span>':''}</div>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Pick a backup file once — Focal will save to it silently on every change. Great when paired with a OneDrive/iCloud/Dropbox folder for cross-device sync.</p>
-        ${!fsaOk?`<div style="font-size:12px;background:var(--p2bg);border:1px solid var(--p2b);color:var(--p2);padding:8px 10px;border-radius:6px;margin-bottom:10px">⚠️ Auto-save requires Chrome or Edge. Use Manual Export above.</div>`:''}
-        ${connected?`
-          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">
-            <div>File: <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">${fileName}</code></div>
-            <div>Last save: ${lastSync}</div>
-            ${_bkLastError?`<div style="color:var(--p1)">Last error: ${escHtml(_bkLastError)}</div>`:''}
+    <div style="display:flex;flex-direction:column;gap:28px">
+      <section>
+        <div class="fcl-section-head">
+          <div>
+            <h3>Manual backup</h3>
+            <p>Download a snapshot of your Focal data as JSON, or restore from one. Works in every browser.</p>
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="bsec" onclick="bkSync(true)">↻ Save now</button>
-            <button class="bsec" onclick="bkRestoreFromFile()">↺ Restore from file</button>
-            <button class="bsec" onclick="bkDisconnect()" style="color:var(--p1);border-color:var(--p1b)">✕ Disconnect</button>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="fcl-btn" type="button" onclick="bkExport()">${icon('download',14)} Export JSON</button>
+          <label class="fcl-btn" style="cursor:pointer">${icon('upload',14)} Import JSON<input type="file" accept="application/json,.json" style="display:none" onchange="bkImportFile(this.files[0]);this.value=''"></label>
+        </div>
+      </section>
+
+      <section class="fcl-card">
+        <header style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <h3 style="margin:0;font-size:15.5px;font-weight:600;color:var(--fcl-text)">Auto-backup</h3>
+            ${connected?'<span class="fcl-badge fcl-badge--success fcl-badge--dot">Connected</span>':''}
+          </div>
+          ${connected?`<button class="fcl-toggle" type="button" aria-pressed="true" onclick="bkDisconnect()" title="Disconnect auto-backup"><span class="fcl-toggle-track"><span class="fcl-toggle-thumb"></span></span></button>`:''}
+        </header>
+        <p style="margin:0 0 14px;color:var(--fcl-text-dim);font-size:13px;max-width:560px;line-height:1.5">Pick a backup file once — Focal saves to it silently on every change. Great paired with a OneDrive, iCloud, or Dropbox folder for cross-device sync.</p>
+        ${!fsaOk?`<div class="fcl-badge fcl-badge--warning fcl-badge--dot" style="margin-bottom:14px">Chrome or Edge required for auto-save</div>`:''}
+        ${connected?`
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin-bottom:16px;font-size:12.5px;align-items:center">
+            <span style="color:var(--fcl-text-faint)">File</span>
+            <span class="fcl-codechip" style="justify-self:start">${fileName}</span>
+            <span style="color:var(--fcl-text-faint)">Last save</span>
+            <span style="color:var(--fcl-text-dim)">${lastSync}</span>
+            ${_bkLastError?`<span style="color:var(--fcl-text-faint)">Last error</span><span style="color:var(--fcl-danger)">${escHtml(_bkLastError)}</span>`:''}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="fcl-btn fcl-btn--sm" type="button" onclick="bkSync(true)">${icon('save',14)} Save now</button>
+            <button class="fcl-btn fcl-btn--sm" type="button" onclick="bkRestoreFromFile()">${icon('refresh',14)} Restore from file</button>
+            <button class="fcl-btn fcl-btn--sm fcl-btn--danger" type="button" onclick="bkDisconnect()" style="margin-left:auto">${icon('unlink',14)} Disconnect</button>
           </div>
         `:`
-          <button class="bpri" ${fsaOk?'':'disabled style="opacity:.5;cursor:not-allowed"'} onclick="bkConnect()">🔗 Connect backup file…</button>
+          <button class="fcl-btn fcl-btn--primary" type="button" ${fsaOk?'':'disabled style="opacity:.5;cursor:not-allowed"'} onclick="bkConnect()">${icon('link',14)} Connect backup file…</button>
         `}
-      </div>
+      </section>
+
       ${snapshots.length?`
-        <div style="height:1px;background:var(--border)"></div>
-        <div>
-          <div style="font-size:13px;font-weight:600;margin-bottom:6px">🛟 Safety snapshots</div>
-          <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5">Older copies of your data preserved when something went wrong or you ran a restore. Open DevTools → Application → Local Storage to inspect or copy them out.</p>
-          <ul style="font-size:11px;color:var(--muted);padding-left:18px;margin:0">${snapshots.slice(-5).map(k=>`<li><code style="background:var(--surface2);padding:1px 4px;border-radius:3px">${escHtml(k)}</code></li>`).join('')}</ul>
-          ${snapshots.length>5?`<div style="font-size:11px;color:var(--dim);margin-top:4px">+${snapshots.length-5} more</div>`:''}
-        </div>
+        <section>
+          <div class="fcl-section-head">
+            <div>
+              <h3>Safety snapshots</h3>
+              <p>Older copies preserved when something went wrong or you ran a restore. Recover via DevTools → Application → Local Storage.</p>
+            </div>
+          </div>
+          <div class="fcl-list" style="padding:0">
+            ${snapshots.slice(-5).map(k=>`<div class="fcl-list-row" style="grid-template-columns:1fr"><span class="fcl-codechip" style="font-size:11.5px">${escHtml(k)}</span></div>`).join('')}
+          </div>
+          ${snapshots.length>5?`<div style="font-size:11px;color:var(--fcl-text-faint);margin-top:6px">+${snapshots.length-5} more</div>`:''}
+        </section>
       `:''}
     </div>`;
 }
@@ -3154,18 +3311,79 @@ function setTheme(t){
   applyTheme();
   renderAppearanceTab();
 }
+function setDensity(d){
+  if(!S.settings) S.settings={};
+  S.settings.density=d;
+  saveS();
+  applyDensity();
+  renderAppearanceTab();
+}
+function applyDensity(){
+  const d=(S.settings&&S.settings.density)||'cozy';
+  document.documentElement.dataset.density=d;
+}
+function setReduceMotion(on){
+  if(!S.settings) S.settings={};
+  S.settings.reduceMotion=!!on;
+  saveS();
+  applyReduceMotion();
+  renderAppearanceTab();
+}
+function applyReduceMotion(){
+  const on=!!(S.settings&&S.settings.reduceMotion);
+  document.documentElement.classList.toggle('reduce-motion',on);
+}
 function renderAppearanceTab(){
   const el=document.getElementById('appearanceMgrBody');
   if(!el) return;
-  const cur=(S.settings&&S.settings.theme)||'light';
-  const opts=[{v:'light',label:'☀️ Light Mode',note:'Default'},{v:'dark',label:'🌙 Dark Mode',note:''}];
-  el.innerHTML=`<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Choose how Focal looks on your screen.</p>
-<div style="display:flex;flex-direction:column;gap:8px">
-${opts.map(o=>`<label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;border:1px solid ${cur===o.v?'var(--teal)':'var(--border)'};border-radius:8px;background:${cur===o.v?'var(--teal-dim)':'transparent'}">
-<input type="radio" name="focalTheme" value="${o.v}" ${cur===o.v?'checked':''} onchange="setTheme('${o.v}')">
-<span style="font-size:14px;font-weight:600;color:var(--text)">${o.label}</span>${o.note?`<span style="font-size:11px;color:var(--muted);margin-left:auto">${o.note}</span>`:''}
-</label>`).join('')}
-</div>`;
+  const theme=(S.settings&&S.settings.theme)||'light';
+  const density=(S.settings&&S.settings.density)||'cozy';
+  const reduceMotion=!!(S.settings&&S.settings.reduceMotion);
+  const themeOpts=[
+    {v:'light',label:'Light',icon:'sun'},
+    {v:'dark', label:'Dark', icon:'moon'},
+  ];
+  const densityOpts=[
+    {v:'compact',label:'Compact'},
+    {v:'cozy',   label:'Cozy'},
+    {v:'roomy',  label:'Roomy'},
+  ];
+  el.innerHTML=`
+    <div class="fcl-fieldrow">
+      <div>
+        <div class="fcl-fieldrow-label">Appearance</div>
+        <div class="fcl-fieldrow-hint">Match your system or pick one. Dark uses cool navy/slate; light uses warm off-white.</div>
+      </div>
+      <div>
+        <div class="fcl-seg" role="radiogroup" aria-label="Appearance">
+          ${themeOpts.map(o=>`<button class="fcl-seg-btn ${theme===o.v?'on':''}" role="radio" aria-checked="${theme===o.v}" onclick="setTheme('${escJs(o.v)}')">${icon(o.icon,14)} ${escHtml(o.label)}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="fcl-fieldrow">
+      <div>
+        <div class="fcl-fieldrow-label">Density</div>
+        <div class="fcl-fieldrow-hint">Compact shows more per screen. Roomy gives lists more breathing room. (Applied to lists and cards going forward.)</div>
+      </div>
+      <div>
+        <div class="fcl-seg" role="radiogroup" aria-label="Density">
+          ${densityOpts.map(o=>`<button class="fcl-seg-btn ${density===o.v?'on':''}" role="radio" aria-checked="${density===o.v}" onclick="setDensity('${escJs(o.v)}')">${escHtml(o.label)}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="fcl-fieldrow" style="border-bottom:0">
+      <div>
+        <div class="fcl-fieldrow-label">Reduce motion</div>
+        <div class="fcl-fieldrow-hint">Skip incidental animations. Also honors your OS-level <code style="font-family:var(--fcl-font-mono);font-size:11px">prefers-reduced-motion</code> setting automatically.</div>
+      </div>
+      <div>
+        <button class="fcl-toggle" type="button" aria-pressed="${reduceMotion}" onclick="setReduceMotion(${!reduceMotion})">
+          <span class="fcl-toggle-track"><span class="fcl-toggle-thumb"></span></span>
+          <span style="font-size:13.5px;color:var(--fcl-text-dim)">${reduceMotion?'On':'Off'}</span>
+        </button>
+      </div>
+    </div>
+  `;
 }
 
 // ═══ AI VISIBILITY ═══
@@ -3405,6 +3623,8 @@ const _ovlObserver=new MutationObserver(muts=>{
 
 // Init
 applyTheme();
+applyDensity();
+applyReduceMotion();
 renderAll();
 renderMatrixFilter();
 computeWeekSummary();
