@@ -36,7 +36,7 @@ const DEFAULT_OUTCOMES=[
   {id:'strategic', name:'Strategic Projects',  color:'#00B5B0', active:true, sort:5},
 ];
 // PPL_GROUP_PALETTE, _pplHashStr, _pplPickColor were here — moved above `let S = loadS()` to fix TDZ. See v10.7.1 note.
-function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; (d.personGroups||[]).forEach(g=>{ if(!g.color) g.color=_pplPickColor(g.id||g.name||Math.random()); }); d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(d.settings&&!d.settings.theme) d.settings.theme='light'; if(d.settings&&!d.settings.lang) d.settings.lang='en'; }
+function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; (d.personGroups||[]).forEach(g=>{ if(!g.color) g.color=_pplPickColor(g.id||g.name||Math.random()); }); d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(d.settings&&!d.settings.theme) d.settings.theme='light'; if(d.settings&&!d.settings.lang) d.settings.lang='en'; if(d.settings&&d.settings.langAuto===undefined) d.settings.langAuto=false; }
 function rebuildSecDropdown(){
   const sel=document.getElementById('fSec');
   if(!sel) return;
@@ -216,9 +216,13 @@ function applyI18n(){
 }
 // Change active language. Saves preference, re-applies static translations,
 // re-renders current view and settings panel so dynamic strings refresh.
-function setLang(code){
+// `silent` = called internally (e.g. by Match-system toggle) — suppress toast.
+function setLang(code, silent){
   if(!S.settings) S.settings={};
   S.settings.lang=code;
+  // Manual language picks switch off auto-follow OS. The Match-system toggle
+  // bypasses this by calling setLang() from inside toggleLangAuto().
+  if(!silent) S.settings.langAuto=false;
   saveS();
   applyI18n();
   try{ renderAll(); }catch{}
@@ -229,9 +233,11 @@ function setLang(code){
   try{ if(curView==='inbox') renderInbox(); }catch{}
   try{ if(curView==='review') renderWeeklyReview(); }catch{}
   try{ renderStats(); }catch{}
-  try{ renderLanguageTab(); }catch{}
-  try{ _updateSettingsHeader(); _renderSettingsNav(); }catch{}
-  try{ showToast('✓ Language: '+(FOCAL_LANGS.find(l=>l.code===code)?.name||code)); }catch{}
+  try{ _renderSettingsNav(); _updateSettingsHeader(); }catch{}
+  try{ if(_settingsTab==='language') renderLanguageTab(); }catch{}
+  if(!silent){
+    try{ showToast('✓ Language: '+(FOCAL_LANGS.find(l=>l.code===code)?.name||code)); }catch{}
+  }
 }
 
 // ═══ SEARCH ═══
@@ -2503,6 +2509,8 @@ const _ICONS={
   moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
   sun:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>',
   monitor:'<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  bell:'<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
   eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
   eyeoff:'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>',
   edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
@@ -2570,24 +2578,33 @@ const _findSetting=id=>_SETTINGS_FLAT.find(s=>s.id===id);
 
 let _settingsTab='categories';
 
+// Localized label/desc helpers — fall back to the English literal in _SETTINGS_GROUPS
+// when no translation key is registered. Keeps the array as the source of English defaults.
+function _tSettingsGroupTitle(g){ const k='settings_group_'+g.id; const v=(typeof t==='function')?t(k):k; return (v&&v!==k)?v:g.title; }
+function _tSettingsItemLabel(it){ const k='settings_tab_'+it.id; const v=(typeof t==='function')?t(k):k; return (v&&v!==k)?v:it.label; }
+function _tSettingsItemDesc(it){ const k='settings_desc_'+it.id; const v=(typeof t==='function')?t(k):k; return (v&&v!==k)?v:(it.desc||''); }
+
 function _renderSettingsNav(){
   const el=document.getElementById('fcl-nav-groups'); if(!el) return;
   el.innerHTML=_SETTINGS_GROUPS.map(g=>`
     <div class="fcl-group">
-      <div class="fcl-group-label">${escHtml(g.title)}</div>
-      ${g.items.map(it=>`<button class="fcl-nav-item ${it.id===_settingsTab?'on':''}" data-tab="${escAttr(it.id)}" onclick="switchSettingsTab('${escJs(it.id)}')" aria-current="${it.id===_settingsTab?'page':'false'}"><span class="fcl-nav-icon">${icon(it.icon,16)}</span><span>${escHtml(it.label)}</span></button>`).join('')}
+      <div class="fcl-group-label">${escHtml(_tSettingsGroupTitle(g))}</div>
+      ${g.items.map(it=>`<button class="fcl-nav-item ${it.id===_settingsTab?'on':''}" data-tab="${escAttr(it.id)}" onclick="switchSettingsTab('${escJs(it.id)}')" aria-current="${it.id===_settingsTab?'page':'false'}"><span class="fcl-nav-icon">${icon(it.icon,16)}</span><span>${escHtml(_tSettingsItemLabel(it))}</span></button>`).join('')}
     </div>
   `).join('');
   // brand + close icons
   document.getElementById('fcl-brand-icon').innerHTML=icon('settings',16);
   document.getElementById('fcl-close-btn').innerHTML=icon('close',16,2);
+  // Brand text (localized "Settings")
+  const brandEl=document.querySelector('.fcl-brand-name');
+  if(brandEl && typeof t==='function'){ const v=t('settings_brand'); if(v && v!=='settings_brand') brandEl.textContent=v; }
   document.getElementById('fcl-footer-ver').textContent='Focal v'+(typeof VER!=='undefined'?VER:'');
 }
 function _updateSettingsHeader(){
   const it=_findSetting(_settingsTab); if(!it) return;
   document.getElementById('fcl-section-icon').innerHTML=icon(it.icon,18,2);
-  document.getElementById('fcl-section-name').textContent=it.label;
-  document.getElementById('fcl-section-desc').textContent=it.desc||'';
+  document.getElementById('fcl-section-name').textContent=_tSettingsItemLabel(it);
+  document.getElementById('fcl-section-desc').textContent=_tSettingsItemDesc(it);
 }
 
 function openSettingsPanel(tab){
@@ -3646,25 +3663,113 @@ function renderAppearanceTab(){
 }
 
 // ═══ LANGUAGE ═══
+let _langSearch='';
 function renderLanguageTab(){
   const el=document.getElementById('languageMgrBody');
   if(!el) return;
   const cur=(S.settings&&S.settings.lang)||'en';
+  const matchSys=!!(S.settings&&S.settings.langAuto);
   const langs=(typeof FOCAL_LANGS!=='undefined')?FOCAL_LANGS:[{code:'en',name:'English'}];
-  el.innerHTML=`
-    <div class="fcl-fieldrow" style="border-bottom:0">
-      <div>
-        <div class="fcl-fieldrow-label">${(typeof t==='function'?t('lang_tab_title'):'Language')}</div>
-        <div class="fcl-fieldrow-hint">${(typeof t==='function'?t('lang_tab_desc'):'Choose the display language for the app interface.')}</div>
+  const q=(_langSearch||'').toLowerCase().trim();
+  const filtered=langs.filter(l=>!q || (l.name+' '+t('lang_'+l.code+'_english')).toLowerCase().includes(q));
+  const current=langs.find(l=>l.code===cur)||langs[0];
+  const currentEnglish=t('lang_'+current.code+'_english');
+  const cards=filtered.map(l=>{
+    const sel=l.code===cur;
+    const eng=t('lang_'+l.code+'_english');
+    return `<button class="lng-card ${sel?'on':''}" role="radio" aria-checked="${sel}" onclick="setLang('${escJs(l.code)}')">
+      <div class="lng-card-l">
+        <div class="lng-card-native">${escHtml(l.name)}</div>
+        <div class="lng-card-eng">${escHtml(eng)}</div>
       </div>
-      <div>
-        <div class="fcl-seg" role="radiogroup" aria-label="Language" style="flex-wrap:wrap;max-width:520px">
-          ${langs.map(l=>`<button class="fcl-seg-btn ${cur===l.code?'on':''}" role="radio" aria-checked="${cur===l.code}" onclick="setLang('${escJs(l.code)}')">${escHtml(l.name)}</button>`).join('')}
+      <div class="lng-card-r">${sel
+        ? `<span class="lng-check">${icon('check',11,3)}</span>`
+        : `<span class="lng-radio"></span>`}</div>
+    </button>`;
+  }).join('');
+  el.innerHTML=`
+    <div class="lng-shell">
+      <div class="lng-top">
+        <div class="lng-current">
+          <div class="lng-current-badge">${escHtml(current.code.toUpperCase())}</div>
+          <div class="lng-current-meta">
+            <div class="lng-current-eyebrow">${escHtml(t('lang_currently'))}</div>
+            <div class="lng-current-name">${escHtml(current.name)} <span class="lng-current-eng">· ${escHtml(currentEnglish)}</span></div>
+          </div>
         </div>
-        <div style="font-size:11px;color:var(--fcl-text-dim,var(--dim));margin-top:8px">Translations cover the main interface. Some inline tooltips and dynamic content may still appear in English.</div>
+        <div class="lng-search">
+          <span class="lng-search-ic">${icon('search',14)}</span>
+          <input class="fcl-input lng-search-inp" placeholder="${escAttr(t('lang_search_ph'))}" value="${escAttr(_langSearch)}" oninput="_langSearchInput(this.value)" autocomplete="off">
+        </div>
+      </div>
+      <div class="lng-grid">
+        ${cards}
+        <button class="lng-request" onclick="requestLanguage()">
+          <span class="lng-request-ic">${icon('plus',14)}</span>
+          <span>${escHtml(t('lang_request'))}</span>
+        </button>
+      </div>
+      <div class="lng-foot">
+        <div class="lng-foot-item">
+          <div class="lng-foot-ic">${icon('settings',14)}</div>
+          <div>
+            <div class="lng-foot-title">${escHtml(t('lang_match_title'))}</div>
+            <div class="lng-foot-desc">${escHtml(t('lang_match_desc'))}
+              <button class="lng-toggle ${matchSys?'on':''}" type="button" role="switch" aria-checked="${matchSys}" onclick="toggleLangAuto()">
+                <span class="lng-toggle-track"><span class="lng-toggle-thumb"></span></span>
+                <span class="lng-toggle-lbl">${matchSys?escHtml(t('lang_match_on')):escHtml(t('lang_match_enable'))}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="lng-foot-item">
+          <div class="lng-foot-ic">${icon('bell',14)}</div>
+          <div>
+            <div class="lng-foot-title">${escHtml(t('lang_about_title'))}</div>
+            <div class="lng-foot-desc">${escHtml(t('lang_about_desc'))}</div>
+          </div>
+        </div>
       </div>
     </div>
   `;
+}
+function _langSearchInput(v){
+  _langSearch=v;
+  renderLanguageTab();
+  const inp=document.querySelector('.lng-search-inp');
+  if(inp){ inp.focus(); inp.setSelectionRange(v.length,v.length); }
+}
+function toggleLangAuto(){
+  if(!S.settings) S.settings={};
+  S.settings.langAuto=!S.settings.langAuto;
+  saveS();
+  if(S.settings.langAuto){
+    // Detect browser language; map to closest supported FOCAL_LANGS entry
+    const supported=(typeof FOCAL_LANGS!=='undefined')?FOCAL_LANGS.map(l=>l.code):['en'];
+    const nav=(navigator.language||navigator.userLanguage||'en').toLowerCase().split('-')[0];
+    const match=supported.includes(nav)?nav:'en';
+    if(match!==(S.settings.lang||'en')) setLang(match); // setLang also re-renders
+    else renderLanguageTab();
+  } else {
+    renderLanguageTab();
+  }
+}
+function requestLanguage(){
+  // Open Feedback modal preset to feature request with helpful message stub
+  try{
+    openFeedback();
+    setTimeout(()=>{
+      const cat=document.getElementById('fbCat'); if(cat) cat.value='feature';
+      const msg=document.getElementById('fbMsg');
+      if(msg){
+        msg.value=t('lang_request_feedback_msg');
+        msg.focus();
+        // Move cursor to end so user can type the language name
+        msg.setSelectionRange(msg.value.length,msg.value.length);
+        fbCountChars();
+      }
+    },80);
+  }catch(e){ console.error(e); }
 }
 
 // ═══ AI VISIBILITY ═══
@@ -3906,6 +4011,16 @@ const _ovlObserver=new MutationObserver(muts=>{
 applyTheme();
 applyDensity();
 applyReduceMotion();
+// If user opted into Match-my-system, re-detect OS language at load
+// in case they switched the OS language between sessions.
+if(S.settings && S.settings.langAuto){
+  try{
+    const supported=(typeof FOCAL_LANGS!=='undefined')?FOCAL_LANGS.map(l=>l.code):['en'];
+    const nav=(navigator.language||navigator.userLanguage||'en').toLowerCase().split('-')[0];
+    const match=supported.includes(nav)?nav:'en';
+    if(match!==S.settings.lang){ S.settings.lang=match; saveS(); }
+  }catch{}
+}
 applyI18n();
 paintIcons();
 renderAll();
