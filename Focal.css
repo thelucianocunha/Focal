@@ -1583,12 +1583,12 @@ html.dark #feedbackOvl .modal{background:var(--fcl-bg-shell)}
 .fcl-settings .ppl-footer strong{color:var(--fcl-text-dim)}
 
 /* Settings body must be flex-column for People tab to fill modal height.
-   When People is active, stab-body-people becomes a flex:1 child so the
-   ppl-shell can grow to fill, and the internal list scrolls instead of
-   the outer body. Non-People tabs: reset stab-body overflow so .fcl-body
-   is the sole scroll container (People scrolls internally via .ppl-list). */
+   All stab-bodies get flex:1;min-height:0;overflow-y:auto so they fill
+   the available height and scroll internally. People tab suppresses its
+   own outer scroll (overflow-y:hidden) since .ppl-list / .ppl-groups-col
+   handle scrolling internally. */
 .fcl-settings .fcl-body{display:flex;flex-direction:column}
-.fcl-settings .stab-body{overflow-y:visible}
+.fcl-settings .stab-body{flex:1;min-height:0;overflow-y:auto}
 .fcl-settings #stab-body-people{display:flex;flex:1;min-height:0;flex-direction:column;overflow-y:hidden}
 .fcl-settings #peopleMgrBody{flex:1;min-height:0;display:flex;flex-direction:column}
 
