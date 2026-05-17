@@ -16,32 +16,32 @@
   <div class="hl">
     <img class="logo" src="focal-logo.png" alt="Focal">
     <div class="hdiv"></div>
-    <span class="htagline">See clearly. Act decisively.</span>
+    <span class="htagline" data-i18n="hdr_tagline">See clearly. Act decisively.</span>
     <span class="vbadge" id="vbadge"></span>
   </div>
   <div class="hr">
-    <button class="hpill" id="btnDemo" onclick="toggleDemo()" title="Demo mode — masks task names"><span data-icon="eye-off"></span> Demo</button>
-    <button class="hpill" id="btnDone" onclick="toggleDone()" title="Toggle completed tasks"><span data-icon="check"></span> Done</button>
-    <button class="hpill" id="btnBacklog" onclick="toggleBacklogView()" style="display:none" title="Toggle backlog tasks"><span data-icon="archive"></span> Backlog</button>
-    <button class="hpill" id="btnConf" onclick="toggleConfView()" title="Toggle confidential tasks"><span data-icon="lock"></span> Conf</button>
-    <button class="hpill" id="btnFeedback" onclick="openFeedback()" title="Send feedback about Focal"><span data-icon="message-square"></span> Feedback</button>
+    <button class="hpill" id="btnDemo" onclick="toggleDemo()" data-i18n-title="hdr_demo_title" title="Demo mode — masks task names"><span data-icon="eye-off"></span> <span data-i18n="hdr_demo">Demo</span></button>
+    <button class="hpill" id="btnDone" onclick="toggleDone()" data-i18n-title="hdr_done_title" title="Toggle completed tasks"><span data-icon="check"></span> <span data-i18n="hdr_done">Done</span></button>
+    <button class="hpill" id="btnBacklog" onclick="toggleBacklogView()" style="display:none" data-i18n-title="hdr_backlog_title" title="Toggle backlog tasks"><span data-icon="archive"></span> <span data-i18n="hdr_backlog">Backlog</span></button>
+    <button class="hpill" id="btnConf" onclick="toggleConfView()" data-i18n-title="hdr_conf_title" title="Toggle confidential tasks"><span data-icon="lock"></span> <span data-i18n="hdr_conf">Conf</span></button>
+    <button class="hpill" id="btnFeedback" onclick="openFeedback()" data-i18n-title="hdr_feedback_title" title="Send feedback about Focal"><span data-icon="message-square"></span> <span data-i18n="hdr_feedback">Feedback</span></button>
     <div class="hdivider"></div>
-    <button class="hibtn" id="btnSettings" onclick="openSettingsPanel('categories')" title="Settings" aria-label="Settings"><span data-icon="settings"></span></button>
-    <a class="hibtn" href="Focal_USER_MANUAL.html" target="_blank" title="Help / Manual" aria-label="Manual"><span data-icon="book"></span></a>
+    <button class="hibtn" id="btnSettings" onclick="openSettingsPanel('categories')" data-i18n-title="hdr_settings_title" title="Settings" aria-label="Settings"><span data-icon="settings"></span></button>
+    <a class="hibtn" href="Focal_USER_MANUAL.html" target="_blank" data-i18n-title="hdr_help_title" title="Help / Manual" aria-label="Manual"><span data-icon="book"></span></a>
     <div class="hdivider"></div>
-    <button class="hbtn pri" onclick="openAdd()"><span data-icon="plus"></span> Add Task</button>
+    <button class="hbtn pri" onclick="openAdd()"><span data-icon="plus"></span> <span data-i18n="hdr_add_task">Add Task</span></button>
   </div>
 </header>
 
 <!-- VIEW TABS -->
 <div class="vtabs" role="tablist" aria-label="Views">
-  <div class="vtab on" id="tab-today"     role="tab" tabindex="0"  aria-selected="true"  onclick="sw('today')"><span data-icon="zap"></span> Today</div>
-  <div class="vtab"    id="tab-kanban"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('kanban')"><span data-icon="kanban"></span> Kanban</div>
-  <div class="vtab"    id="tab-inbox"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('inbox')"><span data-icon="inbox"></span> Inbox <span class="tbadge" id="tbadge-inbox" style="display:none" aria-hidden="true"></span></div>
-  <div class="vtab"    id="tab-tasks"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('tasks')"><span data-icon="list-checks"></span> All Tasks</div>
-  <div class="vtab"    id="tab-matrix"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('matrix')"><span data-icon="grid-2x2"></span> Matrix</div>
-  <div class="vtab"    id="tab-analytics" role="tab" tabindex="-1" aria-selected="false" onclick="sw('analytics')"><span data-icon="bar-chart"></span> Analytics</div>
-  <div class="vtab"    id="tab-review"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('review')"><span data-icon="refresh-cw"></span> Review</div>
+  <div class="vtab on" id="tab-today"     role="tab" tabindex="0"  aria-selected="true"  onclick="sw('today')"><span data-icon="zap"></span> <span data-i18n="nav_today">Today</span></div>
+  <div class="vtab"    id="tab-kanban"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('kanban')"><span data-icon="kanban"></span> <span data-i18n="nav_kanban">Kanban</span></div>
+  <div class="vtab"    id="tab-inbox"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('inbox')"><span data-icon="inbox"></span> <span data-i18n="nav_inbox">Inbox</span> <span class="tbadge" id="tbadge-inbox" style="display:none" aria-hidden="true"></span></div>
+  <div class="vtab"    id="tab-tasks"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('tasks')"><span data-icon="list-checks"></span> <span data-i18n="nav_all_tasks">All Tasks</span></div>
+  <div class="vtab"    id="tab-matrix"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('matrix')"><span data-icon="grid-2x2"></span> <span data-i18n="nav_matrix">Matrix</span></div>
+  <div class="vtab"    id="tab-analytics" role="tab" tabindex="-1" aria-selected="false" onclick="sw('analytics')"><span data-icon="bar-chart"></span> <span data-i18n="nav_analytics">Analytics</span></div>
+  <div class="vtab"    id="tab-review"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('review')"><span data-icon="refresh-cw"></span> <span data-i18n="nav_review">Review</span></div>
 </div>
 
 <!-- STATS -->
@@ -51,24 +51,24 @@
 <div class="fbar">
   <div class="sw srch-wrap">
     <svg class="si2" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input class="sinput" type="text" placeholder="Search tasks, connections…" id="srch" oninput="srchInput()" onkeydown="srchKeydown(event)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="srchSug" aria-expanded="false" aria-label="Search tasks and connections">
+    <input class="sinput" type="text" data-i18n-placeholder="search_placeholder" placeholder="Search tasks, connections…" id="srch" oninput="srchInput()" onkeydown="srchKeydown(event)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="srchSug" aria-expanded="false" aria-label="Search tasks and connections">
     <div class="srch-sug" id="srchSug" role="listbox"></div>
   </div>
   <div class="fsep"></div>
   <div class="pills" role="group" aria-label="Task filters">
-    <span class="pill on" data-f="all"     role="button" tabindex="0" aria-pressed="true"  onclick="setF('all',this,event)" title="Show all tasks">All</span>
-    <span class="pill"    data-f="p1"      role="button" tabindex="0" aria-pressed="false" onclick="setF('p1',this,event)"  title="Ctrl+click to combine filters">P1 Critical</span>
-    <span class="pill"    data-f="p2"      role="button" tabindex="0" aria-pressed="false" onclick="setF('p2',this,event)"  title="Ctrl+click to combine filters">P2 High</span>
-    <span class="pill"    data-f="prog"    role="button" tabindex="0" aria-pressed="false" onclick="setF('prog',this,event)" title="Ctrl+click to combine filters">In Progress</span>
-    <span class="pill"    data-f="overdue" role="button" tabindex="0" aria-pressed="false" onclick="setF('overdue',this,event)" title="Ctrl+click to combine filters">Overdue</span>
-    <span class="pill"    data-f="week"    role="button" tabindex="0" aria-pressed="false" onclick="setF('week',this,event)" title="Ctrl+click to combine filters">Due This Week</span>
-    <span class="pill"    data-f="rec"     role="button" tabindex="0" aria-pressed="false" onclick="setF('rec',this,event)"  title="Ctrl+click to combine filters"><span data-icon="repeat"></span> Recurring</span>
-    <span class="pill"    data-f="conf"    role="button" tabindex="0" aria-pressed="false" onclick="setF('conf',this,event)" title="Ctrl+click to combine filters"><span data-icon="lock"></span> Confidential</span>
-    <span class="pill"    data-f="backlog" role="button" tabindex="0" aria-pressed="false" onclick="setF('backlog',this,event)" title="Ctrl+click to combine filters"><span data-icon="archive"></span> Backlog</span>
-    <span class="pill"    data-f="aging"   role="button" tabindex="0" aria-pressed="false" onclick="setF('aging',this,event)" id="pill-aging" style="display:none" title="Ctrl+click to combine filters"><span data-icon="clock"></span> Aging</span>
+    <span class="pill on" data-f="all"     role="button" tabindex="0" aria-pressed="true"  onclick="setF('all',this,event)" data-i18n-title="filter_show_all" title="Show all tasks" data-i18n="filter_all">All</span>
+    <span class="pill"    data-f="p1"      role="button" tabindex="0" aria-pressed="false" onclick="setF('p1',this,event)"  data-i18n-title="filter_ctrl_hint" title="Ctrl+click to combine filters" data-i18n="filter_p1">P1 Critical</span>
+    <span class="pill"    data-f="p2"      role="button" tabindex="0" aria-pressed="false" onclick="setF('p2',this,event)"  data-i18n-title="filter_ctrl_hint" title="Ctrl+click to combine filters" data-i18n="filter_p2">P2 High</span>
+    <span class="pill"    data-f="prog"    role="button" tabindex="0" aria-pressed="false" onclick="setF('prog',this,event)" data-i18n-title="filter_ctrl_hint" title="Ctrl+click to combine filters" data-i18n="filter_in_progress">In Progress</span>
+    <span class="pill"    data-f="overdue" role="button" tabindex="0" aria-pressed="false" onclick="setF('overdue',this,event)" data-i18n-title="filter_ctrl_hint" title="Ctrl+click to combine filters" data-i18n="filter_overdue">Overdue</span>
+    <span class="pill"    data-f="week"    role="button" tabindex="0" aria-pressed="false" onclick="setF('week',this,event)" data-i18n-title="filter_ctrl_hint" title="Ctrl+click to combine filters" data-i18n="filter_due_week">Due This Week</span>
+    <span class="pill"    data-f="rec"     role="button" tabindex="0" aria-pressed="false" onclick="setF('rec',this,event)"  data-i18n-title="filter_ctrl_hint" title="Ctrl+click to combine filters"><span data-icon="repeat"></span> <span data-i18n="filter_recurring">Recurring</span></span>
+    <span class="pill"    data-f="conf"    role="button" tabindex="0" aria-pressed="false" onclick="setF('conf',this,event)" data-i18n-title="filter_ctrl_hint" title="Ctrl+click to combine filters"><span data-icon="lock"></span> <span data-i18n="filter_confidential">Confidential</span></span>
+    <span class="pill"    data-f="backlog" role="button" tabindex="0" aria-pressed="false" onclick="setF('backlog',this,event)" data-i18n-title="filter_ctrl_hint" title="Ctrl+click to combine filters"><span data-icon="archive"></span> <span data-i18n="filter_backlog">Backlog</span></span>
+    <span class="pill"    data-f="aging"   role="button" tabindex="0" aria-pressed="false" onclick="setF('aging',this,event)" id="pill-aging" style="display:none" data-i18n-title="filter_ctrl_hint" title="Ctrl+click to combine filters"><span data-icon="clock"></span> <span data-i18n="filter_aging">Aging</span></span>
   </div>
   <div class="person-dd" id="personDd">
-    <button class="person-dd-btn" id="personDdBtn" onclick="togglePersonDd()" title="Filter by person / connection"><span data-icon="user"></span> All People</button>
+    <button class="person-dd-btn" id="personDdBtn" onclick="togglePersonDd()" title="Filter by person / connection"><span data-icon="user"></span> <span data-i18n="filter_all_people">All People</span></button>
     <div class="person-dd-menu" id="personDdMenu" style="display:none"></div>
   </div>
 </div>
@@ -78,10 +78,10 @@
   <div class="vpanel" id="view-inbox">
     <div id="ix-pa-bar"></div>
     <div class="ix-cap">
-      <textarea class="ix-cap-ta" id="ixCapText" placeholder="Capture tasks — one per line, or paste a list. Enter = quick save to inbox, ✨ = AI structure." onkeydown="ixCapKey(event)" oninput="ixCapResize(this)" rows="1"></textarea>
-      <input class="ix-cap-note" id="ixCapNote" placeholder="Note (single task)…" onkeydown="if(event.key==='Enter')ixCapture()">
-      <button class="ix-add" onclick="ixCapture()">+ Capture</button>
-      <button class="ix-ai-btn" id="aiCapBtn" onclick="nlCapture()"><span data-icon="sparkles"></span> AI → Task</button>
+      <textarea class="ix-cap-ta" id="ixCapText" data-i18n-placeholder="ix_ph_capture" placeholder="Capture tasks — one per line, or paste a list. Enter = quick save to inbox, ✨ = AI structure." onkeydown="ixCapKey(event)" oninput="ixCapResize(this)" rows="1"></textarea>
+      <input class="ix-cap-note" id="ixCapNote" data-i18n-placeholder="ix_ph_note" placeholder="Note (single task)…" onkeydown="if(event.key==='Enter')ixCapture()">
+      <button class="ix-add" onclick="ixCapture()" data-i18n="ix_btn_capture">+ Capture</button>
+      <button class="ix-ai-btn" id="aiCapBtn" onclick="nlCapture()"><span data-icon="sparkles"></span> <span data-i18n="ix_btn_ai_task">AI → Task</span></button>
     </div>
     <div id="nlBatchPreview" style="display:none"></div>
     <div id="et-section"></div>
@@ -97,55 +97,55 @@
   <!-- Subtask confirm dialog -->
   <div id="kbSubDlg" style="display:none;position:fixed;z-index:2000;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.15);max-width:320px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:12px;font-weight:600;color:var(--muted)">Link as subtask?</span>
+      <span style="font-size:12px;font-weight:600;color:var(--muted)" data-i18n="kb_sub_dlg_title">Link as subtask?</span>
       <button class="mx" style="font-size:16px;line-height:1" onclick="kCancelSubDlg()">×</button>
     </div>
     <div id="kbSubDlgTxt" style="font-size:13px;line-height:1.5;margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
-      <button class="bpri" style="font-size:12px;padding:4px 12px" onclick="kSetSubtask(true)">✓ Make subtask</button>
-      <button class="bsec" id="kbSubDlgNoBtn" style="font-size:12px;padding:4px 12px" onclick="kSetSubtask(false)">No, just move</button>
+      <button class="bpri" style="font-size:12px;padding:4px 12px" onclick="kSetSubtask(true)" data-i18n="kb_sub_dlg_confirm">✓ Make subtask</button>
+      <button class="bsec" id="kbSubDlgNoBtn" style="font-size:12px;padding:4px 12px" onclick="kSetSubtask(false)" data-i18n="kb_sub_dlg_cancel">No, just move</button>
     </div>
   </div>
   <!-- Context menu -->
   <div class="ctx-menu" id="ctxMenu" role="menu" aria-label="Task actions">
-    <div class="ctx-item" id="ctxAddSub" role="menuitem" tabindex="-1" onclick="ctxDoAddSub()">↳ Add subtask</div>
-    <div class="ctx-item" id="ctxEdit" role="menuitem" tabindex="-1" onclick="ctxDoEdit()">✏️ Edit task</div>
+    <div class="ctx-item" id="ctxAddSub" role="menuitem" tabindex="-1" onclick="ctxDoAddSub()" data-i18n="ctx_add_subtask">↳ Add subtask</div>
+    <div class="ctx-item" id="ctxEdit" role="menuitem" tabindex="-1" onclick="ctxDoEdit()" data-i18n="ctx_edit_task">✏️ Edit task</div>
     <div class="ctx-sep" role="separator"></div>
-    <div class="ctx-item" id="ctxDone" role="menuitem" tabindex="-1" onclick="ctxDoDone()">✓ Mark as Done</div>
-    <div class="ctx-item" id="ctxBacklog" role="menuitem" tabindex="-1" onclick="ctxDoBacklog()">📋 Send to Backlog</div>
+    <div class="ctx-item" id="ctxDone" role="menuitem" tabindex="-1" onclick="ctxDoDone()" data-i18n="ctx_mark_done">✓ Mark as Done</div>
+    <div class="ctx-item" id="ctxBacklog" role="menuitem" tabindex="-1" onclick="ctxDoBacklog()" data-i18n="ctx_send_backlog">📋 Send to Backlog</div>
     <div class="ctx-sep" id="ctxSepNav" role="separator"></div>
-    <div class="ctx-item" id="ctxMoveRight" role="menuitem" tabindex="-1" onclick="ctxDoMove(1)">→ Move right</div>
-    <div class="ctx-item" id="ctxMoveLeft" role="menuitem" tabindex="-1" onclick="ctxDoMove(-1)">← Move left</div>
+    <div class="ctx-item" id="ctxMoveRight" role="menuitem" tabindex="-1" onclick="ctxDoMove(1)" data-i18n="ctx_move_right">→ Move right</div>
+    <div class="ctx-item" id="ctxMoveLeft" role="menuitem" tabindex="-1" onclick="ctxDoMove(-1)" data-i18n="ctx_move_left">← Move left</div>
     <div class="ctx-sep" id="ctxSepDel" role="separator"></div>
-    <div class="ctx-item ctx-del" id="ctxDelete" role="menuitem" tabindex="-1" onclick="ctxDoDelete()">🗑 Delete</div>
+    <div class="ctx-item ctx-del" id="ctxDelete" role="menuitem" tabindex="-1" onclick="ctxDoDelete()" data-i18n="ctx_delete">🗑 Delete</div>
   </div>
   <!-- Column quick-add menu -->
   <div class="ctx-menu" id="kColMenu" role="menu" aria-label="Column actions">
-    <div class="ctx-item" id="kColAddItem" role="menuitem" tabindex="-1" onclick="kColAddTask()">＋ Add task here</div>
+    <div class="ctx-item" id="kColAddItem" role="menuitem" tabindex="-1" onclick="kColAddTask()" data-i18n="kb_col_ctx_add">＋ Add task here</div>
   </div>
   <!-- KANBAN PANEL -->
   <div class="vpanel" id="view-kanban">
     <div class="kb-bar">
-      <span class="kb-title">📊 Kanban Board — plan your day</span>
-      <button class="kb-newweek" onclick="kbNewWeek()">🔄 New Week</button>
+      <span class="kb-title" data-i18n="kb_title">📊 Kanban Board — plan your day</span>
+      <button class="kb-newweek" onclick="kbNewWeek()" data-i18n="kb_btn_new_week">🔄 New Week</button>
     </div>
     <div class="kb-fbar" id="kb-fbar"></div>
     <div class="kb-dots" id="kb-dots"></div>
     <div class="kb-wrap" id="kb-wrap">
       <div class="kb-col kb-pool" id="kb-col-pool" oncontextmenu="kColCtxMenu(event,'pool')">
-        <div class="kb-ch"><span class="kb-cname">Active Pool</span><span class="kb-count" id="kb-cnt-pool">0</span><button class="kb-grp-btn" id="kb-grp-btn" onclick="toggleKbGrpPool()" title="Toggle category grouping">≡ Group</button></div>
+        <div class="kb-ch"><span class="kb-cname" data-i18n="kb_col_pool">Active Pool</span><span class="kb-count" id="kb-cnt-pool">0</span><button class="kb-grp-btn" id="kb-grp-btn" onclick="toggleKbGrpPool()" data-i18n-title="kb_btn_group_title" title="Toggle category grouping" data-i18n="kb_btn_group">≡ Group</button></div>
         <div class="kb-body" id="kb-body-pool"></div>
       </div>
       <div class="kb-col" id="kb-col-week" oncontextmenu="kColCtxMenu(event,'week')">
-        <div class="kb-ch"><span class="kb-cname">This Week</span><span class="kb-count" id="kb-cnt-week">0</span><span class="kb-hint" id="kb-hint-week"></span></div>
+        <div class="kb-ch"><span class="kb-cname" data-i18n="kb_col_week">This Week</span><span class="kb-count" id="kb-cnt-week">0</span><span class="kb-hint" id="kb-hint-week"></span></div>
         <div class="kb-body" id="kb-body-week"></div>
       </div>
       <div class="kb-col" id="kb-col-today" oncontextmenu="kColCtxMenu(event,'today')">
-        <div class="kb-ch"><span class="kb-cname">Today</span><span class="kb-count" id="kb-cnt-today">0</span></div>
+        <div class="kb-ch"><span class="kb-cname" data-i18n="kb_col_today">Today</span><span class="kb-count" id="kb-cnt-today">0</span></div>
         <div class="kb-body" id="kb-body-today"></div>
       </div>
       <div class="kb-col" id="kb-col-done">
-        <div class="kb-ch"><span class="kb-cname">Done</span><span class="kb-count" id="kb-cnt-done">0</span><button class="kb-cbtn" onclick="kbClearDone()" title="Return Kanban-done tasks to Active Pool">↩ Clear</button></div>
+        <div class="kb-ch"><span class="kb-cname" data-i18n="kb_col_done">Done</span><span class="kb-count" id="kb-cnt-done">0</span><button class="kb-cbtn" onclick="kbClearDone()" data-i18n-title="kb_btn_clear_title" title="Return Kanban-done tasks to Active Pool" data-i18n="kb_btn_clear">↩ Clear</button></div>
         <div class="kb-body" id="kb-body-done"></div>
       </div>
     </div>
@@ -155,10 +155,10 @@
     <!-- View mode -->
     <div id="pm-view-wrap">
       <div class="mgrid" id="mgrid">
-        <div class="quad q1"><div class="qh">🔴 P1 — Urgent + Important<br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none">Do immediately</small></div><div id="q1"></div></div>
-        <div class="quad q2"><div class="qh">🟢 P2 — Not Urgent + Important<br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none">Schedule time</small></div><div id="q2"></div></div>
-        <div class="quad q3"><div class="qh">🟡 P3 — Urgent + Not Important<br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none">Delegate if possible</small></div><div id="q3"></div></div>
-        <div class="quad q4"><div class="qh">⚪ P4 — Not Urgent + Not Important<br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none">Eliminate / defer</small></div><div id="q4"></div></div>
+        <div class="quad q1"><div class="qh"><span data-i18n="matrix_q1_title">🔴 P1 — Urgent + Important</span><br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none" data-i18n="matrix_q1_sub">Do immediately</small></div><div id="q1"></div></div>
+        <div class="quad q2"><div class="qh"><span data-i18n="matrix_q2_title">🟢 P2 — Not Urgent + Important</span><br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none" data-i18n="matrix_q2_sub">Schedule time</small></div><div id="q2"></div></div>
+        <div class="quad q3"><div class="qh"><span data-i18n="matrix_q3_title">🟡 P3 — Urgent + Not Important</span><br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none" data-i18n="matrix_q3_sub">Delegate if possible</small></div><div id="q3"></div></div>
+        <div class="quad q4"><div class="qh"><span data-i18n="matrix_q4_title">⚪ P4 — Not Urgent + Not Important</span><br><small style="font-weight:400;letter-spacing:0;font-size:10px;text-transform:none" data-i18n="matrix_q4_sub">Eliminate / defer</small></div><div id="q4"></div></div>
       </div>
     </div>
     <!-- Prioritize mode -->
@@ -179,95 +179,95 @@
 <div class="ovl" id="ovl" onclick="ovlClose(event)" role="dialog" aria-modal="true" aria-labelledby="mtitle" aria-hidden="true">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="mh">
-      <span class="mt" id="mtitle">Add Task</span>
+      <span class="mt" id="mtitle" data-i18n="modal_add_task">Add Task</span>
       <button class="mx" onclick="closeModal()" aria-label="Close dialog">×</button>
     </div>
     <div class="mb">
-      <div class="fg"><div class="fl-row"><label class="fl">Task Description *</label><button class="modal-ai-btn" id="modalAiBtn" onclick="nlFillModal()" title="Describe the task above and let AI fill the rest"><span data-icon="sparkles" data-icon-size="12"></span> AI-fill</button></div><input class="fi" id="fTask" placeholder="What needs to be done?" onkeydown="if(event.key==='Enter'){event.preventDefault();saveTask();}"></div>
-      <div class="fg"><label class="fl">Notes / Next Step</label><textarea class="fta" id="fNote" placeholder="Add context or next action…"></textarea></div>
-      <div class="fg"><label class="fl">🔗 Link / URL</label><input class="fi" id="fUrl" type="url" placeholder="https://…"></div>
+      <div class="fg"><div class="fl-row"><label class="fl" data-i18n="modal_label_task">Task Description *</label><button class="modal-ai-btn" id="modalAiBtn" onclick="nlFillModal()" data-i18n-title="modal_btn_ai_fill_title" title="Describe the task above and let AI fill the rest"><span data-icon="sparkles" data-icon-size="12"></span> <span data-i18n="modal_btn_ai_fill">AI-fill</span></button></div><input class="fi" id="fTask" data-i18n-placeholder="modal_ph_task" placeholder="What needs to be done?" onkeydown="if(event.key==='Enter'){event.preventDefault();saveTask();}"></div>
+      <div class="fg"><label class="fl" data-i18n="modal_label_notes">Notes / Next Step</label><textarea class="fta" id="fNote" data-i18n-placeholder="modal_ph_notes" placeholder="Add context or next action…"></textarea></div>
+      <div class="fg"><label class="fl" data-i18n="modal_label_url">🔗 Link / URL</label><input class="fi" id="fUrl" type="url" data-i18n-placeholder="modal_ph_url" placeholder="https://…"></div>
       <div class="fg" id="fParentRow" style="display:none">
-        <label class="fl">↳ Subtask of</label>
+        <label class="fl" data-i18n="modal_label_subtask_of">↳ Subtask of</label>
         <div style="display:flex;align-items:center;gap:8px">
           <span id="fParentName" style="font-size:13px;color:var(--teal);font-weight:500"></span>
-          <button type="button" class="bsec" style="padding:2px 8px;font-size:11px" onclick="clearEditParent()">× Remove</button>
+          <button type="button" class="bsec" style="padding:2px 8px;font-size:11px" onclick="clearEditParent()" data-i18n="modal_btn_remove_parent">× Remove</button>
         </div>
       </div>
       <div class="fr2">
         <div class="fg">
-          <label class="fl">Section</label>
+          <label class="fl" data-i18n="modal_label_section">Section</label>
           <select class="fs" id="fSec"></select>
         </div>
         <div class="fg">
-          <label class="fl">Priority</label>
+          <label class="fl" data-i18n="modal_label_priority">Priority</label>
           <select class="fs" id="fPri">
-            <option value="P1">P1 — Critical</option>
-            <option value="P2" selected>P2 — High</option>
-            <option value="P3">P3 — Medium</option>
-            <option value="P4">P4 — Low</option>
+            <option value="P1" data-i18n="opt_p1">P1 — Critical</option>
+            <option value="P2" selected data-i18n="opt_p2">P2 — High</option>
+            <option value="P3" data-i18n="opt_p3">P3 — Medium</option>
+            <option value="P4" data-i18n="opt_p4">P4 — Low</option>
           </select>
         </div>
       </div>
       <div class="fr3">
         <div class="fg">
-          <label class="fl">Status</label>
+          <label class="fl" data-i18n="modal_label_status">Status</label>
           <select class="fs" id="fStat">
-            <option value="To Do" selected>To Do</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Done">Done</option>
-            <option value="Backlog">Backlog</option>
+            <option value="To Do" selected data-i18n="opt_todo">To Do</option>
+            <option value="In Progress" data-i18n="opt_in_progress">In Progress</option>
+            <option value="Done" data-i18n="opt_done">Done</option>
+            <option value="Backlog" data-i18n="opt_backlog">Backlog</option>
           </select>
         </div>
         <div class="fg">
-          <label class="fl">Due Date</label>
+          <label class="fl" data-i18n="modal_label_due_date">Due Date</label>
           <input class="fi" id="fDue" type="date">
         </div>
         <div class="fg">
-          <label class="fl">Urgency (Matrix)</label>
+          <label class="fl" data-i18n="modal_label_urgency">Urgency (Matrix)</label>
           <select class="fs" id="fUrg">
-            <option value="1">Urgent</option>
-            <option value="0" selected>Not Urgent</option>
+            <option value="1" data-i18n="opt_urgent">Urgent</option>
+            <option value="0" selected data-i18n="opt_not_urgent">Not Urgent</option>
           </select>
         </div>
       </div>
       <div class="fr3">
         <div class="fg">
-          <label class="fl">Task Type</label>
+          <label class="fl" data-i18n="modal_label_task_type">Task Type</label>
           <select class="fs" id="fType" onchange="onTypeChange()">
-            <option value="once">One-time</option>
-            <option value="recurring">🔁 Recurring</option>
-            <option value="decision">⚖️ Decision</option>
+            <option value="once" data-i18n="opt_type_once">One-time</option>
+            <option value="recurring" data-i18n="opt_type_recurring">🔁 Recurring</option>
+            <option value="decision" data-i18n="opt_type_decision">⚖️ Decision</option>
           </select>
         </div>
         <div class="fg">
-          <label class="fl">Recurrence</label>
+          <label class="fl" data-i18n="modal_label_recurrence">Recurrence</label>
           <select class="fs" id="fRInterval">
-            <option value="monthly" selected>Monthly</option>
-            <option value="weekly">Weekly</option>
-            <option value="quarterly">Quarterly</option>
+            <option value="monthly" selected data-i18n="opt_rec_monthly">Monthly</option>
+            <option value="weekly" data-i18n="opt_rec_weekly">Weekly</option>
+            <option value="quarterly" data-i18n="opt_rec_quarterly">Quarterly</option>
           </select>
         </div>
         <div class="fg">
-          <label class="fl">🔒 Confidential</label>
+          <label class="fl" data-i18n="modal_label_confidential">🔒 Confidential</label>
           <select class="fs" id="fConf" onchange="confSelectStyle()">
-            <option value="0" selected>No</option>
-            <option value="1">🔒 Yes — Confidential</option>
+            <option value="0" selected data-i18n="opt_conf_no">No</option>
+            <option value="1" data-i18n="opt_conf_yes">🔒 Yes — Confidential</option>
           </select>
         </div>
       </div>
       <!-- DECIDED (shown only for Decision type) -->
       <div class="fg" id="fDecidedRow" style="display:none">
-        <label class="fl">Decision Status</label>
+        <label class="fl" data-i18n="modal_label_decision_status">Decision Status</label>
         <select class="fs" id="fDecided">
-          <option value="0">⏳ Pending decision</option>
-          <option value="1">✓ Decided</option>
+          <option value="0" data-i18n="opt_dec_pending">⏳ Pending decision</option>
+          <option value="1" data-i18n="opt_dec_decided">✓ Decided</option>
         </select>
       </div>
       <!-- CONNECTIONS -->
       <div class="fg">
-        <label class="fl">Connections — People / Organizations</label>
+        <label class="fl" data-i18n="modal_label_connections">Connections — People / Organizations</label>
         <div class="conn-wrap">
-          <input class="fi" id="fConnInput" placeholder="Type a name or company (e.g. Alex, Acme Corp)…" autocomplete="off"
+          <input class="fi" id="fConnInput" data-i18n-placeholder="modal_ph_connections" placeholder="Type a name or company (e.g. Alex, Acme Corp)…" autocomplete="off"
             oninput="connSuggest()" onkeydown="connKeydown(event)">
           <div class="conn-sug" id="connSug"></div>
         </div>
@@ -275,14 +275,14 @@
       </div>
       <!-- OUTCOMES -->
       <div class="fg">
-        <label class="fl">Strategic Outcomes (max 2)</label>
+        <label class="fl" data-i18n="modal_label_outcomes">Strategic Outcomes (max 2)</label>
         <div id="fOutcomeChips" class="outcome-sel"></div>
       </div>
     </div>
     <div class="mf">
-      <button class="bsec" onclick="closeModal()">Cancel</button>
-      <button class="bdel" id="mDelBtn" onclick="modalDeleteTask()" style="display:none">🗑 Delete</button>
-      <button class="bpri" onclick="saveTask()">Save Task</button>
+      <button class="bsec" onclick="closeModal()" data-i18n="modal_btn_cancel">Cancel</button>
+      <button class="bdel" id="mDelBtn" onclick="modalDeleteTask()" style="display:none" data-i18n="modal_btn_delete">🗑 Delete</button>
+      <button class="bpri" onclick="saveTask()" data-i18n="modal_btn_save">Save Task</button>
     </div>
   </div>
 </div>
@@ -297,7 +297,7 @@
     <nav class="fcl-sidebar" aria-label="Settings sections">
       <div class="fcl-brand">
         <span class="fcl-brand-icon" id="fcl-brand-icon"></span>
-        <span class="fcl-brand-name">Settings</span>
+        <span class="fcl-brand-name" data-i18n="settings_brand">Settings</span>
       </div>
       <div id="fcl-nav-groups"></div>
       <div class="fcl-sidebar-footer">
@@ -337,6 +337,9 @@
         <div class="stab-body" id="stab-body-appearance" style="display:none">
           <div id="appearanceMgrBody"></div>
         </div>
+        <div class="stab-body" id="stab-body-language" style="display:none">
+          <div id="languageMgrBody"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -345,36 +348,36 @@
 <!-- FEEDBACK MODAL -->
 <div class="ovl" id="feedbackOvl" onclick="fbOvlClose(event)" style="display:none" role="dialog" aria-modal="true" aria-label="Send feedback" aria-hidden="true">
   <div class="modal" onclick="event.stopPropagation()" style="max-width:480px">
-    <div class="mh"><span class="mt">💬 Send Feedback</span><button class="mx" onclick="closeFeedback()" aria-label="Close feedback">×</button></div>
+    <div class="mh"><span class="mt" data-i18n="fb_title">💬 Send Feedback</span><button class="mx" onclick="closeFeedback()" aria-label="Close feedback">×</button></div>
     <div class="mb">
       <div class="fg">
-        <label class="fl">Category</label>
+        <label class="fl" data-i18n="fb_label_category">Category</label>
         <select class="fs" id="fbCat">
-          <option value="bug">🐛 Bug Report — something isn't working</option>
-          <option value="feature">💡 Feature Request — new functionality</option>
-          <option value="ui">🎨 UI/Design — visual or usability issue</option>
-          <option value="perf">⚡ Performance — slowness or sluggishness</option>
-          <option value="docs">📖 Documentation — unclear help or manual</option>
-          <option value="workflow">🔄 Workflow/UX — flow could work better</option>
-          <option value="data">🔒 Data/Privacy — data concern</option>
-          <option value="praise">🙌 General Praise — something you love</option>
-          <option value="question">❓ Question — not sure how something works</option>
+          <option value="bug" data-i18n="fb_cat_bug">🐛 Bug Report — something isn't working</option>
+          <option value="feature" data-i18n="fb_cat_feature">💡 Feature Request — new functionality</option>
+          <option value="ui" data-i18n="fb_cat_ui">🎨 UI/Design — visual or usability issue</option>
+          <option value="perf" data-i18n="fb_cat_perf">⚡ Performance — slowness or sluggishness</option>
+          <option value="docs" data-i18n="fb_cat_docs">📖 Documentation — unclear help or manual</option>
+          <option value="workflow" data-i18n="fb_cat_workflow">🔄 Workflow/UX — flow could work better</option>
+          <option value="data" data-i18n="fb_cat_data">🔒 Data/Privacy — data concern</option>
+          <option value="praise" data-i18n="fb_cat_praise">🙌 General Praise — something you love</option>
+          <option value="question" data-i18n="fb_cat_question">❓ Question — not sure how something works</option>
         </select>
       </div>
       <div class="fg">
-        <label class="fl">Your Message <span style="color:var(--p1)">*</span></label>
-        <textarea class="fta" id="fbMsg" placeholder="Describe the issue, idea, or question…" oninput="fbCountChars()" rows="5" style="resize:vertical"></textarea>
-        <div style="text-align:right;font-size:11px;color:var(--dim);margin-top:3px"><span id="fbCharCount">0</span> chars</div>
+        <label class="fl"><span data-i18n="fb_label_message">Your Message</span> <span style="color:var(--p1)">*</span></label>
+        <textarea class="fta" id="fbMsg" data-i18n-placeholder="fb_ph_message" placeholder="Describe the issue, idea, or question…" oninput="fbCountChars()" rows="5" style="resize:vertical"></textarea>
+        <div style="text-align:right;font-size:11px;color:var(--dim);margin-top:3px"><span id="fbCharCount">0</span> <span data-i18n="fb_chars">chars</span></div>
       </div>
       <div class="fb-ctx-wrap">
-        <button class="fb-ctx-toggle" onclick="fbToggleCtx()" id="fbCtxToggle">▶ What we'll include with this report</button>
+        <button class="fb-ctx-toggle" onclick="fbToggleCtx()" id="fbCtxToggle" data-i18n="fb_ctx_toggle">▶ What we'll include with this report</button>
         <div class="fb-ctx-body" id="fbCtxBody" style="display:none"></div>
       </div>
     </div>
     <div class="mf">
-      <button class="bsec" onclick="closeFeedback()">Cancel</button>
-      <button class="bsec" id="fbCopyBtn" onclick="fbCopy()" style="display:none">📋 Copy</button>
-      <button class="bpri" onclick="fbSend()">✉ Send Feedback</button>
+      <button class="bsec" onclick="closeFeedback()" data-i18n="fb_btn_cancel">Cancel</button>
+      <button class="bsec" id="fbCopyBtn" onclick="fbCopy()" style="display:none" data-i18n="fb_btn_copy">📋 Copy</button>
+      <button class="bpri" onclick="fbSend()" data-i18n="fb_btn_send">✉ Send Feedback</button>
     </div>
   </div>
 </div>
@@ -386,22 +389,23 @@
 <nav class="mnav" aria-label="Mobile navigation">
   <div class="mni">
     <div class="nit on" id="mnav-today" role="button" tabindex="0" aria-label="Today view" onclick="sw('today')">
-      <span data-icon="zap" data-icon-size="20"></span>Today
+      <span data-icon="zap" data-icon-size="20"></span><span data-i18n="mnav_today">Today</span>
     </div>
     <div class="nit" id="mnav-tasks" role="button" tabindex="0" aria-label="All Tasks view" onclick="sw('tasks')">
-      <span data-icon="list-checks" data-icon-size="20"></span>Tasks
+      <span data-icon="list-checks" data-icon-size="20"></span><span data-i18n="mnav_tasks">Tasks</span>
     </div>
     <button class="fab" onclick="openAdd()" aria-label="Add task">+</button>
     <div class="nit" id="mnav-kanban" role="button" tabindex="0" aria-label="Kanban view" onclick="sw('kanban')">
-      <span data-icon="kanban" data-icon-size="20"></span>Kanban
+      <span data-icon="kanban" data-icon-size="20"></span><span data-i18n="mnav_kanban">Kanban</span>
     </div>
     <div class="nit" id="mnav-inbox" role="button" tabindex="0" aria-label="Inbox view" onclick="sw('inbox')">
-      <span data-icon="inbox" data-icon-size="20"></span>Inbox
+      <span data-icon="inbox" data-icon-size="20"></span><span data-i18n="mnav_inbox">Inbox</span>
     </div>
   </div>
 </nav>
 
 <script src="Focal_data.default.js"></script>
+<script src="Focal_i18n.js"></script>
 <script src="Focal_app.js"></script>
 </body>
 </html>

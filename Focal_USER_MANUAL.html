@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.7.1</title>
+<title>Focal — User Manual v10.8.0</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -746,6 +746,7 @@
       <a class="nav-item" href="#recurring">Recurring Tasks</a>
       <a class="nav-item" href="#settings">⚙️ Settings Panel</a>
       <a class="nav-item" href="#appearance">🎨 Appearance / Dark Mode</a>
+      <a class="nav-item" href="#language">🌐 Language</a>
       <a class="nav-item" href="#feedback">💬 Feedback</a>
       <a class="nav-item" href="#ai">🤖 AI Features</a>
     </div>
@@ -764,7 +765,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.7.1</h1>
+      <h1>Focal v10.8.0</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -1912,6 +1913,21 @@ to a local folder. It should:
         <li><strong>☀️ Light</strong> — the default high-contrast white theme.</li>
         <li><strong>🌙 Dark</strong> — dark background (<code>#111827</code>) with a full dark palette. All views, modals, dropdowns, and panels are fully themed.</li>
       </ul>
+
+      <h3 id="language">🌐 Language tab (v10.8.0)</h3>
+      <p class="section-lead">Focal speaks seven languages. Pick yours under <strong>Settings → 🌐 Language</strong> and the entire interface updates immediately — navigation tabs, filters, modal labels, toasts, Kanban columns, Matrix quadrants, Weekly Review stages, the Settings panel, all translated in place. No page reload, no second download.</p>
+      <ul class="blist">
+        <li><strong>🇬🇧 English</strong> — default.</li>
+        <li><strong>🇳🇱 Nederlands</strong> — Dutch.</li>
+        <li><strong>🇩🇪 Deutsch</strong> — German.</li>
+        <li><strong>🇮🇹 Italiano</strong> — Italian.</li>
+        <li><strong>🇧🇷 Português</strong> — Brazilian Portuguese.</li>
+        <li><strong>🇪🇸 Español</strong> — Latin American Spanish.</li>
+        <li><strong>🇮🇳 हिन्दी</strong> — Hindi (Devanagari script).</li>
+      </ul>
+      <p>How it works: a single bundled translation file (<code>Focal_i18n.js</code>) ships with 451 keys × 7 languages. There are no network calls, no third-party translation APIs, and no telemetry. Your language preference is stored locally in your browser alongside the rest of your Focal data.</p>
+      <p>Coverage scope: the main interface — all navigation, filters, modal forms, dropdowns, settings tabs, context menus, toast notifications, Kanban columns, Matrix quadrants, the full Weekly Review flow, and the Prioritize panel. Some inline tooltips, AI-generated content, and rare error messages may still appear in English; these will be covered in a follow-up release.</p>
+      <p><strong>Falling back gracefully:</strong> if a key is missing in your chosen language, Focal falls back to English. If English is also missing, it shows the key name itself — so nothing ever silently vanishes from the UI.</p>
     </section>
 
     <hr class="sec-div">
@@ -2289,7 +2305,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.7.1 — May 17, 2026</p>
+      <p>Focal v10.8.0 — May 17, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

@@ -36,7 +36,7 @@ const DEFAULT_OUTCOMES=[
   {id:'strategic', name:'Strategic Projects',  color:'#00B5B0', active:true, sort:5},
 ];
 // PPL_GROUP_PALETTE, _pplHashStr, _pplPickColor were here — moved above `let S = loadS()` to fix TDZ. See v10.7.1 note.
-function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; (d.personGroups||[]).forEach(g=>{ if(!g.color) g.color=_pplPickColor(g.id||g.name||Math.random()); }); d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(d.settings&&!d.settings.theme) d.settings.theme='light'; }
+function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; (d.personGroups||[]).forEach(g=>{ if(!g.color) g.color=_pplPickColor(g.id||g.name||Math.random()); }); d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(d.settings&&!d.settings.theme) d.settings.theme='light'; if(d.settings&&!d.settings.lang) d.settings.lang='en'; }
 function rebuildSecDropdown(){
   const sel=document.getElementById('fSec');
   if(!sel) return;
@@ -94,7 +94,7 @@ function loadS(){
       const bad=localStorage.getItem('focal_v1');
       if(bad){ const k='focal_v1_corrupted_'+Date.now(); try{ localStorage.setItem(k,bad); }catch{} }
     }catch{}
-    setTimeout(()=>{ try{ showToast('⚠️ Stored data was unreadable — restored demo. Auto-backup PAUSED to protect your file. A backup of the bad data was saved as focal_v1_corrupted_*. Open DevTools → Application → Local Storage to recover.', 14000); }catch{} }, 800);
+    setTimeout(()=>{ try{ showToast(t('toast_err_corrupted'), 14000); }catch{} }, 800);
     console.error('Focal: loadS recovered from corrupted storage:', err);
     const d=clone(FILE_DATA); if(!d.inbox) d.inbox=[]; if(!d.settings) d.settings={claudeKey:'',aiModel:'claude-haiku-4-5-20251001'}; d.sections.forEach(s=>s.tasks.forEach(t=>{ if(t.decided===undefined) t.decided=false; if(!t.kanbanColSince) t.kanbanColSince=null; })); migrateV82(d); return d;
   }
@@ -121,12 +121,12 @@ function saveS(){
         // fall through to bkSync below
       }catch{
         const now=Date.now();
-        if(now-_saveWarned>5000){ _saveWarned=now; try{ showToast('⚠️ Browser storage full — your change was NOT saved. Export data or remove old tasks/notes.', 8000); }catch{} }
+        if(now-_saveWarned>5000){ _saveWarned=now; try{ showToast(t('toast_err_storage_full'), 8000); }catch{} }
         return;
       }
     } else {
       const now=Date.now();
-      if(now-_saveWarned>5000){ _saveWarned=now; try{ showToast('⚠️ Save failed — check console.', 8000); }catch{} }
+      if(now-_saveWarned>5000){ _saveWarned=now; try{ showToast(t('toast_err_save_failed'), 8000); }catch{} }
       return;
     }
   }
@@ -188,6 +188,51 @@ function addKnownConn(name){ if(!S.knownConnections) S.knownConnections=[]; if(!
 
 document.getElementById('vbadge').textContent=`v${VER} · ${VDATE}`;
 // pills start dim by default (Done hidden, Conf hidden, Backlog hidden) — no init classes needed
+
+// ═══ I18N ═══
+// Apply translations to all DOM elements tagged with data-i18n / data-i18n-title /
+// data-i18n-placeholder. Re-runnable: safe to call after language change to retranslate.
+// Falls back gracefully if Focal_i18n.js is missing (t() returns the key, original text unchanged).
+function applyI18n(){
+  if(typeof t!=='function') return; // i18n not loaded
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    if(!key) return;
+    const v=t(key);
+    if(v && v!==key) el.textContent=v;
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{
+    const key=el.getAttribute('data-i18n-title');
+    if(!key) return;
+    const v=t(key);
+    if(v && v!==key) el.setAttribute('title',v);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    const key=el.getAttribute('data-i18n-placeholder');
+    if(!key) return;
+    const v=t(key);
+    if(v && v!==key) el.setAttribute('placeholder',v);
+  });
+}
+// Change active language. Saves preference, re-applies static translations,
+// re-renders current view and settings panel so dynamic strings refresh.
+function setLang(code){
+  if(!S.settings) S.settings={};
+  S.settings.lang=code;
+  saveS();
+  applyI18n();
+  try{ renderAll(); }catch{}
+  try{ applyF(); }catch{}
+  try{ if(curView==='today') renderToday(); }catch{}
+  try{ if(curView==='kanban') renderKanban(); }catch{}
+  try{ if(curView==='matrix') renderMatrix(); }catch{}
+  try{ if(curView==='inbox') renderInbox(); }catch{}
+  try{ if(curView==='review') renderWeeklyReview(); }catch{}
+  try{ renderStats(); }catch{}
+  try{ renderLanguageTab(); }catch{}
+  try{ _updateSettingsHeader(); _renderSettingsNav(); }catch{}
+  try{ showToast('✓ Language: '+(FOCAL_LANGS.find(l=>l.code===code)?.name||code)); }catch{}
+}
 
 // ═══ SEARCH ═══
 // Search autocomplete
@@ -333,11 +378,11 @@ function secDrop(e,targetId){
 }
 function addSection(){
   const name=document.getElementById('newSecName').value.trim();
-  if(!name){showToast('Please enter a category name');return;}
+  if(!name){showToast(t('toast_cat_name_required'));return;}
   const id='sec_'+Date.now().toString(36);
   S.sections.push({id,icon:_newSecIcon,title:name,tasks:[]});
   _newSecIcon="📌";
-  saveS(); renderSecMgr(); showToast('Category added: '+name);
+  saveS(); renderSecMgr(); showToast(t('toast_cat_added', {name}));
 }
 
 function delSection(id){
@@ -346,7 +391,7 @@ function delSection(id){
   const taskCount=sec.tasks.filter(t=>t.status!=='Done').length;
   if(taskCount>0&&!confirm(`Delete "${sec.title}"? It has ${taskCount} open task(s). They will be lost.`)) return;
   S.sections=S.sections.filter(s=>s.id!==id);
-  saveS(); renderSecMgr(); showToast('Category deleted');
+  saveS(); renderSecMgr(); showToast(t('toast_cat_deleted'));
 }
 
 // ═══ MATRIX FILTER ═══
@@ -414,7 +459,7 @@ function renderModalOutcomes(){
   const active=(S.outcomes||[]).filter(o=>o.active).sort((a,b)=>a.sort-b.sort);
   el.innerHTML=active.map(o=>{ const sel=modalOutcomes.includes(o.id); return `<span class="om-chip ${sel?'sel':''}" style="${sel?`background:${o.color};border-color:${o.color}`:''}" onclick="toggleModalOutcome('${o.id}')">${escHtml(o.name)}</span>`; }).join('');
 }
-function toggleModalOutcome(id){ if(modalOutcomes.includes(id)){ modalOutcomes=modalOutcomes.filter(x=>x!==id); } else { if(modalOutcomes.length>=2){ showToast('Max 2 outcomes per task'); return; } modalOutcomes.push(id); } renderModalOutcomes(); }
+function toggleModalOutcome(id){ if(modalOutcomes.includes(id)){ modalOutcomes=modalOutcomes.filter(x=>x!==id); } else { if(modalOutcomes.length>=2){ showToast(t('toast_max_outcomes')); return; } modalOutcomes.push(id); } renderModalOutcomes(); }
 
 // ═══ STATS ═══
 // Stats
@@ -634,22 +679,22 @@ function togComplete(id,secId){
   if(!t) return;
   const today=new Date().toISOString().split('T')[0];
   if(t.status==='Done'){
-    t.status='To Do'; t.lastStatusChange=today; if(t.kanbanCol==='done') t.kanbanCol=null; logEvent('reopen',id,{s:secId}); showToast('Task reopened');
+    t.status='To Do'; t.lastStatusChange=today; if(t.kanbanCol==='done') t.kanbanCol=null; logEvent('reopen',id,{s:secId}); showToast(window.t('toast_task_reopened'));
   } else if(t.type==='recurring'){
     const interval=t.rInterval||'monthly'; let newDue='';
     if(isValidISODate(t.due)){ let d=new Date(t.due+'T12:00:00'); if(interval==='monthly') d=addMonthsClamped(d,1); else if(interval==='weekly') d.setDate(d.getDate()+7); else if(interval==='quarterly') d=addMonthsClamped(d,3); newDue=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); }
     const arc=clone(t); arc.id=genId('a'); arc.status='Done'; arc.kanbanCol='done'; arc.note=(t.note?t.note+' ':'')+'[completed '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})+']'; sec.tasks.push(arc);
-    t.due=newDue; t.status='To Do'; t.lastStatusChange=today; t.kanbanCol=null; logEvent('done',arc.id,{s:secId,p:t.priority,age:ageDays(t),r:1,oc:(t.outcomes||[])}); showToast(`🔁 Next cycle set${newDue?' to '+fd(newDue):''}`);
-  } else { t.status='Done'; t.lastStatusChange=today; t.kanbanCol='done'; const sc=cascadeSubtasksDone(t.id); logEvent('done',id,{s:secId,p:t.priority,age:ageDays(t),oc:(t.outcomes||[])}); showToast(sc?`✓ Done (+${sc} subtask${sc>1?'s':''})`:' ✓ Task completed'); }
+    t.due=newDue; t.status='To Do'; t.lastStatusChange=today; t.kanbanCol=null; logEvent('done',arc.id,{s:secId,p:t.priority,age:ageDays(t),r:1,oc:(t.outcomes||[])}); showToast(window.t('toast_recurring_next', {newDue: newDue?' to '+fd(newDue):''}));
+  } else { t.status='Done'; t.lastStatusChange=today; t.kanbanCol='done'; const sc=cascadeSubtasksDone(t.id); logEvent('done',id,{s:secId,p:t.priority,age:ageDays(t),oc:(t.outcomes||[])}); showToast(sc?window.t('toast_done_with_subtasks', {sc}):window.t('toast_done')); }
   saveS(); renderAll();
   if(curView==='today') renderToday();
   if(curView==='kanban') renderKanban();
 }
 
 function oPriDrop(e,id,secId){ e.stopPropagation(); closeDrops(); positionDrop(e.currentTarget, document.getElementById('pd-'+id)); }
-function setPri(id,secId,pri){ const t=ft(id,secId); const old=t.priority; t.priority=pri; if(old!==pri) logEvent('priority',id,{from:old,to:pri}); closeDrops(); saveS(); renderAll(); showToast('Priority → '+pri); }
+function setPri(id,secId,pri){ const t=ft(id,secId); const old=t.priority; t.priority=pri; if(old!==pri) logEvent('priority',id,{from:old,to:pri}); closeDrops(); saveS(); renderAll(); showToast(window.t('toast_priority_changed', {priority: pri})); }
 function oStatDrop(e,id,secId){ e.stopPropagation(); closeDrops(); positionDrop(e.currentTarget, document.getElementById('sd-'+id)); }
-function setStat(id,secId,stat){ const t=ft(id,secId); const old=t.status; t.status=stat; t.lastStatusChange=new Date().toISOString().split('T')[0]; if(stat==='Done'){t.kanbanCol='done';cascadeSubtasksDone(id);logEvent('done',id,{s:secId,p:t.priority,age:ageDays(t),oc:(t.outcomes||[])});}else if(t.kanbanCol==='done') t.kanbanCol=null; if(old!==stat) logEvent('status',id,{from:old,to:stat}); closeDrops(); saveS(); renderAll(); showToast('Status → '+stat); }
+function setStat(id,secId,stat){ const t=ft(id,secId); const old=t.status; t.status=stat; t.lastStatusChange=new Date().toISOString().split('T')[0]; if(stat==='Done'){t.kanbanCol='done';cascadeSubtasksDone(id);logEvent('done',id,{s:secId,p:t.priority,age:ageDays(t),oc:(t.outcomes||[])});}else if(t.kanbanCol==='done') t.kanbanCol=null; if(old!==stat) logEvent('status',id,{from:old,to:stat}); closeDrops(); saveS(); renderAll(); showToast(window.t('toast_status_changed', {status: stat})); }
 
 function positionDrop(anchor, dropEl){
   const r=anchor.getBoundingClientRect();
@@ -679,7 +724,7 @@ function togConfRow(id,secId){
   if(cpId){const op=document.getElementById('cp-'+cpId);if(op)op.classList.remove('on');cpId=null;}
   t.confidential=!t.confidential;
   saveS(); renderAll();
-  showToast(t.confidential?'🔒 Marked confidential':'Confidential flag removed');
+  showToast(t.confidential?window.t('toast_marked_confidential'):window.t('toast_conf_removed'));
 }
 
 function toggleConfView(){
@@ -689,14 +734,14 @@ function toggleConfView(){
   if(curView==='matrix') renderMatrix();
   if(curView==='today') renderToday();
   if(curView==='kanban') renderKanban();
-  showToast(hideConf?'🔒 Confidential tasks hidden':'Confidential tasks visible');
+  showToast(hideConf?window.t('toast_conf_hidden'):window.t('toast_conf_visible'));
 }
 
-function togType(id,secId){ const t=ft(id,secId); t.type=t.type==='recurring'?'once':'recurring'; if(!t.rInterval) t.rInterval='monthly'; saveS(); renderAll(); showToast(t.type==='recurring'?'🔁 Set to recurring':'Set to one-time'); }
+function togType(id,secId){ const t=ft(id,secId); t.type=t.type==='recurring'?'once':'recurring'; if(!t.rInterval) t.rInterval='monthly'; saveS(); renderAll(); showToast(t.type==='recurring'?window.t('toast_set_recurring'):window.t('toast_set_one_time')); }
 
 function startEdit(el){ el.contentEditable='true'; el.focus(); const r=document.createRange();r.selectNodeContents(el);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r); }
 function editKey(e,el){ if(e.key==='Enter'){e.preventDefault();el.blur();} if(e.key==='Escape'){el.contentEditable='false';renderAll();} }
-function saveEdit(el,id,secId,field){ el.contentEditable='false'; const val=el.textContent.trim(); const t=ft(id,secId); if(!t) return; if(field==='task') t.task=val; if(field==='note') t.note=val; saveS(); showToast('Saved'); }
+function saveEdit(el,id,secId,field){ el.contentEditable='false'; const val=el.textContent.trim(); const t=ft(id,secId); if(!t) return; if(field==='task') t.task=val; if(field==='note') t.note=val; saveS(); showToast(window.t('toast_saved')); }
 
 // ═══ DATE PICKER ═══
 let dpT=null,dpMode='day',dpY,dpM;
@@ -735,9 +780,9 @@ function renderDp(el){
 }
 function setDpMode(m){event&&event.stopPropagation&&event.stopPropagation();dpMode=m;const el=document.getElementById('dp-'+dpT.id)||document.getElementById('mdp-'+dpT.id);if(el)renderDp(el);}
 function dpNav(d){event&&event.stopPropagation&&event.stopPropagation();dpM+=d;if(dpM>11){dpM=0;dpY++;}else if(dpM<0){dpM=11;dpY--;}const el=document.getElementById('dp-'+dpT.id)||document.getElementById('mdp-'+dpT.id);if(el&&el.classList.contains('on'))renderDp(el);}
-function selDay(iso){ft(dpT.id,dpT.secId).due=iso;closeDrops();saveS();renderAll();showToast('Due: '+fd(iso));}
-function selWeek(end){ft(dpT.id,dpT.secId).due=end;closeDrops();saveS();renderAll();showToast('Due: week of '+fd(end));}
-function clrDue(){ft(dpT.id,dpT.secId).due='';closeDrops();saveS();renderAll();showToast('Date cleared');}
+function selDay(iso){ft(dpT.id,dpT.secId).due=iso;closeDrops();saveS();renderAll();showToast(window.t('toast_due_date', {date: fd(iso)}));}
+function selWeek(end){ft(dpT.id,dpT.secId).due=end;closeDrops();saveS();renderAll();showToast(window.t('toast_due_week', {date: fd(end)}));}
+function clrDue(){ft(dpT.id,dpT.secId).due='';closeDrops();saveS();renderAll();showToast(window.t('toast_date_cleared'));}
 
 // ═══ EMAIL & DELETE ═══
 function emailTask(id,secId){
@@ -748,8 +793,8 @@ function emailTask(id,secId){
   window.location.href=`mailto:?subject=${sub}&body=${body}`;
 }
 
-function delTask(id,secId){ if(!confirm('Delete this task?')) return; const sec=S.sections.find(s=>s.id===secId); sec.tasks=sec.tasks.filter(t=>t.id!==id); S.sections.forEach(s=>s.tasks.forEach(t=>{if(t.parent===id)t.parent=null;})); saveS();renderAll();showToast('Deleted'); }
-function quickAdd(e,secId){ if(e.key!=='Enter') return; const inp=document.getElementById('qa-'+secId); const val=inp.value.trim(); if(!val) return; const nid=genId(secId[0]); S.sections.find(s=>s.id===secId).tasks.push({id:nid,priority:'P3',task:val,status:'To Do',due:'',note:'',url:'',type:'once',urgent:0,confidential:false,connections:[],kanbanCol:null,lastStatusChange:new Date().toISOString().split('T')[0],parent:null}); logEvent('create',nid,{s:secId,p:'P3'}); inp.value=''; saveS();renderAll();showToast('Task added'); setTimeout(()=>{const el=document.getElementById('qa-'+secId);if(el)el.focus();},50); }
+function delTask(id,secId){ if(!confirm('Delete this task?')) return; const sec=S.sections.find(s=>s.id===secId); sec.tasks=sec.tasks.filter(t=>t.id!==id); S.sections.forEach(s=>s.tasks.forEach(t=>{if(t.parent===id)t.parent=null;})); saveS();renderAll();showToast(window.t('toast_deleted')); }
+function quickAdd(e,secId){ if(e.key!=='Enter') return; const inp=document.getElementById('qa-'+secId); const val=inp.value.trim(); if(!val) return; const nid=genId(secId[0]); S.sections.find(s=>s.id===secId).tasks.push({id:nid,priority:'P3',task:val,status:'To Do',due:'',note:'',url:'',type:'once',urgent:0,confidential:false,connections:[],kanbanCol:null,lastStatusChange:new Date().toISOString().split('T')[0],parent:null}); logEvent('create',nid,{s:secId,p:'P3'}); inp.value=''; saveS();renderAll();showToast(window.t('toast_task_added')); setTimeout(()=>{const el=document.getElementById('qa-'+secId);if(el)el.focus();},50); }
 
 // ═══ CONNECTIONS ═══
 // Inline Connection Popover
@@ -791,7 +836,7 @@ function removeConnInline(id,secId,name){
   renderConnPop(pop,id,secId);
   const cell=document.querySelector(`#row-${id} .conn-inline`);
   if(cell) cell.innerHTML=buildConnHtml(t.connections||[]);
-  showToast('Connection removed');
+  showToast(window.t('toast_connection_removed'));
 }
 function addConnInline(id,secId,name){
   if(!name.trim()) return;
@@ -803,7 +848,7 @@ function addConnInline(id,secId,name){
   renderConnPop(pop,id,secId);
   const cell=document.querySelector(`#row-${id} .conn-inline`);
   if(cell) cell.innerHTML=buildConnHtml(t.connections);
-  showToast('Connection added');
+  showToast(window.t('toast_connection_added'));
   setTimeout(()=>{const inp=document.getElementById('cpi-'+id);if(inp)inp.focus();},40);
 }
 function cpSuggest(id,secId,inp){
@@ -909,7 +954,7 @@ function saveTask(){
   // Reject malformed dates from imports / older browsers — only accept ISO YYYY-MM-DD.
   const rawDue=document.getElementById('fDue').value;
   const safeDue=(rawDue===''||isValidISODate(rawDue))?rawDue:'';
-  if(rawDue&&!safeDue) showToast('⚠️ Due date ignored — use YYYY-MM-DD format');
+  if(rawDue&&!safeDue) showToast(window.t('toast_invalid_date'));
   const obj={
     task:val, note:document.getElementById('fNote').value.trim(), url:document.getElementById('fUrl').value.trim(),
     priority:document.getElementById('fPri').value, status:newStat,
@@ -939,10 +984,10 @@ function saveTask(){
     // Log outcome links
     const newOc=obj.outcomes||[]; const oldOc=(oldTask&&oldTask.outcomes)||[];
     newOc.filter(o=>!oldOc.includes(o)).forEach(o=>logEvent('outcome_link',eId,{oc:o}));
-    showToast('Task updated');
+    showToast(window.t('toast_task_updated'));
   } else {
     const colLabel=newTaskKanbanCol==='today'?'Today':newTaskKanbanCol==='week'?'This Week':newTaskKanbanCol?newTaskKanbanCol:null;
-    obj.id=genId(ns[0]); S.sections.find(s=>s.id===ns).tasks.push(obj); logEvent('create',obj.id,{s:ns,p:obj.priority,oc:(obj.outcomes||[])}); showToast(colLabel?'Task added → '+colLabel:'Task added');
+    obj.id=genId(ns[0]); S.sections.find(s=>s.id===ns).tasks.push(obj); logEvent('create',obj.id,{s:ns,p:obj.priority,oc:(obj.outcomes||[])}); showToast(colLabel?window.t('toast_task_added_col', {colLabel}):window.t('toast_task_added'));
   }
   newTaskKanbanCol=null;
   closeModal();saveS();renderAll();
@@ -970,7 +1015,7 @@ function dDrop(e,tId,tSec){
       const ti=ts.tasks.findIndex(t=>t.id===tId);
       if(si===-1) return;
       const[mv]=ss.tasks.splice(si,1);ts.tasks.splice(ti,0,mv);
-      saveS();renderAll();showToast('Reordered');
+      saveS();renderAll();showToast(window.t('toast_reordered'));
     });
 }
 
@@ -1048,7 +1093,7 @@ function toggleDemo(){
   document.getElementById('btnDemo').classList.toggle('on-demo',demoMode);
   const renders={tasks:renderAll,today:renderToday,matrix:renderMatrix,kanban:renderKanban,review:renderReview};
   if(renders[curView]) renders[curView]();
-  showToast(demoMode?'Demo mode on — task names masked':'Demo mode off');
+  showToast(demoMode?window.t('toast_demo_on'):window.t('toast_demo_off'));
 }
 function toggleDone(){
   showDone=!showDone;
@@ -1213,8 +1258,8 @@ function mDrop(targetQ){
   mDragId=null;mDragSec=null;
   saveS();
   renderMatrix();
-  const qnames=['Q1: Urgent + Important (P1)','Q2: Not Urgent + Important (P2)','Q3: Urgent + Not Important (P3)','Q4: Not Urgent + Not Important (P4)'];
-  showToast(`Moved to ${qnames[targetQ]}`);
+  const qnames=[window.t('matrix_q1_label'),window.t('matrix_q2_label'),window.t('matrix_q3_label'),window.t('matrix_q4_label')];
+  showToast(window.t('toast_moved_to_quadrant', {quadrant: qnames[targetQ]}));
 }
 
 // ═══ PRIORITIZE MODE ═══
@@ -1268,11 +1313,11 @@ function renderGuardrail(){
   const noOut=tasks.filter(t=>(t.priority==='P1'||t.priority==='P2')&&(!t.outcomes||t.outcomes.length===0)).length;
   const ov=tasks.filter(t=>ds(t.due)==='u').length;
   const items=[
-    {v:p1Count,l:'P1 Active',cls:p1Count>3?'warn':'',tip:p1Count>3?'⚠ Recommended max: 3':''},
-    {v:ipCount,l:'In Progress',cls:ipCount>7?'amber':'',tip:ipCount>7?'⚠ Recommended max: 7':''},
-    {v:stale,l:'Needs Review',cls:'',tip:''},
-    {v:noOut,l:'P1/P2 No Outcomes',cls:noOut>0?'warn':'',tip:noOut>0?'⚠ Link outcomes for better prioritization':''},
-    {v:ov,l:'Overdue',cls:ov>0?'amber':'',tip:''},
+    {v:p1Count,l:t('guard_p1_active'),cls:p1Count>3?'warn':'',tip:p1Count>3?t('guard_warn_p1'):''},
+    {v:ipCount,l:t('guard_in_progress'),cls:ipCount>7?'amber':'',tip:ipCount>7?t('guard_warn_p2'):''},
+    {v:stale,l:t('guard_needs_review'),cls:'',tip:''},
+    {v:noOut,l:t('guard_no_outcomes'),cls:noOut>0?'warn':'',tip:noOut>0?t('guard_warn_outcomes'):''},
+    {v:ov,l:t('guard_overdue'),cls:ov>0?'amber':'',tip:''},
   ];
   el.innerHTML=`<div class="pm-guard-inner">${items.map(i=>`<div class="pm-guard-item ${i.cls}"><span class="pm-guard-val">${i.v}</span><span class="pm-guard-lbl">${i.l}</span>${i.tip?`<span class="pm-guard-tip" title="${i.tip}">⚠</span>`:''}</div>`).join('')}</div>`;
 }
@@ -1314,36 +1359,36 @@ function renderTriageQueue(){
   const el=document.getElementById('pm-queue'); if(!el) return;
   const tasks=getTriageQueue();
   const total=tasks.length;
-  let h=`<div class="pq-queue-hdr"><span class="pq-queue-title">${total} task${total!==1?'s':''} to review</span><button class="pq-focus-btn ${pmFocus?'on':''}" onclick="togglePmFocus()">⚡ Focus 10</button></div>`;
+  let h=`<div class="pq-queue-hdr"><span class="pq-queue-title">${t('pm_tasks_to_review',{total})}</span><button class="pq-focus-btn ${pmFocus?'on':''}" onclick="togglePmFocus()">${t('matrix_btn_focus')}</button></div>`;
   if(!total){ h+=`<div class="pq-empty">🎉 All caught up — no tasks need review right now.</div>`; el.innerHTML=h; return; }
   h+=tasks.map(t=>triageCard(t)).join('');
   el.innerHTML=h;
 }
-function triageCard(t){
-  const ctrl=defaultControls(t);
-  const sugg=suggestPriority(t);
-  const hasDiff=sugg.p!==t.priority;
-  const d=ds(t.due);
+function triageCard(task){
+  const ctrl=defaultControls(task);
+  const sugg=suggestPriority(task);
+  const hasDiff=sugg.p!==task.priority;
+  const d=ds(task.due);
   const dColor=d==='u'?'var(--p1)':d==='s'?'var(--amber)':'var(--muted)';
   const activeOuts=(S.outcomes||[]).filter(o=>o.active);
-  const taskOuts=t.outcomes||[];
+  const taskOuts=task.outcomes||[];
   // outcome chips (show all active, mark selected)
   const ocHtml=activeOuts.map(o=>{
     const sel=taskOuts.includes(o.id);
-    return `<span class="pq-oc ${sel?'sel':''}" style="${sel?`background:${escAttr(o.color)};border-color:${escAttr(o.color)}`:''}" onclick="toggleTaskOutcomeInline('${escJs(t.id)}','${escJs(t.secId)}','${escJs(o.id)}')" title="${sel?'Remove: ':'Add: '}${escAttr(o.name)}">${escHtml(o.name)}</span>`;
+    return `<span class="pq-oc ${sel?'sel':''}" style="${sel?`background:${escAttr(o.color)};border-color:${escAttr(o.color)}`:''}" onclick="toggleTaskOutcomeInline('${escJs(task.id)}','${escJs(task.secId)}','${escJs(o.id)}')" title="${sel?'Remove: ':'Add: '}${escAttr(o.name)}">${escHtml(o.name)}</span>`;
   }).join('');
   // segmented controls
-  function seg(field,opts,cur){ return `<div class="pq-seg">${opts.map(([v,l])=>`<button class="pq-seg-btn ${cur===v?'on':''}" onclick="setPData('${t.id}','${t.secId}','${field}','${v}')">${l}</button>`).join('')}</div>`; }
-  const impSeg=seg('impact',[['none','None'],['some','Some'],['high','High']],ctrl.impact);
-  const tpSeg=seg('timePressure',[['later','Later'],['week','This week'],['now','Now']],ctrl.timePressure);
-  const ownSeg=seg('ownership',[['delegate','Delegate'],['shared','Shared'],['me','Me']],ctrl.ownership);
+  function seg(field,opts,cur){ return `<div class="pq-seg">${opts.map(([v,l])=>`<button class="pq-seg-btn ${cur===v?'on':''}" onclick="setPData('${task.id}','${task.secId}','${field}','${v}')">${l}</button>`).join('')}</div>`; }
+  const impSeg=seg('impact',[['none',t('pm_impact_none')],['some',t('pm_impact_some')],['high',t('pm_impact_high')]],ctrl.impact);
+  const tpSeg=seg('timePressure',[['later',t('pm_pressure_later')],['week',t('pm_pressure_week')],['now',t('pm_pressure_now')]],ctrl.timePressure);
+  const ownSeg=seg('ownership',[['delegate',t('pm_owner_delegate')],['shared',t('pm_owner_shared')],['me',t('pm_owner_me')]],ctrl.ownership);
   const suggBadge=`<span class="badge ${PC[sugg.p]}" style="font-size:10px;padding:2px 7px"><span class="bd"></span>${sugg.p}${hasDiff?'':'✓'}</span>`;
-  return `<div class="pq-card" id="pq-${t.id}">
-  <div class="pq-card-top"><span class="badge ${PC[t.priority]}" style="font-size:10px;padding:2px 7px;flex-shrink:0"><span class="bd"></span>${t.priority}</span><span class="pq-task-name">${dT(t.task)}</span><div class="pq-suggestion">${hasDiff?suggBadge+`<button class="pq-why" onclick="showWhy('${t.id}')">Why?</button>`:suggBadge}</div></div>
-  ${hasDiff?`<div class="pm-why-txt" id="pm-why-${t.id}">${escHtml(sugg.rationale)}</div>`:''}
-  <div class="pq-meta"><span class="pq-sec">${t.secIcon} ${escHtml((t.secTitle||'').replace(/ — .*/,''))}</span>${t.due?`<span class="pq-due" style="color:${dColor}">📅 ${fd(t.due)}</span>`:''}${ocHtml}</div>
-  <div class="pq-controls"><div class="pq-seg-wrap"><span class="pq-seg-label">Impact</span>${impSeg}</div><div class="pq-seg-wrap"><span class="pq-seg-label">Pressure</span>${tpSeg}</div><div class="pq-seg-wrap"><span class="pq-seg-label">Owner</span>${ownSeg}</div></div>
-  <div class="pq-actions"><button class="pq-btn pq-accept" onclick="acceptPriority('${t.id}','${t.secId}')">✓ Accept ${sugg.p}</button><button class="pq-btn pq-keep" onclick="keepPriority('${t.id}','${t.secId}')">— Keep ${t.priority}</button><button class="pq-btn pq-open" onclick="openEdit('${t.id}','${t.secId}')">✏ Open</button></div>
+  return `<div class="pq-card" id="pq-${task.id}">
+  <div class="pq-card-top"><span class="badge ${PC[task.priority]}" style="font-size:10px;padding:2px 7px;flex-shrink:0"><span class="bd"></span>${task.priority}</span><span class="pq-task-name">${dT(task.task)}</span><div class="pq-suggestion">${hasDiff?suggBadge+`<button class="pq-why" onclick="showWhy('${task.id}')">${t('pm_btn_why')}</button>`:suggBadge}</div></div>
+  ${hasDiff?`<div class="pm-why-txt" id="pm-why-${task.id}">${escHtml(sugg.rationale)}</div>`:''}
+  <div class="pq-meta"><span class="pq-sec">${task.secIcon} ${escHtml((task.secTitle||'').replace(/ — .*/,''))}</span>${task.due?`<span class="pq-due" style="color:${dColor}">📅 ${fd(task.due)}</span>`:''}${ocHtml}</div>
+  <div class="pq-controls"><div class="pq-seg-wrap"><span class="pq-seg-label">${t('pm_seg_impact')}</span>${impSeg}</div><div class="pq-seg-wrap"><span class="pq-seg-label">${t('pm_seg_pressure')}</span>${tpSeg}</div><div class="pq-seg-wrap"><span class="pq-seg-label">${t('pm_seg_owner')}</span>${ownSeg}</div></div>
+  <div class="pq-actions"><button class="pq-btn pq-accept" onclick="acceptPriority('${task.id}','${task.secId}')">${t('pm_btn_accept',{priority:sugg.p})}</button><button class="pq-btn pq-keep" onclick="keepPriority('${task.id}','${task.secId}')">${t('pm_btn_keep',{priority:task.priority})}</button><button class="pq-btn pq-open" onclick="openEdit('${task.id}','${task.secId}')">${t('pm_btn_open')}</button></div>
   </div>`;
 }
 function setPData(id,secId,field,value){
@@ -1361,7 +1406,7 @@ function toggleTaskOutcomeInline(id,secId,outcomeId){
   const t=ft(id,secId); if(!t) return;
   if(!t.outcomes) t.outcomes=[];
   if(t.outcomes.includes(outcomeId)){ t.outcomes=t.outcomes.filter(x=>x!==outcomeId); }
-  else { if(t.outcomes.length>=2){ showToast('Max 2 outcomes per task'); return; } t.outcomes.push(outcomeId); }
+  else { if(t.outcomes.length>=2){ showToast(t('toast_max_outcomes')); return; } t.outcomes.push(outcomeId); }
   saveS(); rerenderTriageCard(id,secId); renderMiniMatrix();
 }
 function showWhy(id){ const el=document.getElementById('pm-why-'+id); if(el) el.classList.toggle('on'); }
@@ -1373,7 +1418,7 @@ function acceptPriority(id,secId){
   saveS();
   if(curView==='review'&&wrStage===5) renderReview();
   else { renderGuardrail(); renderTriageQueue(); renderMiniMatrix(); }
-  showToast(`Priority updated: ${oldP} → ${sugg.p}`);
+  showToast(window.t('toast_priority_updated', {old: oldP, new: sugg.p}));
 }
 function keepPriority(id,secId){
   const t=ft(id,secId); if(!t) return;
@@ -1381,7 +1426,7 @@ function keepPriority(id,secId){
   saveS();
   if(curView==='review'&&wrStage===5) renderReview();
   else { renderGuardrail(); renderTriageQueue(); }
-  showToast('Priority confirmed — review date reset');
+  showToast(window.t('toast_priority_confirmed'));
 }
 
 // Mini matrix (read-only right panel)
@@ -1423,7 +1468,7 @@ function ixCapture(){
   const lines=t.value.split('\n').map(l=>l.trim()).filter(Boolean);
   if(lines.length>1){
     lines.forEach(l=>addInboxItem(l,''));
-    showToast(`${lines.length} items added to inbox`);
+    showToast(window.t('toast_inbox_items_added', {n: lines.length}));
   } else {
     addInboxItem(lines[0],n?n.value:'');
   }
@@ -1505,7 +1550,7 @@ function triageItem(id,mode){
   S.inbox=(S.inbox||[]).filter(x=>x.id!==id);
   logEvent('inbox_done',id,{a:mode}); logEvent('create',newTask.id,{s:secId,p:priority});
   if(paMode){if(paIdx>=(S.inbox.length))paIdx=Math.max(0,S.inbox.length-1);if(!S.inbox.length)paMode=false;}
-  saveS();renderAll();renderInbox();showToast(mode==='backlog'?'Sent to Backlog':'Moved to Active tasks');
+  saveS();renderAll();renderInbox();showToast(mode==='backlog'?window.t('toast_sent_to_backlog'):window.t('toast_moved_to_active'));
 }
 
 function deleteInboxItem(id){ logEvent('inbox_done',id,{a:'delete'}); S.inbox=(S.inbox||[]).filter(x=>x.id!==id); if(paMode){if(paIdx>=S.inbox.length)paIdx=Math.max(0,S.inbox.length-1);if(!S.inbox.length)paMode=false;} saveS();renderInbox(); }
@@ -1528,7 +1573,7 @@ function renderReview(){
   c.innerHTML=wrDoneHTML();
 }
 function wrProgHTML(stage){
-  const steps=['Inbox','Aging','Backlog','Hygiene','Prioritize'];
+  const steps=[t('wr_stage_inbox'),t('wr_stage_aging'),t('wr_stage_backlog'),t('wr_stage_hygiene'),t('wr_stage_prioritize')];
   return `<div class="wr-prog">${steps.map((s,i)=>`<div class="wr-step ${stage>i+1?'done':stage===i+1?'on':''}">${stage>i+1?'✓ ':''}${s}</div>`+(i<4?'<div class="wr-sep">→</div>':'')).join('')}</div>`;
 }
 function wrHomeScreen(){
@@ -1537,7 +1582,7 @@ function wrHomeScreen(){
   const backlog=S.sections.reduce((a,s)=>a+s.tasks.filter(t=>t.status==='Backlog').length,0);
   const hygiene=wrHygieneTasks().length;
   const prioritize=getTriageQueue(true).length;
-  return `<div class="wr-home"><div class="wr-title">🔄 Weekly Review</div><div class="wr-sub">10-minute system check — inbox, aging, backlog, hygiene, prioritize</div><div class="wr-counts"><div class="wr-cnt"><span class="wr-n">${inbox}</span><span class="wr-l">Inbox</span></div><div class="wr-cnt"><span class="wr-n">${aging}</span><span class="wr-l">Aging</span></div><div class="wr-cnt"><span class="wr-n">${backlog}</span><span class="wr-l">Backlog</span></div><div class="wr-cnt"><span class="wr-n" style="color:${hygiene?'var(--amber)':'var(--teal)'}">${hygiene}</span><span class="wr-l">Hygiene</span></div><div class="wr-cnt"><span class="wr-n" style="color:${prioritize?'var(--teal)':'var(--muted)'}">${prioritize}</span><span class="wr-l">Prioritize</span></div></div><button class="wrbtn wr-start" onclick="startWeeklyReview()">Start Review →</button></div>`;
+  return `<div class="wr-home"><div class="wr-title">${t('wr_title')}</div><div class="wr-sub">${t('wr_subtitle')}</div><div class="wr-counts"><div class="wr-cnt"><span class="wr-n">${inbox}</span><span class="wr-l">${t('wr_card_inbox')}</span></div><div class="wr-cnt"><span class="wr-n">${aging}</span><span class="wr-l">${t('wr_card_aging')}</span></div><div class="wr-cnt"><span class="wr-n">${backlog}</span><span class="wr-l">${t('wr_card_backlog')}</span></div><div class="wr-cnt"><span class="wr-n" style="color:${hygiene?'var(--amber)':'var(--teal)'}">${hygiene}</span><span class="wr-l">${t('wr_card_hygiene')}</span></div><div class="wr-cnt"><span class="wr-n" style="color:${prioritize?'var(--teal)':'var(--muted)'}">${prioritize}</span><span class="wr-l">${t('wr_card_prioritize')}</span></div></div><button class="wrbtn wr-start" onclick="startWeeklyReview()">${t('wr_btn_start')}</button></div>`;
 }
 function startWeeklyReview(){ wrStage=1; wrKeptIds=new Set(); renderReview(); }
 function wrHygieneTasks(){
@@ -1554,68 +1599,68 @@ function wrStage4HTML(){
     const noOut=!(t.outcomes&&t.outcomes.length);
     const noDue=!t.due;
     const noConn=!(t.connections&&t.connections.length);
-    const flags=(noOut?`<span class="wr-flag f-outcomes">No outcome</span>`:'')+
-                (noDue?`<span class="wr-flag f-due">No due date</span>`:'')+
-                (noConn?`<span class="wr-flag f-conns">No connections</span>`:'');
-    const dueSug=noDue?`<div class="wr-quick-dates"><span style="font-size:11px;color:var(--muted)">Quick due:</span>
-      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',3)">+3d</button>
-      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',7)">+1w</button>
-      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',14)">+2w</button>
-      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',30)">+1m</button>
-      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',-1)">${escHtml(sugDue(t.priority))} (suggested)</button>
+    const flags=(noOut?`<span class="wr-flag f-outcomes">${window.t('wr_s4_flag_no_outcome')}</span>`:'')+
+                (noDue?`<span class="wr-flag f-due">${window.t('wr_s4_flag_no_due')}</span>`:'')+
+                (noConn?`<span class="wr-flag f-conns">${window.t('wr_s4_flag_no_conn')}</span>`:'');
+    const dueSug=noDue?`<div class="wr-quick-dates"><span style="font-size:11px;color:var(--muted)">${window.t('wr_s4_label_quick_due')}</span>
+      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',3)">${window.t('wr_s4_due_3d')}</button>
+      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',7)">${window.t('wr_s4_due_1w')}</button>
+      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',14)">${window.t('wr_s4_due_2w')}</button>
+      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',30)">${window.t('wr_s4_due_1m')}</button>
+      <button class="wr-qd-btn" onclick="wrSetDue('${t.id}','${t.secId}',-1)">${window.t('wr_s4_due_suggested',{date:escHtml(sugDue(t.priority))})}</button>
     </div>`:''
     ;
-    const outSug=noOut&&(S.outcomes||[]).filter(o=>o.active).length?`<div class="wr-quick-dates"><span style="font-size:11px;color:var(--muted)">Outcome:</span>${(S.outcomes||[]).filter(o=>o.active).map(o=>`<button class="wr-qd-btn" onclick="wrSetOutcome('${t.id}','${t.secId}','${o.id}')">${escHtml(o.name)}</button>`).join('')}</div>`:'';
-    return `<div class="wr-card"><div class="wr-task">${dT(t.task)}</div><div class="wr-flags">${flags}</div>${dueSug}${outSug}<div class="wr-acts" style="margin-top:8px"><button class="wrbtn" onclick="openEdit('${t.id}','${t.secId}')">✏️ Edit</button><button class="wrbtn" onclick="wrHygieneSkip('${t.id}')">✓ Skip</button></div></div>`;
+    const outSug=noOut&&(S.outcomes||[]).filter(o=>o.active).length?`<div class="wr-quick-dates"><span style="font-size:11px;color:var(--muted)">${window.t('wr_s4_label_outcome')}</span>${(S.outcomes||[]).filter(o=>o.active).map(o=>`<button class="wr-qd-btn" onclick="wrSetOutcome('${t.id}','${t.secId}','${o.id}')">${escHtml(o.name)}</button>`).join('')}</div>`:'';
+    return `<div class="wr-card"><div class="wr-task">${dT(t.task)}</div><div class="wr-flags">${flags}</div>${dueSug}${outSug}<div class="wr-acts" style="margin-top:8px"><button class="wrbtn" onclick="openEdit('${t.id}','${t.secId}')">${window.t('wr_s2_btn_edit')}</button><button class="wrbtn" onclick="wrHygieneSkip('${t.id}')">${window.t('wr_s4_btn_skip')}</button></div></div>`;
   }).join('');
-  return `${wrProgHTML(4)}<div class="wr-stage-h">Stage 4 — Hygiene Check (${tasks.length} task${tasks.length!==1?'s':''} need attention)</div>${cards}<div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=5;renderReview()">Next: Prioritize →</button></div>`;
+  return `${wrProgHTML(4)}<div class="wr-stage-h">${t('wr_s4_title',{n:tasks.length})}</div>${cards}<div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=5;renderReview()">${t('wr_s4_btn_next')}</button></div>`;
 }
 function wrStage5HTML(){
   const tasks=getTriageQueue(true);
   if(!tasks.length){ wrStage=6; return wrDoneHTML(); }
   const cards=tasks.map(t=>triageCard(t)).join('');
-  return `${wrProgHTML(5)}<div class="wr-stage-h">Stage 5 — Priority Review (${tasks.length} task${tasks.length!==1?'s':''} to review)</div><p style="font-size:13px;color:var(--muted);margin-bottom:12px">Accept the suggested priority, keep current, or open to edit. Tasks disappear when reviewed.</p><div id="wr-pm-queue">${cards}</div><div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=6;renderReview()">Complete Review →</button></div>`;
+  return `${wrProgHTML(5)}<div class="wr-stage-h">${t('wr_s5_title',{n:tasks.length})}</div><p style="font-size:13px;color:var(--muted);margin-bottom:12px">${t('wr_s5_instruction')}</p><div id="wr-pm-queue">${cards}</div><div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=6;renderReview()">${t('wr_s5_btn_complete')}</button></div>`;
 }
 function wrSetDue(id,secId,days){
   const t=ft(id,secId); if(!t) return;
   if(days===-1){ const pri=t.priority; const d=new Date(); d.setHours(0,0,0,0); const n=pri==='P1'?3:pri==='P2'?7:pri==='P3'?14:30; d.setDate(d.getDate()+n); t.due=ldStr(d); }
   else{ const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+days); t.due=ldStr(d); }
-  saveS(); renderReview(); showToast('Due date set → '+fd(t.due));
+  saveS(); renderReview(); showToast(window.t('toast_due_date_set', {date: fd(t.due)}));
 }
 function wrSetOutcome(id,secId,outcomeId){
   const t=ft(id,secId); if(!t) return;
   if(!t.outcomes) t.outcomes=[];
   if(!t.outcomes.includes(outcomeId)&&t.outcomes.length<2) t.outcomes.push(outcomeId);
-  saveS(); renderReview(); showToast('Outcome assigned');
+  saveS(); renderReview(); showToast(window.t('toast_outcome_assigned'));
 }
 function wrHygieneSkip(id){ wrKeptIds.add(id); renderReview(); }
 function wrStage1HTML(){
   const items=S.inbox||[];
   if(!items.length){ wrStage=2; return wrStage2HTML(); }
-  const cards=items.map(item=>`<div class="wr-card"><div class="wr-task">${escHtml(item.text)}</div>${item.note?`<div class="wr-note">${escHtml(item.note)}</div>`:''}<div class="wr-acts"><button class="wrbtn" onclick="wrTriageIx('${item.id}','active')">→ Active</button><button class="wrbtn" onclick="wrTriageIx('${item.id}','backlog')">📋 Backlog</button><button class="wrbtn wr-del" onclick="wrDeleteIx('${item.id}')">🗑 Delete</button></div></div>`).join('');
-  return `${wrProgHTML(1)}<div class="wr-stage-h">Stage 1 — Process Inbox (${items.length} item${items.length!==1?'s':''})</div>${cards}<div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=2;renderReview()">Skip to Aging →</button></div>`;
+  const cards=items.map(item=>`<div class="wr-card"><div class="wr-task">${escHtml(item.text)}</div>${item.note?`<div class="wr-note">${escHtml(item.note)}</div>`:''}<div class="wr-acts"><button class="wrbtn" onclick="wrTriageIx('${item.id}','active')">${t('wr_s1_btn_active')}</button><button class="wrbtn" onclick="wrTriageIx('${item.id}','backlog')">${t('wr_s1_btn_backlog')}</button><button class="wrbtn wr-del" onclick="wrDeleteIx('${item.id}')">${t('wr_s1_btn_delete')}</button></div></div>`).join('');
+  return `${wrProgHTML(1)}<div class="wr-stage-h">${t('wr_s1_title',{n:items.length})}</div>${cards}<div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=2;renderReview()">${t('wr_s1_btn_skip')}</button></div>`;
 }
 function wrStage2HTML(){
   const aging=[];
   S.sections.forEach(s=>s.tasks.forEach(t=>{ if(ageLevel(t)!=='none') aging.push({...t,secId:s.id}); }));
   if(!aging.length){ wrStage=3; return wrStage3HTML(); }
-  const cards=aging.map(t=>{ const lv=ageLevel(t); const d=ageDays(t); return `<div class="wr-card ${lv==='red'?'wr-red':'wr-yellow'}"><div class="wr-task">${escHtml(t.task)}</div><div class="wr-age">${escHtml(t.status)} · ${d} day${d!==1?'s':''} · ${lv==='red'?'⛔ Zombie':'⚠️ Stale'}</div><div class="wr-acts"><button class="wrbtn" onclick="wrKeep('${t.id}','${t.secId}')">✓ Keep</button><button class="wrbtn" onclick="openEdit('${t.id}','${t.secId}')">✏️ Edit</button><button class="wrbtn" onclick="wrSendBacklog('${t.id}','${t.secId}')">📋 Backlog</button><button class="wrbtn wr-del" onclick="wrDeleteTask('${t.id}','${t.secId}')">🗑 Delete</button></div></div>`; }).join('');
-  return `${wrProgHTML(2)}<div class="wr-stage-h">Stage 2 — Aging Tasks (${aging.length} task${aging.length!==1?'s':''})</div>${cards}<div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=3;renderReview()">Next: Backlog →</button></div>`;
+  const cards=aging.map(t=>{ const lv=ageLevel(t); const d=ageDays(t); return `<div class="wr-card ${lv==='red'?'wr-red':'wr-yellow'}"><div class="wr-task">${escHtml(t.task)}</div><div class="wr-age">${escHtml(t.status)} · ${d} day${d!==1?'s':''} · ${lv==='red'?window.t('wr_s2_badge_zombie'):window.t('wr_s2_badge_stale')}</div><div class="wr-acts"><button class="wrbtn" onclick="wrKeep('${t.id}','${t.secId}')">${window.t('wr_s2_btn_keep')}</button><button class="wrbtn" onclick="openEdit('${t.id}','${t.secId}')">${window.t('wr_s2_btn_edit')}</button><button class="wrbtn" onclick="wrSendBacklog('${t.id}','${t.secId}')">${window.t('wr_s1_btn_backlog')}</button><button class="wrbtn wr-del" onclick="wrDeleteTask('${t.id}','${t.secId}')">${window.t('wr_s1_btn_delete')}</button></div></div>`; }).join('');
+  return `${wrProgHTML(2)}<div class="wr-stage-h">${t('wr_s2_title',{n:aging.length})}</div>${cards}<div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=3;renderReview()">${t('wr_s2_btn_next')}</button></div>`;
 }
 function wrStage3HTML(){
   const backlog=[];
   S.sections.forEach(s=>s.tasks.forEach(t=>{ if(t.status==='Backlog'&&!wrKeptIds.has(t.id)) backlog.push({...t,secId:s.id}); }));
   if(!backlog.length){ wrStage=4; return wrStage4HTML(); }
-  const cards=backlog.map(t=>`<div class="wr-card"><div class="wr-task">${dT(t.task)}</div>${t.note?`<div class="wr-note">${dT(t.note)}</div>`:''}<div class="wr-acts"><button class="wrbtn wr-act" onclick="wrActivate('${t.id}','${t.secId}')">▶ Activate</button><button class="wrbtn" onclick="wrKeepBacklog('${t.id}','${t.secId}')">✓ Keep</button><button class="wrbtn wr-del" onclick="wrDeleteTask('${t.id}','${t.secId}')">🗑 Delete</button></div></div>`).join('');
-  return `${wrProgHTML(3)}<div class="wr-stage-h">Stage 3 — Backlog Review (${backlog.length} task${backlog.length!==1?'s':''})</div>${cards}<div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=4;renderReview()">Hygiene →</button></div>`;
+  const cards=backlog.map(t=>`<div class="wr-card"><div class="wr-task">${dT(t.task)}</div>${t.note?`<div class="wr-note">${dT(t.note)}</div>`:''}<div class="wr-acts"><button class="wrbtn wr-act" onclick="wrActivate('${t.id}','${t.secId}')">${window.t('wr_s3_btn_activate')}</button><button class="wrbtn" onclick="wrKeepBacklog('${t.id}','${t.secId}')">${window.t('wr_s2_btn_keep')}</button><button class="wrbtn wr-del" onclick="wrDeleteTask('${t.id}','${t.secId}')">${window.t('wr_s1_btn_delete')}</button></div></div>`).join('');
+  return `${wrProgHTML(3)}<div class="wr-stage-h">${t('wr_s3_title',{n:backlog.length})}</div>${cards}<div class="wr-nav"><button class="wrbtn wr-next" onclick="wrStage=4;renderReview()">${t('wr_s3_btn_next')}</button></div>`;
 }
 function wrDoneHTML(){
   logEvent('review','weekly',{});
   const p=getWeekPulse();
-  const pulse=p?`<div class="an-wr-pulse"><div style="font-weight:600;margin-bottom:6px">This Week's Pulse</div><div class="an-cards" style="justify-content:center">${[['Completed',p.done],['Net Flow',(p.net>0?'+':'')+p.net],['Cycle',p.avgCycle+'d'],['P1/P2',p.p1Done],['Stale',p.stale]].map(([l,v])=>`<div class="an-card"><div class="sn">${v}</div><div class="sl">${l}</div></div>`).join('')}</div></div>`:'';
-  const aiSlot=`<div class="wr-ai-debrief" id="wrAiDebrief"><button class="wrbtn wr-ai-btn" onclick="triggerWeeklyDebrief()">✨ Generate AI Debrief</button></div>`;
+  const pulse=p?`<div class="an-wr-pulse"><div style="font-weight:600;margin-bottom:6px">${t('wr_pulse_title')}</div><div class="an-cards" style="justify-content:center">${[[t('wr_pulse_completed'),p.done],[t('wr_pulse_net_flow'),(p.net>0?'+':'')+p.net],[t('wr_pulse_cycle'),p.avgCycle+'d'],[t('wr_pulse_p1p2'),p.p1Done],[t('wr_pulse_stale'),p.stale]].map(([l,v])=>`<div class="an-card"><div class="sn">${v}</div><div class="sl">${l}</div></div>`).join('')}</div></div>`:'';
+  const aiSlot=`<div class="wr-ai-debrief" id="wrAiDebrief"><button class="wrbtn wr-ai-btn" onclick="triggerWeeklyDebrief()">${t('wr_btn_ai_debrief')}</button></div>`;
   const hasKey=!!(S.settings&&S.settings.claudeKey);
-  return `<div class="wr-done"><div class="wr-check">✓</div><div class="wr-title">Review Complete</div><div class="wr-sub">System is clean and current</div>${pulse}${hasKey?aiSlot:''}<button class="wrbtn wr-start" onclick="wrStage=0;sw('today')">Go to Today</button></div>`;
+  return `<div class="wr-done"><div class="wr-check">✓</div><div class="wr-title">${t('wr_done_title')}</div><div class="wr-sub">${t('wr_done_subtitle')}</div>${pulse}${hasKey?aiSlot:''}<button class="wrbtn wr-start" onclick="wrStage=0;sw('today')">${t('wr_done_btn_today')}</button></div>`;
 }
 function wrTriageIx(id,mode){
   const item=(S.inbox||[]).find(x=>x.id===id); if(!item) return;
@@ -1629,10 +1674,10 @@ function wrTriageIx(id,mode){
   saveS();renderReview();renderAll();
 }
 function wrDeleteIx(id){ logEvent('inbox_done',id,{a:'delete'}); S.inbox=(S.inbox||[]).filter(x=>x.id!==id); saveS();renderReview(); }
-function wrKeep(id,secId){ const t=ft(id,secId); if(t){ t.lastStatusChange=new Date().toISOString().split('T')[0]; saveS();renderReview();showToast('Snoozed — aging reset'); } }
+function wrKeep(id,secId){ const t=ft(id,secId); if(t){ t.lastStatusChange=new Date().toISOString().split('T')[0]; saveS();renderReview();showToast(window.t('toast_snoozed')); } }
 function wrKeepBacklog(id,secId){ wrKeptIds.add(id); const t=ft(id,secId); if(t){ t.lastStatusChange=new Date().toISOString().split('T')[0]; saveS(); } renderReview(); }
-function wrSendBacklog(id,secId){ const t=ft(id,secId); if(t){ t.status='Backlog';t.lastStatusChange=new Date().toISOString().split('T')[0]; saveS();renderReview();renderAll();showToast('Moved to Backlog'); } }
-function wrActivate(id,secId){ const t=ft(id,secId); if(t){ t.status='To Do';t.lastStatusChange=new Date().toISOString().split('T')[0]; saveS();renderReview();renderAll();showToast('Activated → To Do'); } }
+function wrSendBacklog(id,secId){ const t=ft(id,secId); if(t){ t.status='Backlog';t.lastStatusChange=new Date().toISOString().split('T')[0]; saveS();renderReview();renderAll();showToast(window.t('toast_moved_to_backlog')); } }
+function wrActivate(id,secId){ const t=ft(id,secId); if(t){ t.status='To Do';t.lastStatusChange=new Date().toISOString().split('T')[0]; saveS();renderReview();renderAll();showToast(window.t('toast_activated')); } }
 function wrDeleteTask(id,secId){ const sec=S.sections.find(s=>s.id===secId); if(sec){ sec.tasks=sec.tasks.filter(t=>t.id!==id); saveS();renderReview();renderAll(); } }
 
 // ═══ KANBAN ═══
@@ -1659,7 +1704,7 @@ function renderKanban(){
     if(!body) return;
     cnt.textContent=tasks.length;
     if(colId==='today') cnt.className='kb-count'+(tasks.length>5?' warn':'');
-    const hints={pool:'All tasks are in progress 🎉',week:'← drag tasks from Active Pool',today:'← plan your day',done:'No completed tasks yet'};
+    const hints={pool:'All tasks are in progress 🎉',week:t('kb_empty_week_hint'),today:t('kb_empty_today_hint'),done:t('kb_empty_done')};
     if(colId==='pool'){
       const btn=document.getElementById('kb-grp-btn');
       if(btn) btn.classList.toggle('on',kanbanGroupPool);
@@ -1670,9 +1715,9 @@ function renderKanban(){
         const dueNext=ordPool.filter(t=>dsNW(t.due));
         const rest=ordPool.filter(t=>{const d=ds(t.due);return d!=='u'&&d!=='s'&&!dsNW(t.due);});
         let ph='';
-        if(overdue.length){ph+=`<div class="kb-due-hdr kb-due-hdr-od">⚠️ Overdue (${overdue.length})</div>`;ph+=overdue.map(t=>kanbanCard(t,'pool')).join('');ph+=`<div class="kb-due-sep"></div>`;}
-        if(dueSoon.length){ph+=`<div class="kb-due-hdr">📅 Due This Week</div>`;ph+=dueSoon.map(t=>kanbanCard(t,'pool')).join('');}
-        if(dueNext.length){if(dueSoon.length)ph+=`<div class="kb-due-sep"></div>`;ph+=`<div class="kb-due-hdr kb-due-hdr-nw">📆 Due Next Week</div>`;ph+=dueNext.map(t=>kanbanCard(t,'pool')).join('');}
+        if(overdue.length){ph+=`<div class="kb-due-hdr kb-due-hdr-od">${t('kb_overdue_badge',{n:overdue.length})}</div>`;ph+=overdue.map(t=>kanbanCard(t,'pool')).join('');ph+=`<div class="kb-due-sep"></div>`;}
+        if(dueSoon.length){ph+=`<div class="kb-due-hdr">${t('kb_due_this_week')}</div>`;ph+=dueSoon.map(t=>kanbanCard(t,'pool')).join('');}
+        if(dueNext.length){if(dueSoon.length)ph+=`<div class="kb-due-sep"></div>`;ph+=`<div class="kb-due-hdr kb-due-hdr-nw">${t('kb_due_next_week')}</div>`;ph+=dueNext.map(t=>kanbanCard(t,'pool')).join('');}
         if((overdue.length||dueSoon.length||dueNext.length)&&rest.length)ph+=`<div class="kb-due-sep"></div>`;
         ph+=rest.map(t=>kanbanCard(t,'pool')).join('');
         body.innerHTML=ph||`<div class="kb-empty">${hints.pool}</div>`;
@@ -1693,7 +1738,7 @@ function renderKanban(){
     } else {
       const ordTasks=orderedWithChildren(tasks);
       body.innerHTML=ordTasks.length?ordTasks.map(t=>kanbanCard(t,colId)).join(''):`<div class="kb-empty">${hints[colId]||''}</div>`;
-      if(colId==='week'){ const hint=document.getElementById('kb-hint-week'); if(hint) hint.textContent=ordTasks.length?'':' ← drag from Active'; }
+      if(colId==='week'){ const hint=document.getElementById('kb-hint-week'); if(hint) hint.textContent=ordTasks.length?'':' '+t('kb_empty_active_hint'); }
     }
     body.ondragover=e=>{e.preventDefault();body.classList.add('drop-over');};
     body.ondragleave=e=>{if(!body.contains(e.relatedTarget))body.classList.remove('drop-over');};
@@ -1719,10 +1764,10 @@ function kanbanCard(t,col){
   const isSub=!!t.parent;
   const colOrder=['pool','week','today','done'];
   const ci=colOrder.indexOf(col);
-  const leftArrow=ci>0?`<button class="kc-arr" onclick="event.stopPropagation();kMoveCard('${t.id}','${t.secId}','${col}',-1)" title="Move left">‹</button>`:'';
-  const rightArrow=ci<colOrder.length-1?`<button class="kc-arr" onclick="event.stopPropagation();kMoveCard('${t.id}','${t.secId}','${col}',1)" title="Move right">›</button>`:'';
+  const leftArrow=ci>0?`<button class="kc-arr" onclick="event.stopPropagation();kMoveCard('${t.id}','${t.secId}','${col}',-1)" title="${window.t('kb_btn_move_left')}">‹</button>`:'';
+  const rightArrow=ci<colOrder.length-1?`<button class="kc-arr" onclick="event.stopPropagation();kMoveCard('${t.id}','${t.secId}','${col}',1)" title="${window.t('kb_btn_move_right')}">›</button>`:'';
   const isInProg=t.status==='In Progress';
-  const playBtn=col!=='done'?`<button class="kc-play${isInProg?' prog':''}" onclick="event.stopPropagation();kToggleStatus('${t.id}','${t.secId}')" title="${isInProg?'Pause (set To Do)':'Play (set In Progress)'}">${isInProg?'⏸':'▶'}</button>`:'';
+  const playBtn=col!=='done'?`<button class="kc-play${isInProg?' prog':''}" onclick="event.stopPropagation();kToggleStatus('${t.id}','${t.secId}')" title="${isInProg?window.t('kb_btn_pause'):window.t('kb_btn_play')}">${isInProg?'⏸':'▶'}</button>`:'';
   const poolDueCls=col==='pool'?(d==='u'?'kc-overdue':d==='s'?'kc-due-week':''):'';
   return `<div class="kc kc-${pc} ${col==='done'?'kc-done':''} ${t.confidential?'kc-conf':''} ${isSub?'kc-subtask':''} ${poolDueCls}" id="kc-${t.id}" data-sec="${t.secId}" data-col="${col}"
     draggable="true" style="touch-action:none"
@@ -1931,7 +1976,7 @@ function kToggleStatus(id,secId){
   t.status=t.status==='In Progress'?'To Do':'In Progress';
   t.lastStatusChange=today;
   logEvent('status',id,{from:old,to:t.status});
-  saveS();renderKanban();showToast('Status → '+t.status);
+  saveS();renderKanban();showToast(window.t('toast_status_changed', {status: t.status}));
 }
 // Context menu
 function kCtxMenu(e,id,secId,col){
@@ -1957,7 +2002,7 @@ function ctxDoAddSub(){ const id=ctxTaskId,sec=ctxTaskSec; closeCtxMenu(); if(!i
 function ctxDoEdit(){ const id=ctxTaskId,sec=ctxTaskSec; closeCtxMenu(); if(!id) return; openEdit(id,sec); }
 function ctxDoMove(dir){ const id=ctxTaskId,sec=ctxTaskSec,col=ctxTaskCol; closeCtxMenu(); if(!id) return; kMoveCard(id,sec,col,dir); }
 function ctxDoDone(){ const id=ctxTaskId,sec=ctxTaskSec; closeCtxMenu(); if(!id) return; togComplete(id,sec); }
-function ctxDoBacklog(){ const id=ctxTaskId,sec=ctxTaskSec; closeCtxMenu(); if(!id) return; const t=ft(id,sec); if(!t) return; const old=t.status; t.status='Backlog';t.lastStatusChange=new Date().toISOString().split('T')[0];t.kanbanCol=null; logEvent('status',id,{from:old,to:'Backlog'}); saveS();renderAll();showToast('Moved to Backlog'); }
+function ctxDoBacklog(){ const id=ctxTaskId,sec=ctxTaskSec; closeCtxMenu(); if(!id) return; const t=ft(id,sec); if(!t) return; const old=t.status; t.status='Backlog';t.lastStatusChange=new Date().toISOString().split('T')[0];t.kanbanCol=null; logEvent('status',id,{from:old,to:'Backlog'}); saveS();renderAll();showToast(window.t('toast_moved_to_backlog')); }
 function ctxDoDelete(){ const id=ctxTaskId,sec=ctxTaskSec; closeCtxMenu(); if(!id) return; delTask(id,sec); }
 function rowCtxMenu(e,id,secId){
   e.preventDefault();e.stopPropagation();
@@ -2515,8 +2560,9 @@ const _SETTINGS_GROUPS=[
     { id:'email', label:'Task Feed',   icon:'inbox',    desc:'External JSON file feeding the Inbox'},
   ]},
   { id:'system', title:'System', items:[
-    { id:'data',       label:'Backup', icon:'database', desc:'Backup, restore, and auto-save'},
-    { id:'appearance', label:'Theme',  icon:'palette',  desc:'Appearance, density, motion'},
+    { id:'data',       label:'Backup',   icon:'database', desc:'Backup, restore, and auto-save'},
+    { id:'appearance', label:'Theme',    icon:'palette',  desc:'Appearance, density, motion'},
+    { id:'language',   label:'Language', icon:'globe',    desc:'Interface language'},
   ]},
 ];
 const _SETTINGS_FLAT=_SETTINGS_GROUPS.flatMap(g=>g.items);
@@ -2556,7 +2602,7 @@ function openSettingsPanel(tab){
 }
 function switchSettingsTab(tab){
   _settingsTab=tab;
-  ['categories','people','ai','outcomes','email','appearance','data'].forEach(t=>{
+  ['categories','people','ai','outcomes','email','appearance','data','language'].forEach(t=>{
     const body=document.getElementById('stab-body-'+t); if(body) body.style.display=t===tab?'':'none';
   });
   // update sidebar active state in place (avoids full nav re-render)
@@ -2570,6 +2616,7 @@ function switchSettingsTab(tab){
   if(tab==='email') renderEmailSettingsTab();
   if(tab==='appearance') renderAppearanceTab();
   if(tab==='data') renderDataTab();
+  if(tab==='language') renderLanguageTab();
   // persist last-opened tab
   if(!S.settings) S.settings={};
   if(S.settings.lastSettingsTab!==tab){ S.settings.lastSettingsTab=tab; saveS(); }
@@ -3598,6 +3645,28 @@ function renderAppearanceTab(){
   `;
 }
 
+// ═══ LANGUAGE ═══
+function renderLanguageTab(){
+  const el=document.getElementById('languageMgrBody');
+  if(!el) return;
+  const cur=(S.settings&&S.settings.lang)||'en';
+  const langs=(typeof FOCAL_LANGS!=='undefined')?FOCAL_LANGS:[{code:'en',name:'English'}];
+  el.innerHTML=`
+    <div class="fcl-fieldrow" style="border-bottom:0">
+      <div>
+        <div class="fcl-fieldrow-label">${(typeof t==='function'?t('lang_tab_title'):'Language')}</div>
+        <div class="fcl-fieldrow-hint">${(typeof t==='function'?t('lang_tab_desc'):'Choose the display language for the app interface.')}</div>
+      </div>
+      <div>
+        <div class="fcl-seg" role="radiogroup" aria-label="Language" style="flex-wrap:wrap;max-width:520px">
+          ${langs.map(l=>`<button class="fcl-seg-btn ${cur===l.code?'on':''}" role="radio" aria-checked="${cur===l.code}" onclick="setLang('${escJs(l.code)}')">${escHtml(l.name)}</button>`).join('')}
+        </div>
+        <div style="font-size:11px;color:var(--fcl-text-dim,var(--dim));margin-top:8px">Translations cover the main interface. Some inline tooltips and dynamic content may still appear in English.</div>
+      </div>
+    </div>
+  `;
+}
+
 // ═══ AI VISIBILITY ═══
 function syncAiVisibility(){
   const hasKey=!!(S.settings&&S.settings.claudeKey);
@@ -3837,6 +3906,7 @@ const _ovlObserver=new MutationObserver(muts=>{
 applyTheme();
 applyDensity();
 applyReduceMotion();
+applyI18n();
 paintIcons();
 renderAll();
 renderMatrixFilter();
