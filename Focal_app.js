@@ -3344,6 +3344,65 @@ async function bkDisconnect(){
   renderDataTab();
 }
 
+// Parse metadata from a safety-snapshot localStorage key.
+function _snapshotInfo(key){
+  const tsMatch=key.match(/_(\d+)$/);
+  const ts=tsMatch?parseInt(tsMatch[1],10):0;
+  const raw=(()=>{ try{ return localStorage.getItem(key); }catch{ return null; } })();
+  const sizeKB=raw?(raw.length/1024).toFixed(1):'?';
+  let sections=0,tasks=0,valid=false,obj=null;
+  if(raw){ try{ obj=JSON.parse(raw); const v=bkValidate(obj); valid=v.ok; if(valid){ sections=obj.sections.length; tasks=obj.sections.reduce((n,s)=>n+s.tasks.length,0); } }catch{} }
+  const type=key.startsWith('focal_v1_corrupted_')?'CORRUPTED':'PRE-RESTORE';
+  return{ts,sizeKB,sections,tasks,valid,type,obj};
+}
+
+// Format a snapshot timestamp as a friendly string.
+function _snapFriendlyTime(ts){
+  if(!ts) return '—';
+  const d=new Date(ts),now=new Date();
+  const isToday=d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate();
+  const time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  return isToday?'Today · '+time:d.toLocaleDateString([],{month:'short',day:'numeric'})+' · '+time;
+}
+
+// Restore state from a safety snapshot key.
+function bkRestoreSnapshot(key){
+  const info=_snapshotInfo(key);
+  const cur=S.sections.reduce((n,s)=>n+s.tasks.length,0);
+  if(!confirm(`Restore this snapshot?\n\nSnapshot: ${info.sections} sections, ${info.tasks} tasks\nCurrent:  ${S.sections.length} sections, ${cur} tasks\n\nYour current state will be saved as a new pre-restore snapshot first.\n\nProceed?`)) return;
+  try{ localStorage.setItem('focal_v1_prerestore_'+Date.now(), localStorage.getItem('focal_v1')||''); }catch{}
+  try{
+    const raw=localStorage.getItem(key);
+    if(!raw){ showToast(window.t('toast_bk_snap_empty'),6000); return; }
+    const obj=JSON.parse(raw);
+    const v=bkValidate(obj);
+    if(!v.ok){ showToast(window.t('toast_bk_invalid',{reason:v.reason}),6000); return; }
+    localStorage.setItem('focal_v1',raw);
+    location.reload();
+  }catch(err){
+    console.error('bkRestoreSnapshot:',err);
+    showToast(window.t('toast_bk_parse_err'),6000);
+  }
+}
+
+// Delete a safety snapshot from localStorage.
+function bkDeleteSnapshot(key){
+  if(!confirm(window.t('data_snap_confirm_delete'))) return;
+  try{ localStorage.removeItem(key); }catch{}
+  showToast(window.t('toast_bk_snap_deleted'));
+  renderDataTab();
+}
+
+// Toggle inline preview panel for a snapshot row.
+function bkToggleSnapshotPreview(key){
+  const el=document.getElementById('bksp-'+key);
+  if(!el) return;
+  const open=el.style.display!=='none';
+  el.style.display=open?'none':'block';
+  const btn=document.getElementById('bksb-'+key);
+  if(btn){ btn.classList.toggle('on',!open); }
+}
+
 // Render the Settings → 💾 Data tab body.
 function renderDataTab(){
   const el=document.getElementById('dataMgrBody'); if(!el) return;
@@ -3401,14 +3460,35 @@ function renderDataTab(){
         <section>
           <div class="fcl-section-head">
             <div>
-              <h3>Safety snapshots</h3>
-              <p>Older copies preserved when something went wrong or you ran a restore. Recover via DevTools → Application → Local Storage.</p>
+              <h3>${window.t('data_snap_h')}</h3>
+              <p>${window.t('data_snap_p')}</p>
             </div>
           </div>
           <div class="fcl-list" style="padding:0">
-            ${snapshots.slice(-5).map(k=>`<div class="fcl-list-row" style="grid-template-columns:1fr"><span class="fcl-codechip" style="font-size:11.5px">${escHtml(k)}</span></div>`).join('')}
+            ${snapshots.map(k=>{
+              const info=_snapshotInfo(k);
+              const time=_snapFriendlyTime(info.ts);
+              const isCorrupted=info.type==='CORRUPTED';
+              const badgeCls=isCorrupted?'fcl-badge--warning':'fcl-badge--neutral';
+              const badgeTxt=isCorrupted?window.t('data_snap_corrupted'):window.t('data_snap_pre_restore');
+              const previewRows=info.valid&&info.obj
+                ?info.obj.sections.map(s=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--fcl-border-subtle);font-size:12.5px"><span>${escHtml((s.icon||'')+' '+(s.title||''))}</span><span style="color:var(--fcl-text-faint)">${s.tasks.length} tasks</span></div>`).join('')
+                :`<span style="color:var(--fcl-text-faint);font-size:12.5px">${info.valid?'No sections':window.t('toast_bk_parse_err')}</span>`;
+              return `<div>
+                <div class="fcl-list-row" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px">
+                  <span class="fcl-badge ${badgeCls}" style="flex-shrink:0">${badgeTxt}</span>
+                  <span style="font-size:12.5px;font-weight:500;flex:1;min-width:80px">${escHtml(time)}</span>
+                  <span style="font-size:11.5px;color:var(--fcl-text-faint);white-space:nowrap">${info.sizeKB} KB · ${info.sections} sec · ${info.tasks} tasks</span>
+                  <div style="display:flex;gap:5px;flex-shrink:0">
+                    <button id="bksb-${escHtml(k)}" class="fcl-btn fcl-btn--sm fcl-btn--ghost" type="button" onclick="bkToggleSnapshotPreview('${k}')">${window.t('data_snap_btn_preview')}</button>
+                    <button class="fcl-btn fcl-btn--sm" type="button" onclick="bkRestoreSnapshot('${k}')">${window.t('data_snap_btn_restore')}</button>
+                    <button class="fcl-btn fcl-btn--sm fcl-btn--danger" type="button" onclick="bkDeleteSnapshot('${k}')" title="${window.t('data_snap_confirm_delete')}">${icon('trash',12)}</button>
+                  </div>
+                </div>
+                <div id="bksp-${escHtml(k)}" style="display:none;background:var(--fcl-bg-code);border-radius:0 0 var(--fcl-r-sm) var(--fcl-r-sm);padding:10px 16px;margin:0 0 2px">${previewRows}</div>
+              </div>`;
+            }).join('')}
           </div>
-          ${snapshots.length>5?`<div style="font-size:11px;color:var(--fcl-text-faint);margin-top:6px">+${snapshots.length-5} more</div>`:''}
         </section>
       `:''}
     </div>`;

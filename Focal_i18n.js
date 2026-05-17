@@ -638,6 +638,8 @@ const TRANSLATIONS = {
     toast_bk_read_err: '⚠️ Could not read file',
     toast_bk_browser: 'Auto-save requires Chrome or Edge — use Export instead',
     toast_bk_connected: '✓ Auto-backup connected — saves on every change',
+    toast_bk_snap_empty: '⚠️ Snapshot is empty or unreadable',
+    toast_bk_snap_deleted: '✓ Snapshot deleted',
     // ─── GROUPS TOASTS ───
     toast_grp_exists: 'A group with that name already exists',
     toast_person_is_group: '"{name}" is already a group — add individual members instead',
@@ -657,6 +659,13 @@ const TRANSLATIONS = {
     data_btn_restore: '↻ Restore from backup',
     data_btn_disconnect: '✕ Disconnect',
     data_btn_connect: '🔗 Connect auto-backup file',
+    data_snap_h: 'Safety snapshots',
+    data_snap_p: 'Saved automatically when something went wrong or before a restore. Preview contents, restore to any point, or delete old copies.',
+    data_snap_corrupted: 'CORRUPTED',
+    data_snap_pre_restore: 'PRE-RESTORE',
+    data_snap_btn_preview: 'Preview',
+    data_snap_btn_restore: '↺ Restore',
+    data_snap_confirm_delete: 'Delete this snapshot? This cannot be undone.',
   },
   nl: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -1286,6 +1295,8 @@ const TRANSLATIONS = {
     toast_bk_read_err: '⚠️ Kon bestand niet lezen',
     toast_bk_browser: 'Automatisch opslaan vereist Chrome of Edge — gebruik anders Export',
     toast_bk_connected: '✓ Automatische back-up verbonden — slaat op bij elke wijziging',
+    toast_bk_snap_empty: '⚠️ Snapshot is leeg of onleesbaar',
+    toast_bk_snap_deleted: '✓ Snapshot verwijderd',
     // ─── GROUPS TOASTS ───
     toast_grp_exists: 'Er bestaat al een groep met die naam',
     toast_person_is_group: '"{name}" is al een groep — voeg in plaats daarvan individuele leden toe',
@@ -1305,6 +1316,13 @@ const TRANSLATIONS = {
     data_btn_restore: '↻ Herstellen vanuit back-up',
     data_btn_disconnect: '✕ Verbinding verbreken',
     data_btn_connect: '🔗 Automatisch back-upbestand verbinden',
+    data_snap_h: 'Veiligheids-snapshots',
+    data_snap_p: 'Automatisch opgeslagen als er iets fout ging of vóór een herstelactie. Bekijk inhoud, herstel naar een punt terug of verwijder oude kopieën.',
+    data_snap_corrupted: 'BESCHADIGD',
+    data_snap_pre_restore: 'VOOR-HERSTEL',
+    data_snap_btn_preview: 'Bekijken',
+    data_snap_btn_restore: '↺ Herstellen',
+    data_snap_confirm_delete: 'Dit snapshot verwijderen? Dit kan niet ongedaan worden gemaakt.',
   },
   de: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -1934,6 +1952,8 @@ const TRANSLATIONS = {
     toast_bk_read_err: '⚠️ Datei konnte nicht gelesen werden',
     toast_bk_browser: 'Automatisches Speichern erfordert Chrome oder Edge — nutze stattdessen Export',
     toast_bk_connected: '✓ Auto-Backup verbunden — speichert bei jeder Änderung',
+    toast_bk_snap_empty: '⚠️ Schnappschuss ist leer oder nicht lesbar',
+    toast_bk_snap_deleted: '✓ Schnappschuss gelöscht',
     // ─── GROUPS TOASTS ───
     toast_grp_exists: 'Eine Gruppe mit diesem Namen existiert bereits',
     toast_person_is_group: '"{name}" ist bereits eine Gruppe — füge stattdessen einzelne Mitglieder hinzu',
@@ -1953,6 +1973,13 @@ const TRANSLATIONS = {
     data_btn_restore: '↻ Aus Backup wiederherstellen',
     data_btn_disconnect: '✕ Trennen',
     data_btn_connect: '🔗 Auto-Backup-Datei verbinden',
+    data_snap_h: 'Sicherheits-Schnappschüsse',
+    data_snap_p: 'Automatisch gespeichert, wenn etwas schiefging oder vor einer Wiederherstellung. Inhalt anzeigen, zu einem Zeitpunkt zurückkehren oder alte Kopien löschen.',
+    data_snap_corrupted: 'BESCHÄDIGT',
+    data_snap_pre_restore: 'VOR-WIEDERHERSTELLUNG',
+    data_snap_btn_preview: 'Vorschau',
+    data_snap_btn_restore: '↺ Wiederherstellen',
+    data_snap_confirm_delete: 'Diesen Schnappschuss löschen? Dies kann nicht rückgängig gemacht werden.',
   },
   it: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -2582,6 +2609,8 @@ const TRANSLATIONS = {
     toast_bk_read_err: '⚠️ Impossibile leggere il file',
     toast_bk_browser: 'Il salvataggio automatico richiede Chrome o Edge — usa Esporta',
     toast_bk_connected: '✓ Backup automatico connesso — salva ad ogni modifica',
+    toast_bk_snap_empty: '⚠️ Lo snapshot è vuoto o illeggibile',
+    toast_bk_snap_deleted: '✓ Snapshot eliminato',
     // ─── GROUPS TOASTS ───
     toast_grp_exists: 'Esiste già un gruppo con questo nome',
     toast_person_is_group: '"{name}" è già un gruppo — aggiungi invece singoli membri',
@@ -2601,6 +2630,13 @@ const TRANSLATIONS = {
     data_btn_restore: '↻ Ripristina da backup',
     data_btn_disconnect: '✕ Disconnetti',
     data_btn_connect: '🔗 Collega file backup automatico',
+    data_snap_h: 'Snapshot di sicurezza',
+    data_snap_p: 'Salvato automaticamente quando qualcosa è andato storto o prima di un ripristino. Visualizza contenuto, ripristina a qualsiasi punto o elimina copie vecchie.',
+    data_snap_corrupted: 'DANNEGGIATO',
+    data_snap_pre_restore: 'PRE-RIPRISTINO',
+    data_snap_btn_preview: 'Anteprima',
+    data_snap_btn_restore: '↺ Ripristina',
+    data_snap_confirm_delete: 'Eliminare questo snapshot? Questa azione non può essere annullata.',
   },
   pt: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -3230,6 +3266,8 @@ const TRANSLATIONS = {
     toast_bk_read_err: '⚠️ Não foi possível ler o arquivo',
     toast_bk_browser: 'Salvamento automático requer Chrome ou Edge — use Exportar',
     toast_bk_connected: '✓ Backup automático conectado — salva a cada alteração',
+    toast_bk_snap_empty: '⚠️ Snapshot está vazio ou ilegível',
+    toast_bk_snap_deleted: '✓ Snapshot excluído',
     // ─── GROUPS TOASTS ───
     toast_grp_exists: 'Já existe um grupo com esse nome',
     toast_person_is_group: '"{name}" já é um grupo — adicione membros individuais em vez disso',
@@ -3249,6 +3287,13 @@ const TRANSLATIONS = {
     data_btn_restore: '↻ Restaurar do backup',
     data_btn_disconnect: '✕ Desconectar',
     data_btn_connect: '🔗 Conectar arquivo de backup automático',
+    data_snap_h: 'Snapshots de segurança',
+    data_snap_p: 'Salvo automaticamente quando algo deu errado ou antes de uma restauração. Visualize o conteúdo, restaure para qualquer ponto ou exclua cópias antigas.',
+    data_snap_corrupted: 'CORROMPIDO',
+    data_snap_pre_restore: 'PRÉ-RESTAURAÇÃO',
+    data_snap_btn_preview: 'Visualizar',
+    data_snap_btn_restore: '↺ Restaurar',
+    data_snap_confirm_delete: 'Excluir este snapshot? Isso não pode ser desfeito.',
   },
   es: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -3878,6 +3923,8 @@ const TRANSLATIONS = {
     toast_bk_read_err: '⚠️ No se pudo leer el archivo',
     toast_bk_browser: 'El guardado automático requiere Chrome o Edge — usa Exportar',
     toast_bk_connected: '✓ Copia automática conectada — guarda en cada cambio',
+    toast_bk_snap_empty: '⚠️ La instantánea está vacía o ilegible',
+    toast_bk_snap_deleted: '✓ Instantánea eliminada',
     // ─── GROUPS TOASTS ───
     toast_grp_exists: 'Ya existe un grupo con ese nombre',
     toast_person_is_group: '"{name}" ya es un grupo — añade miembros individuales en su lugar',
@@ -3897,6 +3944,13 @@ const TRANSLATIONS = {
     data_btn_restore: '↻ Restaurar desde copia',
     data_btn_disconnect: '✕ Desconectar',
     data_btn_connect: '🔗 Conectar archivo de copia automática',
+    data_snap_h: 'Instantáneas de seguridad',
+    data_snap_p: 'Guardado automáticamente cuando algo salió mal o antes de una restauración. Previsualiza el contenido, restaura a cualquier punto o elimina copias antiguas.',
+    data_snap_corrupted: 'DAÑADO',
+    data_snap_pre_restore: 'PRE-RESTAURACIÓN',
+    data_snap_btn_preview: 'Vista previa',
+    data_snap_btn_restore: '↺ Restaurar',
+    data_snap_confirm_delete: '¿Eliminar esta instantánea? Esto no se puede deshacer.',
   },
   hi: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -4526,6 +4580,8 @@ const TRANSLATIONS = {
     toast_bk_read_err: '⚠️ फ़ाइल पढ़ी नहीं जा सकी',
     toast_bk_browser: 'ऑटो-सेव के लिए Chrome या Edge आवश्यक है — इसके बजाय Export का उपयोग करें',
     toast_bk_connected: '✓ ऑटो-बैकअप जुड़ा — हर बदलाव पर सहेजता है',
+    toast_bk_snap_empty: '⚠️ स्नैपशॉट खाली या अपठनीय है',
+    toast_bk_snap_deleted: '✓ स्नैपशॉट हटाया गया',
     // ─── GROUPS TOASTS ───
     toast_grp_exists: 'इस नाम का समूह पहले से मौजूद है',
     toast_person_is_group: '"{name}" पहले से ही एक समूह है — इसके बजाय व्यक्तिगत सदस्य जोड़ें',
@@ -4545,6 +4601,13 @@ const TRANSLATIONS = {
     data_btn_restore: '↻ बैकअप से पुनर्स्थापित करें',
     data_btn_disconnect: '✕ डिस्कनेक्ट करें',
     data_btn_connect: '🔗 ऑटो-बैकअप फ़ाइल जोड़ें',
+    data_snap_h: 'सुरक्षा स्नैपशॉट',
+    data_snap_p: 'जब कुछ गलत हुआ या पुनर्स्थापना से पहले स्वचालित रूप से सहेजा गया। सामग्री देखें, किसी भी बिंदु पर पुनर्स्थापित करें, या पुरानी प्रतियां हटाएं।',
+    data_snap_corrupted: 'दूषित',
+    data_snap_pre_restore: 'पूर्व-पुनर्स्थापना',
+    data_snap_btn_preview: 'पूर्वावलोकन',
+    data_snap_btn_restore: '↺ पुनर्स्थापित करें',
+    data_snap_confirm_delete: 'यह स्नैपशॉट हटाएं? यह पूर्ववत नहीं किया जा सकता।',
   }
 };
 
