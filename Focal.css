@@ -1340,7 +1340,7 @@ html.dark .fcl-seg-btn.on{color:var(--fcl-text)}
 html.dark .ovl.fcl-settings{background:rgba(0,0,0,0.65)}
 
 .fcl-settings .fcl-shell{
-  display:grid;grid-template-columns:248px 1fr;
+  display:grid;grid-template-columns:248px 1fr;grid-template-rows:1fr;
   width:min(980px,calc(100vw - 48px));
   height:min(660px,calc(100vh - 48px));
   background:var(--fcl-bg-shell);
@@ -1387,7 +1387,7 @@ html.dark .fcl-sidebar{background:rgba(0,0,0,0.18)}
 .fcl-sidebar-footer a:hover{color:var(--fcl-text)}
 
 /* Content pane */
-.fcl-content{display:flex;flex-direction:column;min-width:0}
+.fcl-content{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
 .fcl-topbar{padding:18px 28px;border-bottom:1px solid var(--fcl-border);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .fcl-topbar-l{display:flex;flex-direction:column;gap:4px;min-width:0}
 .fcl-topbar-title{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;letter-spacing:-0.01em;color:var(--fcl-text);margin:0}
@@ -1587,7 +1587,7 @@ html.dark #feedbackOvl .modal{background:var(--fcl-bg-shell)}
    the available height and scroll internally. People tab suppresses its
    own outer scroll (overflow-y:hidden) since .ppl-list / .ppl-groups-col
    handle scrolling internally. */
-.fcl-settings .fcl-body{display:flex;flex-direction:column}
+.fcl-settings .fcl-body{display:flex;flex-direction:column;overflow:hidden}
 .fcl-settings .stab-body{flex:1;min-height:0;overflow-y:auto}
 .fcl-settings #stab-body-people{display:flex;flex:1;min-height:0;flex-direction:column;overflow-y:hidden}
 .fcl-settings #peopleMgrBody{flex:1;min-height:0;display:flex;flex-direction:column}
