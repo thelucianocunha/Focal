@@ -666,6 +666,7 @@ const TRANSLATIONS = {
     data_snap_btn_preview: 'Preview',
     data_snap_btn_restore: '↺ Restore',
     data_snap_confirm_delete: 'Delete this snapshot? This cannot be undone.',
+    data_snap_btn_delete_confirm: 'Delete?',
   },
   nl: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -1323,6 +1324,7 @@ const TRANSLATIONS = {
     data_snap_btn_preview: 'Bekijken',
     data_snap_btn_restore: '↺ Herstellen',
     data_snap_confirm_delete: 'Dit snapshot verwijderen? Dit kan niet ongedaan worden gemaakt.',
+    data_snap_btn_delete_confirm: 'Verwijderen?',
   },
   de: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -1980,6 +1982,7 @@ const TRANSLATIONS = {
     data_snap_btn_preview: 'Vorschau',
     data_snap_btn_restore: '↺ Wiederherstellen',
     data_snap_confirm_delete: 'Diesen Schnappschuss löschen? Dies kann nicht rückgängig gemacht werden.',
+    data_snap_btn_delete_confirm: 'Löschen?',
   },
   it: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -2637,6 +2640,7 @@ const TRANSLATIONS = {
     data_snap_btn_preview: 'Anteprima',
     data_snap_btn_restore: '↺ Ripristina',
     data_snap_confirm_delete: 'Eliminare questo snapshot? Questa azione non può essere annullata.',
+    data_snap_btn_delete_confirm: 'Eliminare?',
   },
   pt: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -3294,6 +3298,7 @@ const TRANSLATIONS = {
     data_snap_btn_preview: 'Visualizar',
     data_snap_btn_restore: '↺ Restaurar',
     data_snap_confirm_delete: 'Excluir este snapshot? Isso não pode ser desfeito.',
+    data_snap_btn_delete_confirm: 'Excluir?',
   },
   es: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -3951,6 +3956,7 @@ const TRANSLATIONS = {
     data_snap_btn_preview: 'Vista previa',
     data_snap_btn_restore: '↺ Restaurar',
     data_snap_confirm_delete: '¿Eliminar esta instantánea? Esto no se puede deshacer.',
+    data_snap_btn_delete_confirm: '¿Eliminar?',
   },
   hi: {
     // ─── NAV / HEADER / FILTERS / STATS ───
@@ -4608,6 +4614,7 @@ const TRANSLATIONS = {
     data_snap_btn_preview: 'पूर्वावलोकन',
     data_snap_btn_restore: '↺ पुनर्स्थापित करें',
     data_snap_confirm_delete: 'यह स्नैपशॉट हटाएं? यह पूर्ववत नहीं किया जा सकता।',
+    data_snap_btn_delete_confirm: 'हटाएं?',
   }
 };
 

@@ -3386,8 +3386,18 @@ function bkRestoreSnapshot(key){
 }
 
 // Delete a safety snapshot from localStorage.
+// Two-click pattern: first click arms the button; second click confirms.
+// Avoids browser confirm() which gets suppressed after repeated dialogs.
+let _bkDelArmed=null;
 function bkDeleteSnapshot(key){
-  if(!confirm(window.t('data_snap_confirm_delete'))) return;
+  if(_bkDelArmed!==key){
+    _bkDelArmed=key;
+    const btn=document.querySelector(`[data-bkdel="${CSS.escape(key)}"]`);
+    if(btn){ btn.textContent=window.t('data_snap_btn_delete_confirm'); btn.style.background='var(--fcl-danger)'; btn.style.color='#fff'; btn.style.borderColor='var(--fcl-danger)'; }
+    setTimeout(()=>{ if(_bkDelArmed===key){ _bkDelArmed=null; renderDataTab(); } },3000);
+    return;
+  }
+  _bkDelArmed=null;
   try{ localStorage.removeItem(key); }catch{}
   showToast(window.t('toast_bk_snap_deleted'));
   renderDataTab();
@@ -3482,7 +3492,7 @@ function renderDataTab(){
                   <div style="display:flex;gap:5px;flex-shrink:0">
                     <button id="bksb-${escHtml(k)}" class="fcl-btn fcl-btn--sm fcl-btn--ghost" type="button" onclick="bkToggleSnapshotPreview('${k}')">${window.t('data_snap_btn_preview')}</button>
                     <button class="fcl-btn fcl-btn--sm" type="button" onclick="bkRestoreSnapshot('${k}')">${window.t('data_snap_btn_restore')}</button>
-                    <button class="fcl-btn fcl-btn--sm fcl-btn--danger" type="button" onclick="bkDeleteSnapshot('${k}')" title="${window.t('data_snap_confirm_delete')}">${icon('trash',12)}</button>
+                    <button class="fcl-btn fcl-btn--sm fcl-btn--danger" type="button" data-bkdel="${escHtml(k)}" onclick="bkDeleteSnapshot('${k}')">${icon('trash',12)}</button>
                   </div>
                 </div>
                 <div id="bksp-${escHtml(k)}" style="display:none;background:var(--fcl-bg-code);border-radius:0 0 var(--fcl-r-sm) var(--fcl-r-sm);padding:10px 16px;margin:0 0 2px">${previewRows}</div>
