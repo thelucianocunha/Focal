@@ -3113,7 +3113,6 @@ function renderDataTab(){
             <h3 style="margin:0;font-size:15.5px;font-weight:600;color:var(--fcl-text)">Auto-backup</h3>
             ${connected?'<span class="fcl-badge fcl-badge--success fcl-badge--dot">Connected</span>':''}
           </div>
-          ${connected?`<button class="fcl-toggle" type="button" aria-pressed="true" onclick="bkDisconnect()" title="Disconnect auto-backup"><span class="fcl-toggle-track"><span class="fcl-toggle-thumb"></span></span></button>`:''}
         </header>
         <p style="margin:0 0 14px;color:var(--fcl-text-dim);font-size:13px;max-width:560px;line-height:1.5">Pick a backup file once — Focal saves to it silently on every change. Great paired with a OneDrive, iCloud, or Dropbox folder for cross-device sync.</p>
         ${!fsaOk?`<div class="fcl-badge fcl-badge--warning fcl-badge--dot" style="margin-bottom:14px">Chrome or Edge required for auto-save</div>`:''}
@@ -3363,7 +3362,7 @@ function renderAppearanceTab(){
     <div class="fcl-fieldrow">
       <div>
         <div class="fcl-fieldrow-label">Density</div>
-        <div class="fcl-fieldrow-hint">Compact shows more per screen. Roomy gives lists more breathing room. (Applied to lists and cards going forward.)</div>
+        <div class="fcl-fieldrow-hint">Compact shows more per screen. Roomy gives lists more breathing room. Applies to task rows, Today/Kanban/Matrix/Inbox cards, and Settings lists.</div>
       </div>
       <div>
         <div class="fcl-seg" role="radiogroup" aria-label="Density">

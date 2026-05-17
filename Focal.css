@@ -1101,6 +1101,39 @@ html.dark .conf-row{background:rgba(167,139,250,.06)}
 .reduce-motion *,.reduce-motion *::before,.reduce-motion *::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 
 /* ═══════════════════════════════════════════════════════════════════
+   DENSITY (v10.5.1) — real implementation of the Theme tab Density
+   toggle. Drives row + card padding across the 5 highest-density
+   surfaces. Cozy = default values (no overrides). Compact = tighter.
+   Roomy = more breathing room.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* COMPACT — tighter rows, smaller card paddings, slightly smaller fonts on dense surfaces */
+html[data-density="compact"] td{padding:6px 12px;font-size:13px}
+html[data-density="compact"] td.tc{padding:6px 6px}
+html[data-density="compact"] th{padding:6px 12px}
+html[data-density="compact"] .tcard{padding:7px 12px;margin-bottom:5px;gap:9px}
+html[data-density="compact"] .kc{padding:6px 9px}
+html[data-density="compact"] .kc-name{font-size:12.5px}
+html[data-density="compact"] .qi{padding:5px 8px;margin-bottom:4px;font-size:12px}
+html[data-density="compact"] .ixcard{padding:8px 12px}
+html[data-density="compact"] .fcl-list-row{padding:7px 12px;font-size:13px}
+html[data-density="compact"] .kb-body{gap:4px}
+html[data-density="compact"] .tcn{font-size:13px}
+html[data-density="compact"] .qin{font-size:12.5px}
+html[data-density="compact"] .ix-text{font-size:13.5px}
+
+/* ROOMY — more padding, taller rows, easier to scan with eyes-up reading */
+html[data-density="roomy"] td{padding:16px 18px;font-size:14.5px}
+html[data-density="roomy"] td.tc{padding:16px 8px}
+html[data-density="roomy"] th{padding:12px 18px}
+html[data-density="roomy"] .tcard{padding:16px 20px;margin-bottom:12px;gap:14px}
+html[data-density="roomy"] .kc{padding:14px 16px}
+html[data-density="roomy"] .qi{padding:12px 14px;margin-bottom:8px}
+html[data-density="roomy"] .ixcard{padding:18px 22px}
+html[data-density="roomy"] .fcl-list-row{padding:15px 16px}
+html[data-density="roomy"] .kb-body{gap:10px}
+
+/* ═══════════════════════════════════════════════════════════════════
    FCL DESIGN SYSTEM (v10.5) — port of the Settings handoff tokens.
    Lives alongside the legacy --galaxy/--surface/--muted system; only
    the new Settings shell + future redesign work uses --fcl-*.
