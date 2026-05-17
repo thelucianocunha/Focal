@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.6.0</title>
+<title>Focal — User Manual v10.7.0</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -713,7 +713,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Focal</div>
       <div class="sidebar-title">User Manual</div>
-      <div class="sidebar-ver">Version 10.6.0 · May 17, 2026</div>
+      <div class="sidebar-ver">Version 10.7.0 · May 17, 2026</div>
     </div>
 
     <div class="nav-group">
@@ -764,7 +764,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.6.0</h1>
+      <h1>Focal v10.7.0</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -1916,6 +1916,42 @@ to a local folder. It should:
 
     <hr class="sec-div">
 
+    <!-- ── PEOPLE TAB REDESIGN v10.7.0 ── -->
+    <section class="section" id="people-redesign">
+      <div class="section-eyebrow">Feature — v10.7.0</div>
+      <h2>👥 People Tab — Groups + People, Side by Side</h2>
+      <p class="section-lead">The People tab was a flat alphabetical list with Groups buried below it. v10.7.0 turns it into a two-column workspace: groups on the left, people on the right, with everything you need to manage memberships at a glance.</p>
+
+      <h3>Layout</h3>
+      <ul class="blist">
+        <li><strong>Left column (240 px) — Groups.</strong> Top to bottom: <em>All people</em> (default, with the user icon and total count), <em>Ungrouped</em> (anyone not in a group yet), then your groups with a color dot and member count each.</li>
+        <li><strong>Right column — People panel.</strong> Context header (when a real group is selected), search + Add Person, the scrolling people list with sticky letter dividers, and a right-side A–Z jump rail.</li>
+      </ul>
+
+      <h3>What's new</h3>
+      <ul class="blist">
+        <li><strong>Color-coded groups.</strong> Every group has a color — assigned automatically from a 7-color palette when you create one, persisted on <code>S.personGroups[].color</code>. Existing groups get a stable color on migration.</li>
+        <li><strong>Inline group chips on every person row.</strong> See at a glance which groups someone belongs to. Click any chip to jump to that group's view.</li>
+        <li><strong>Initials avatar with hashed color.</strong> Each person gets a 28 px circle with their initials and a color derived from a hash of their name — visual variety without any new fields to fill in.</li>
+        <li><strong>Sticky letter headers.</strong> As you scroll the list, the current letter stays pinned at the top so you always know where you are.</li>
+        <li><strong>A–Z jump rail.</strong> Right edge of the list. Letters that have people are teal and clickable; absent letters are dimmed. One click scrolls to that section.</li>
+        <li><strong>Search inside the current group.</strong> The search box is context-aware: when a group is selected, it searches inside that group. When "All people" is active, it searches everyone.</li>
+        <li><strong>Add-to-group shortcut.</strong> When a group is selected, the Add Person button (or pressing <kbd class="kbd">⏎</kbd> in the search box) creates the person <em>and</em> adds them to that group in one keystroke.</li>
+        <li><strong>Rename and delete a group</strong> from a context header — pencil and trash buttons appear at the top of the right column whenever you have a real group selected. No more per-row edit buttons.</li>
+        <li><strong>Smart "Remove" button.</strong> When you're viewing a specific group, the trash button on each row removes that person <em>from the group</em> only. When viewing All people, it deletes the person entirely (with confirmation).</li>
+      </ul>
+
+      <h3>What didn't change</h3>
+      <p>Focal's people are still simple connection labels — no emails, no profiles, no roles. The redesign keeps the data model exactly the same. Only one additive field (<code>color</code>) is introduced on the group schema. Your existing tasks, connections, and group memberships are untouched.</p>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>To bulk-build a group: select the group, then paste-and-Enter each name into the search box. Each press creates (or finds) the person and adds them to the active group.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
     <!-- ── DESIGN CASCADE v10.6.0 ── -->
     <section class="section" id="design-cascade">
       <div class="section-eyebrow">Polish — v10.6.0</div>
@@ -2253,7 +2289,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.6.0 — May 17, 2026</p>
+      <p>Focal v10.7.0 — May 17, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

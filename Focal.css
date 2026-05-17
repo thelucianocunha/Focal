@@ -1438,3 +1438,153 @@ html.dark .fcl-sidebar{background:rgba(0,0,0,0.18)}
   .fcl-body{padding:16px 18px 20px}
   .fcl-fieldrow{grid-template-columns:1fr;gap:8px}
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOKEN CASCADE (v10.7) — visual alignment of legacy chrome with
+   the design's --fcl-* palette. Override-only (no in-place edits).
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1. Categories tab body (Settings → Categories: .sec-mgr-* / .sec-add-*) */
+.fcl-settings .fcl-shell #secMgrBody{color:var(--fcl-text)}
+.fcl-settings .fcl-shell .sec-mgr-row{background:var(--fcl-bg-surface);border-color:var(--fcl-border);color:var(--fcl-text)}
+html.dark .fcl-settings .fcl-shell .sec-mgr-row{background:var(--fcl-bg-surface-2)}
+.fcl-settings .fcl-shell .sec-mgr-row:hover{background:var(--fcl-bg-hover)}
+.fcl-settings .fcl-shell .sec-mgr-drag,
+.fcl-settings .fcl-shell .sec-mgr-del{color:var(--fcl-text-dim)}
+.fcl-settings .fcl-shell .sec-mgr-name{color:var(--fcl-text)}
+.fcl-settings .fcl-shell .sec-mgr-icon-btn:hover{background:var(--fcl-bg-hover);border-color:var(--fcl-border)}
+.fcl-settings .fcl-shell .sec-add-inp,
+.fcl-settings .fcl-shell .sec-add-icon{background:var(--fcl-bg-input);border-color:var(--fcl-border);color:var(--fcl-text)}
+.fcl-settings .fcl-shell .sec-add-inp:focus,
+.fcl-settings .fcl-shell .sec-add-icon:focus{border-color:var(--fcl-accent);box-shadow:var(--fcl-ring)}
+
+/* 2. Outcomes tab body (#outcomesMgrBody renders .om-row / .om-list / .om-add) */
+.fcl-settings .fcl-shell #outcomesMgrBody{color:var(--fcl-text)}
+.fcl-settings .fcl-shell .om-row{background:var(--fcl-bg-surface);border:1px solid var(--fcl-border);border-radius:var(--fcl-r-md);color:var(--fcl-text)}
+html.dark .fcl-settings .fcl-shell .om-row{background:var(--fcl-bg-surface-2)}
+.fcl-settings .fcl-shell .om-name{color:var(--fcl-text)}
+.fcl-settings .fcl-shell .om-toggle{border-color:var(--fcl-border);color:var(--fcl-text-dim);background:transparent}
+.fcl-settings .fcl-shell .om-toggle.on{background:var(--fcl-accent);border-color:var(--fcl-accent);color:var(--fcl-accent-fg)}
+.fcl-settings .fcl-shell .om-del{color:var(--fcl-text-dim)}
+.fcl-settings .fcl-shell .om-del:hover{color:var(--fcl-danger)}
+
+/* 3. Task Feed tab body (#emailSettingsBody) */
+.fcl-settings .fcl-shell #emailSettingsBody{color:var(--fcl-text)}
+.fcl-settings .fcl-shell #emailSettingsBody .fl{color:var(--fcl-text-dim)}
+.fcl-settings .fcl-shell #emailSettingsBody small,
+.fcl-settings .fcl-shell #emailSettingsBody p{color:var(--fcl-text-muted)}
+
+/* 4. Add Task modal — #ovl is the task entry modal (Settings uses .fcl-settings instead) */
+#ovl .modal{background:var(--fcl-bg-surface);color:var(--fcl-text);box-shadow:var(--fcl-shadow-modal)}
+html.dark #ovl .modal{background:var(--fcl-bg-shell)}
+#ovl .modal .fl{color:var(--fcl-text-dim)}
+#ovl .modal .fi,
+#ovl .modal .fs,
+#ovl .modal .fta{background:var(--fcl-bg-input);border-color:var(--fcl-border);color:var(--fcl-text)}
+#ovl .modal .fi:focus,
+#ovl .modal .fs:focus,
+#ovl .modal .fta:focus{border-color:var(--fcl-accent);box-shadow:var(--fcl-ring)}
+#ovl .modal small,
+#ovl .modal .fh{color:var(--fcl-text-muted)}
+
+/* 5. Feedback modal — same treatment */
+#feedbackOvl .modal{background:var(--fcl-bg-surface);color:var(--fcl-text);box-shadow:var(--fcl-shadow-modal)}
+html.dark #feedbackOvl .modal{background:var(--fcl-bg-shell)}
+#feedbackOvl .modal .fl{color:var(--fcl-text-dim)}
+#feedbackOvl .modal .fi,
+#feedbackOvl .modal .fs,
+#feedbackOvl .modal .fta{background:var(--fcl-bg-input);border-color:var(--fcl-border);color:var(--fcl-text)}
+#feedbackOvl .modal .fi:focus,
+#feedbackOvl .modal .fs:focus,
+#feedbackOvl .modal .fta:focus{border-color:var(--fcl-accent);box-shadow:var(--fcl-ring)}
+#feedbackOvl .modal small,
+#feedbackOvl .modal .fh{color:var(--fcl-text-muted)}
+
+/* 6. Stats bar — label dim, number bright; keep priority-tinted .sn.r/.t/.a/.v as-is */
+.sbar{background:var(--fcl-bg-shell);border-bottom-color:var(--fcl-border)}
+.si{border-right-color:var(--fcl-border)}
+.sn{color:var(--fcl-text)}
+.sl{color:var(--fcl-text-dim)}
+.si:hover .sl{color:var(--fcl-accent)}
+
+/* 7. Filter bar (inactive states only — active fixed in v10.6) */
+.fbar{background:var(--fcl-bg-shell);border-bottom-color:var(--fcl-border)}
+.pill:not(.on){background:var(--fcl-bg-surface-2);border-color:var(--fcl-border);color:var(--fcl-text-dim)}
+.pill:not(.on):hover{border-color:var(--fcl-accent);color:var(--fcl-accent)}
+.person-dd-btn:not(.active){background:var(--fcl-bg-surface-2);border-color:var(--fcl-border);color:var(--fcl-text-dim)}
+.person-dd-btn:not(.active):hover{border-color:var(--fcl-accent);color:var(--fcl-accent)}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PEOPLE TAB v10.7 — two-column groups + people, sticky letter
+   headers, A-Z jump rail, inline group chips. Scoped to Settings shell.
+   ═══════════════════════════════════════════════════════════════════ */
+.fcl-settings .ppl-shell{display:grid;grid-template-columns:240px 1fr;gap:24px;height:100%;min-height:0;overflow:hidden}
+.fcl-settings .ppl-groups-col{display:flex;flex-direction:column;gap:2px;border-right:1px solid var(--fcl-border);padding-right:18px;overflow-y:auto;min-height:0}
+.fcl-settings .ppl-grow{display:grid;grid-template-columns:16px 1fr auto;gap:10px;align-items:center;padding:7px 10px;border:0;background:transparent;color:var(--fcl-text-dim);font:inherit;font-size:13.5px;text-align:left;cursor:pointer;border-radius:var(--fcl-r-md);transition:background 100ms ease,color 100ms ease}
+.fcl-settings .ppl-grow:hover:not(.on){background:var(--fcl-bg-hover);color:var(--fcl-text)}
+.fcl-settings .ppl-grow.on{background:var(--fcl-bg-selected);color:var(--fcl-text);font-weight:500}
+.fcl-settings .ppl-grow:focus-visible{outline:0;box-shadow:var(--fcl-ring)}
+.fcl-settings .ppl-grow-ic{display:inline-flex;align-items:center;justify-content:center;color:var(--fcl-text-faint)}
+.fcl-settings .ppl-grow.on .ppl-grow-ic{color:var(--fcl-text-dim)}
+.fcl-settings .ppl-grow-ic-dashed{width:8px;height:8px;border-radius:999px;border:1.5px dashed var(--fcl-text-faint);margin:0 4px}
+.fcl-settings .ppl-grow-dot{width:8px;height:8px;border-radius:999px;display:inline-block;margin:0 4px;flex:0 0 auto}
+.fcl-settings .ppl-grow-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcl-settings .ppl-grow-cnt{font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--fcl-text-faint)}
+.fcl-settings .ppl-grow.on .ppl-grow-cnt{color:var(--fcl-text-dim)}
+.fcl-settings .ppl-grow-eyebrow{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--fcl-text-faint);font-weight:600;padding:14px 10px 4px}
+.fcl-settings .ppl-grow-new{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--fcl-text-dim);font:inherit;font-size:11.5px;font-weight:500;letter-spacing:0;text-transform:none;padding:3px 7px;border-radius:var(--fcl-r-sm);cursor:pointer}
+.fcl-settings .ppl-grow-new:hover{background:var(--fcl-bg-hover);color:var(--fcl-text)}
+.fcl-settings .ppl-grow-new:focus-visible{outline:0;box-shadow:var(--fcl-ring)}
+.fcl-settings .ppl-grow-empty{padding:8px 10px;font-size:12px;color:var(--fcl-text-faint);line-height:1.55}
+.fcl-settings .ppl-grow-empty strong{color:var(--fcl-text-dim);font-weight:600}
+
+.fcl-settings .ppl-people-col{display:flex;flex-direction:column;gap:12px;min-height:0}
+.fcl-settings .ppl-ctx-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--fcl-bg-surface-2);border:1px solid var(--fcl-border);border-radius:var(--fcl-r-md)}
+.fcl-settings .ppl-ctx-dot{width:10px;height:10px;border-radius:999px;flex:0 0 auto}
+.fcl-settings .ppl-ctx-name{font-size:14.5px;font-weight:600;color:var(--fcl-text)}
+.fcl-settings .ppl-ctx-cnt{font-size:12.5px;color:var(--fcl-text-faint);flex:1}
+.fcl-settings .ppl-ctx-btn{border:0;background:transparent;color:var(--fcl-text-dim);cursor:pointer;padding:6px;border-radius:var(--fcl-r-sm);display:inline-flex;align-items:center}
+.fcl-settings .ppl-ctx-btn:hover{background:var(--fcl-bg-hover);color:var(--fcl-text)}
+.fcl-settings .ppl-ctx-btn:focus-visible{outline:0;box-shadow:var(--fcl-ring)}
+.fcl-settings .ppl-ctx-btn-danger:hover{background:var(--fcl-danger-tint);color:var(--fcl-danger)}
+
+.fcl-settings .ppl-search-row{display:flex;gap:8px;align-items:center}
+.fcl-settings .ppl-search-wrap{position:relative;flex:1}
+.fcl-settings .ppl-search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--fcl-text-faint);pointer-events:none}
+.fcl-settings .ppl-search-inp{padding-left:34px}
+
+.fcl-settings .ppl-list-wrap{display:grid;grid-template-columns:1fr 30px;border:1px solid var(--fcl-border);border-radius:var(--fcl-r-md);background:var(--fcl-bg-surface-2);overflow:hidden;flex:1;min-height:0}
+.fcl-settings .ppl-list{overflow-y:auto;min-height:0}
+.fcl-settings .ppl-letter-hdr{position:sticky;top:0;z-index:1;padding:5px 14px;font:700 10.5px var(--fcl-font-mono);letter-spacing:0.14em;color:var(--fcl-accent);background:var(--fcl-bg-surface);border-bottom:1px solid var(--fcl-border-subtle)}
+.fcl-settings .ppl-row2{display:grid;grid-template-columns:28px 1fr auto auto;gap:12px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--fcl-border-subtle);font-size:13.5px;color:var(--fcl-text)}
+.fcl-settings .ppl-row2:last-child{border-bottom:0}
+.fcl-settings .ppl-row2:hover{background:rgba(255,255,255,0.02)}
+:root:not(.dark) .fcl-settings .ppl-row2:hover{background:rgba(0,0,0,0.03)}
+.fcl-settings .ppl-avatar{width:28px;height:28px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#062018}
+.fcl-settings .ppl-row2-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.fcl-settings .ppl-row2-chips{display:inline-flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:200px}
+.fcl-settings .ppl-mini-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border:1px solid;border-radius:999px;font-size:10.5px;font-weight:500;cursor:pointer;background:transparent;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.fcl-settings .ppl-mini-chip:hover{background:var(--fcl-bg-hover)}
+.fcl-settings .ppl-mini-dot{width:6px;height:6px;border-radius:999px;flex:0 0 auto}
+.fcl-settings .ppl-row-btn{border:0;background:transparent;color:var(--fcl-text-faint);cursor:pointer;padding:5px;border-radius:var(--fcl-r-sm);display:inline-flex;align-items:center}
+.fcl-settings .ppl-row-btn:hover{background:var(--fcl-bg-hover);color:var(--fcl-text)}
+
+.fcl-settings .ppl-rail{display:flex;flex-direction:column;border-left:1px solid var(--fcl-border-subtle);background:rgba(0,0,0,0.18);padding:6px 0}
+:root:not(.dark) .fcl-settings .ppl-rail{background:rgba(0,0,0,0.04)}
+.fcl-settings .ppl-rail-btn{flex:1 1 auto;border:0;background:transparent;cursor:default;color:var(--fcl-text-faint);opacity:0.35;font:700 10.5px var(--fcl-font-mono);letter-spacing:0.04em;display:flex;align-items:center;justify-content:center;min-height:14px}
+.fcl-settings .ppl-rail-btn.on{color:var(--fcl-accent);opacity:1;cursor:pointer}
+.fcl-settings .ppl-rail-btn.on:hover{background:var(--fcl-bg-hover);color:var(--fcl-accent-hover)}
+
+.fcl-settings .ppl-empty{padding:24px 16px;text-align:center;color:var(--fcl-text-faint);font-size:13px;line-height:1.55}
+.fcl-settings .ppl-empty strong{color:var(--fcl-text-dim)}
+.fcl-settings .ppl-empty kbd,.fcl-settings .ppl-footer kbd{font:600 11px var(--fcl-font-mono);background:var(--fcl-bg-code);border:1px solid var(--fcl-border-subtle);padding:0 6px;border-radius:var(--fcl-r-sm);color:var(--fcl-text-dim)}
+.fcl-settings .ppl-footer{padding:0 2px;font-size:11.5px;color:var(--fcl-text-faint)}
+.fcl-settings .ppl-footer strong{color:var(--fcl-text-dim)}
+
+/* Settings body must be flex-column for People tab to fill modal height.
+   When People is active, stab-body-people becomes a flex:1 child so the
+   ppl-shell can grow to fill, and the internal list scrolls instead of
+   the outer body. Other tabs are unaffected (their content is short). */
+.fcl-settings .fcl-body{display:flex;flex-direction:column}
+.fcl-settings #stab-body-people{display:flex;flex:1;min-height:0;flex-direction:column}
+.fcl-settings #peopleMgrBody{flex:1;min-height:0;display:flex;flex-direction:column}

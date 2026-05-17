@@ -26,7 +26,11 @@ const DEFAULT_OUTCOMES=[
   {id:'people',    name:'Leadership / People', color:'#7C3AED', active:true, sort:4},
   {id:'strategic', name:'Strategic Projects',  color:'#00B5B0', active:true, sort:5},
 ];
-function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(d.settings&&!d.settings.theme) d.settings.theme='light'; }
+// 7-colour palette for groups (v10.7) — same hues as outcomes default for cohesion.
+const PPL_GROUP_PALETTE=['#00B5B0','#2563EB','#7C3AED','#D97706','#DC2626','#059669','#DB2777'];
+function _pplHashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=((h<<5)-h)+s.charCodeAt(i); h|=0; } return Math.abs(h); }
+function _pplPickColor(seed){ return PPL_GROUP_PALETTE[_pplHashStr(String(seed))%PPL_GROUP_PALETTE.length]; }
+function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; (d.personGroups||[]).forEach(g=>{ if(!g.color) g.color=_pplPickColor(g.id||g.name||Math.random()); }); d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(d.settings&&!d.settings.theme) d.settings.theme='light'; }
 function rebuildSecDropdown(){
   const sel=document.getElementById('fSec');
   if(!sel) return;
@@ -2629,64 +2633,201 @@ function saveSettings(){
 }
 
 // People manager
+// v10.7 People tab — two-column layout (Groups | People), pseudo-groups,
+// sticky letter headers, A-Z jump rail, inline group chips on rows.
+let _pplGroupSel='all';      // 'all' | 'ungrouped' | group id
+let _pplSearch='';           // search query within current selection
+function _pplInitials(name){
+  if(!name) return '?';
+  const parts=String(name).trim().split(/\s+/);
+  if(parts.length>=2) return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
+  return parts[0].slice(0,2).toUpperCase();
+}
+function _pplGroupsForPerson(name){
+  return (S.personGroups||[]).filter(g=>(g.members||[]).includes(name));
+}
+function _pplPeopleFiltered(){
+  const all=(S.knownConnections||[]).slice().sort((a,b)=>a.localeCompare(b));
+  const q=(_pplSearch||'').toLowerCase().trim();
+  let list=all;
+  if(_pplGroupSel==='ungrouped'){
+    list=all.filter(n=>!(S.personGroups||[]).some(g=>(g.members||[]).includes(n)));
+  } else if(_pplGroupSel!=='all'){
+    const g=(S.personGroups||[]).find(x=>x.id===_pplGroupSel);
+    list=g?(g.members||[]).slice().sort((a,b)=>a.localeCompare(b)).filter(n=>all.includes(n)):[];
+  }
+  if(q) list=list.filter(n=>n.toLowerCase().includes(q));
+  return list;
+}
 function renderPeopleTab(){
   const body=document.getElementById('peopleMgrBody'); if(!body) return;
   // Auto-remove any individual whose name matches a group name
-  const groupNames=new Set((S.personGroups||[]).map(g=>g.name.toLowerCase()));
-  const before=S.knownConnections.length;
-  S.knownConnections=(S.knownConnections||[]).filter(n=>!groupNames.has(n.toLowerCase()));
+  const groupNamesLc=new Set((S.personGroups||[]).map(g=>g.name.toLowerCase()));
+  const before=(S.knownConnections||[]).length;
+  S.knownConnections=(S.knownConnections||[]).filter(n=>!groupNamesLc.has(n.toLowerCase()));
   if(S.knownConnections.length!==before) saveS();
-  const all=S.knownConnections.slice().sort();
+
+  const all=(S.knownConnections||[]).slice().sort((a,b)=>a.localeCompare(b));
   const groups=(S.personGroups||[]).slice().sort((a,b)=>a.name.localeCompare(b.name));
-  const letters=[...new Set(all.map(n=>n[0]?.toUpperCase()).filter(Boolean))].sort();
-  const showAlpha=letters.length>5;
-  const alphaBar=showAlpha?`<div class="ppl-alpha-bar"><button class="ppl-alpha-btn${!_pplLetter?' on':''}" onclick="setPplLetter('')">All</button>${letters.map(l=>`<button class="ppl-alpha-btn${_pplLetter===l?' on':''}" onclick="setPplLetter('${l}')">${l}</button>`).join('')}</div>`:'';
-  const filtered=(_pplLetter&&showAlpha)?all.filter(n=>n[0]?.toUpperCase()===_pplLetter):all;
-  const rows=filtered.length?filtered.map(n=>`<div class="ppl-row"><span class="ppl-name">${escHtml(n)}</span><button class="ppl-del" onclick="deletePerson('${escAttr(n)}')" title="Remove">×</button></div>`).join('')
-    :(all.length?`<div style="padding:12px 20px;color:var(--muted);font-size:13px">No people starting with "${_pplLetter}".</div>`:`<div style="padding:12px 20px;color:var(--muted);font-size:13px">No people yet — add someone below.</div>`);
-  let gh=`<div class="ppl-grp-hdr">Groups <button class="bsec" style="font-size:11px;padding:2px 8px;margin-left:6px" onclick="openAddGroup()">+ Add Group</button></div>`;
-  groups.forEach(g=>{
-    const isEdit=_editGrpId===g.id;
-    gh+=`<div class="ppl-grp-row"><div class="ppl-grp-top">
-      <span class="ppl-grp-name">⬡ ${escHtml(g.name)}</span>
-      <span style="flex:1;font-size:11px;color:var(--muted);padding:0 8px">${(g.members||[]).join(', ')||'<em>no members</em>'}</span>
-      <div class="ppl-grp-actions">
-        <button onclick="toggleGrpEdit('${escAttr(g.id)}')" title="${isEdit?'Close':'Edit members'}">${isEdit?'✕ Close':'✎ Edit'}</button>
-        <button onclick="deleteGroup('${escAttr(g.id)}')" title="Delete group">🗑</button>
-      </div>
-    </div>`;
-    if(isEdit){
-      const chips=all.map(n=>{const sel=(_newGrpMembers||[]).includes(n);return `<span class="ppl-grp-member-chip${sel?' sel':''}" onclick="toggleGrpMember('${escAttr(g.id)}','${escAttr(n)}')">${escHtml(n)}</span>`;}).join('');
-      gh+=`<div class="ppl-grp-edit"><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Click to toggle members — changes save immediately:</div><div class="ppl-grp-members-checkboxes">${chips}</div></div>`;
-    }
-    gh+=`</div>`;
-  });
-  if(!groups.length&&_editGrpId!=='__new__') gh+=`<div style="padding:8px 20px;color:var(--muted);font-size:12px">No groups yet. Groups let you filter by team — e.g. "Leadership Team" = Alice, Bob, Carol…</div>`;
-  if(_editGrpId==='__new__'){
-    const chips=all.map(n=>{const sel=(_newGrpMembers||[]).includes(n);return `<span class="ppl-grp-member-chip${sel?' sel':''}" onclick="toggleNewGrpMember('${escAttr(n)}')">${escHtml(n)}</span>`;}).join('');
-    gh+=`<div class="ppl-grp-row"><div class="ppl-grp-edit">
-      <input class="fi" id="pplGrpNameInp" placeholder="Group name (e.g. MT)" value="${escAttr(_newGrpName)}" oninput="_newGrpName=this.value" onkeydown="if(event.key==='Enter')saveNewGroup()" style="margin-bottom:8px">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Select members:</div>
-      <div class="ppl-grp-members-checkboxes">${chips}</div>
-      <div style="display:flex;gap:8px;margin-top:10px"><button class="bpri" onclick="saveNewGroup()">Save Group</button><button class="bsec" onclick="cancelAddGroup()">Cancel</button></div>
-    </div></div>`;
+  const ungroupedCount=all.filter(n=>!(S.personGroups||[]).some(g=>(g.members||[]).includes(n))).length;
+  const selectedGroup=_pplGroupSel!=='all'&&_pplGroupSel!=='ungrouped'?groups.find(g=>g.id===_pplGroupSel):null;
+  if(_pplGroupSel!=='all'&&_pplGroupSel!=='ungrouped'&&!selectedGroup){ _pplGroupSel='all'; }
+  const filtered=_pplPeopleFiltered();
+  const letters=[...new Set(filtered.map(n=>n[0]?.toUpperCase()).filter(Boolean))];
+
+  // ---- LEFT COLUMN: groups list ----
+  let groupsCol=`<button class="ppl-grow ${_pplGroupSel==='all'?'on':''}" onclick="setPeopleGroup('all')"><span class="ppl-grow-ic">${icon('users',14)}</span><span class="ppl-grow-lbl">All people</span><span class="ppl-grow-cnt">${all.length}</span></button>`;
+  groupsCol+=`<button class="ppl-grow ${_pplGroupSel==='ungrouped'?'on':''}" onclick="setPeopleGroup('ungrouped')"><span class="ppl-grow-ic ppl-grow-ic-dashed"></span><span class="ppl-grow-lbl">Ungrouped</span><span class="ppl-grow-cnt">${ungroupedCount}</span></button>`;
+  groupsCol+=`<div class="ppl-grow-eyebrow"><span>Groups</span><button class="ppl-grow-new" onclick="openAddGroup()">${icon('plus',12)} New</button></div>`;
+  if(groups.length){
+    groups.forEach(g=>{
+      const color=g.color||_pplPickColor(g.id||g.name);
+      const cnt=(g.members||[]).filter(n=>all.includes(n)).length;
+      groupsCol+=`<button class="ppl-grow ${_pplGroupSel===g.id?'on':''}" onclick="setPeopleGroup('${escJs(g.id)}')"><span class="ppl-grow-dot" style="background:${escAttr(color)};box-shadow:0 0 0 2px ${escAttr(color)}22"></span><span class="ppl-grow-lbl">${escHtml(g.name)}</span><span class="ppl-grow-cnt">${cnt}</span></button>`;
+    });
+  } else {
+    groupsCol+=`<div class="ppl-grow-empty">Groups bundle people you act on together — Board, MT, family. Create one with <strong>+ New</strong>.</div>`;
   }
-  body.innerHTML=alphaBar+rows+`<div class="ppl-add-row"><input class="fi" id="pplAddInp" placeholder="Add person or organization…" onkeydown="if(event.key==='Enter')addPerson()"><button class="bpri" style="flex-shrink:0" onclick="addPerson()">+ Add</button></div>`+gh;
+
+  // ---- RIGHT COLUMN: people panel ----
+  // Context header (only when a real group is selected)
+  let contextHdr='';
+  if(selectedGroup){
+    const color=selectedGroup.color||_pplPickColor(selectedGroup.id);
+    contextHdr=`<div class="ppl-ctx-hdr">
+      <span class="ppl-ctx-dot" style="background:${escAttr(color)}"></span>
+      <span class="ppl-ctx-name">${escHtml(selectedGroup.name)}</span>
+      <span class="ppl-ctx-cnt">${(selectedGroup.members||[]).length} member${(selectedGroup.members||[]).length===1?'':'s'}</span>
+      <button class="ppl-ctx-btn" onclick="renameGroupPrompt('${escJs(selectedGroup.id)}')" title="Rename group" aria-label="Rename group">${icon('edit',14)}</button>
+      <button class="ppl-ctx-btn ppl-ctx-btn-danger" onclick="deleteGroup('${escJs(selectedGroup.id)}')" title="Delete group" aria-label="Delete group">${icon('trash',14)}</button>
+    </div>`;
+  }
+  // Search + Add row
+  const searchPh=selectedGroup?`Search in ${escAttr(selectedGroup.name)}…`:_pplGroupSel==='ungrouped'?'Search ungrouped…':'Search people…';
+  const addPh=selectedGroup?`Add to ${escAttr(selectedGroup.name)}…`:'New person or organization…';
+  const searchRow=`<div class="ppl-search-row">
+    <div class="ppl-search-wrap">${icon('search',14)}<input class="fcl-input ppl-search-inp" id="pplSearchInp" placeholder="${searchPh}" value="${escAttr(_pplSearch)}" oninput="pplSearchInput(this.value)" onkeydown="pplSearchKeydown(event)" autocomplete="off"></div>
+    <button class="fcl-btn fcl-btn--primary" onclick="addPerson()">${icon('plus',14)} Add person</button>
+  </div>`;
+  // Build the list with sticky letter headers
+  let listHtml='';
+  if(filtered.length){
+    let lastLetter='';
+    listHtml=filtered.map(n=>{
+      const L=(n[0]||'').toUpperCase();
+      const header=L!==lastLetter?`<div class="ppl-letter-hdr" id="ppl-letter-${L}">${L}</div>`:'';
+      lastLetter=L;
+      const init=_pplInitials(n);
+      const color=_pplPickColor(n);
+      const memberGroups=_pplGroupsForPerson(n);
+      const chips=memberGroups.map(g=>`<span class="ppl-mini-chip" style="border-color:${escAttr(g.color||_pplPickColor(g.id))};color:${escAttr(g.color||_pplPickColor(g.id))}" onclick="event.stopPropagation();setPeopleGroup('${escJs(g.id)}')"><span class="ppl-mini-dot" style="background:${escAttr(g.color||_pplPickColor(g.id))}"></span>${escHtml(g.name)}</span>`).join('');
+      const ctxBtn=selectedGroup?`<button class="ppl-row-btn" onclick="toggleGrpMember('${escJs(selectedGroup.id)}','${escJs(n)}')" title="Remove from ${escAttr(selectedGroup.name)}" aria-label="Remove from group">${icon('close',14)}</button>`:`<button class="ppl-row-btn" onclick="deletePerson('${escJs(n)}')" title="Remove person" aria-label="Remove">${icon('trash',14)}</button>`;
+      return header+`<div class="ppl-row2" data-name="${escAttr(n)}">
+        <span class="ppl-avatar" style="background:${escAttr(color)}">${escHtml(init)}</span>
+        <span class="ppl-row2-name">${escHtml(n)}</span>
+        <span class="ppl-row2-chips">${chips}</span>
+        ${ctxBtn}
+      </div>`;
+    }).join('');
+  } else if(_pplSearch){
+    listHtml=`<div class="ppl-empty">No matches for "${escHtml(_pplSearch)}".</div>`;
+  } else if(_pplGroupSel==='ungrouped'){
+    listHtml=`<div class="ppl-empty">Everyone is in at least one group.</div>`;
+  } else if(selectedGroup){
+    listHtml=`<div class="ppl-empty">No one in <strong>${escHtml(selectedGroup.name)}</strong> yet. Type a name above and press <kbd>⏎</kbd>.</div>`;
+  } else {
+    listHtml=`<div class="ppl-empty">No people yet — add someone above.</div>`;
+  }
+  // A-Z rail
+  const ALPHA='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const railHtml=ALPHA.split('').map(L=>{
+    const present=letters.includes(L);
+    return `<button class="ppl-rail-btn ${present?'on':''}" ${present?`onclick="pplJumpLetter('${L}')"`:'disabled'}>${L}</button>`;
+  }).join('');
+  // Footer hint
+  let footer='';
+  if(_pplGroupSel==='all') footer=`Showing ${filtered.length} of ${all.length}. Click a group chip to jump there.`;
+  else if(_pplGroupSel==='ungrouped') footer=`People not in any group yet. Open a person to assign.`;
+  else if(selectedGroup) footer=`People in <strong>${escHtml(selectedGroup.name)}</strong>. Add by typing above and hitting <kbd>⏎</kbd>.`;
+
+  body.innerHTML=`<div class="ppl-shell">
+    <aside class="ppl-groups-col">${groupsCol}</aside>
+    <section class="ppl-people-col">
+      ${contextHdr}
+      ${searchRow}
+      <div class="ppl-list-wrap">
+        <div class="ppl-list" id="pplList">${listHtml}</div>
+        <div class="ppl-rail">${railHtml}</div>
+      </div>
+      <div class="ppl-footer">${footer}</div>
+    </section>
+  </div>`;
 }
-function setPplLetter(l){ _pplLetter=l; renderPeopleTab(); }
+function setPeopleGroup(id){
+  _pplGroupSel=id;
+  _pplSearch='';
+  renderPeopleTab();
+  setTimeout(()=>document.getElementById('pplSearchInp')?.focus(),20);
+}
+function pplSearchInput(v){
+  _pplSearch=v;
+  // re-render only the list portion to avoid losing input focus
+  const wrap=document.getElementById('pplList'); if(!wrap){ renderPeopleTab(); return; }
+  renderPeopleTab(); // simpler: full re-render, search input is recreated and we re-focus it
+  const inp=document.getElementById('pplSearchInp'); if(inp){ inp.focus(); inp.setSelectionRange(v.length,v.length); }
+}
+function pplSearchKeydown(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    addPerson();
+  } else if(e.key==='Escape'){
+    if(_pplSearch){ _pplSearch=''; renderPeopleTab(); setTimeout(()=>document.getElementById('pplSearchInp')?.focus(),10); }
+  }
+}
+function pplJumpLetter(L){
+  const target=document.getElementById('ppl-letter-'+L);
+  const list=document.getElementById('pplList');
+  if(target&&list){ list.scrollTo({top:target.offsetTop-4,behavior:'smooth'}); }
+}
+function renameGroupPrompt(id){
+  const g=(S.personGroups||[]).find(x=>x.id===id); if(!g) return;
+  const name=prompt('Rename group "'+g.name+'":',g.name);
+  if(!name||!name.trim()||name.trim()===g.name) return;
+  const newName=name.trim();
+  if((S.personGroups||[]).some(x=>x.id!==id&&x.name.toLowerCase()===newName.toLowerCase())){
+    showToast('A group with that name already exists'); return;
+  }
+  // Update personFilter if it referenced the old name
+  personFilter=personFilter.map(f=>f===g.name?newName:f);
+  g.name=newName;
+  saveS(); populatePersonFilter(); renderPeopleTab(); applyF();
+  showToast('Group renamed to "'+newName+'"');
+}
 function addPerson(){
-  const inp=document.getElementById('pplAddInp'); if(!inp) return;
+  const inp=document.getElementById('pplSearchInp')||document.getElementById('pplAddInp'); if(!inp) return;
   const name=(inp.value||'').trim(); if(!name) return;
   if((S.personGroups||[]).some(g=>g.name.toLowerCase()===name.toLowerCase())){
     showToast(`"${name}" is already a group — add individual members instead`); return;
   }
   if(!S.knownConnections) S.knownConnections=[];
-  if(!S.knownConnections.includes(name)){ S.knownConnections.push(name); saveS(); populatePersonFilter(); }
-  inp.value=''; renderPeopleTab(); document.getElementById('pplAddInp')?.focus();
+  if(!S.knownConnections.includes(name)){ S.knownConnections.push(name); }
+  // If a group is currently selected, also add this person to that group
+  if(_pplGroupSel!=='all'&&_pplGroupSel!=='ungrouped'){
+    const g=(S.personGroups||[]).find(x=>x.id===_pplGroupSel);
+    if(g){ if(!g.members) g.members=[]; if(!g.members.includes(name)) g.members.push(name); }
+  }
+  saveS(); populatePersonFilter();
+  _pplSearch='';
+  renderPeopleTab();
+  setTimeout(()=>document.getElementById('pplSearchInp')?.focus(),20);
 }
 function deletePerson(name){
+  if(!confirm(`Remove "${name}" from your connections? They'll be removed from all tasks and groups.`)) return;
   S.knownConnections=(S.knownConnections||[]).filter(n=>n!==name);
+  (S.personGroups||[]).forEach(g=>{ g.members=(g.members||[]).filter(n=>n!==name); });
   personFilter=personFilter.filter(f=>f!==name);
+  // also remove from any task's connections
+  S.sections.forEach(s=>s.tasks.forEach(t=>{ if(t.connections) t.connections=t.connections.filter(c=>c!==name); }));
   saveS(); populatePersonFilter(); renderPeopleTab(); applyF();
 }
 function openAddGroup(){ _editGrpId='__new__'; _newGrpMembers=[]; _newGrpName=''; renderPeopleTab(); setTimeout(()=>document.getElementById('pplGrpNameInp')?.focus(),50); }
