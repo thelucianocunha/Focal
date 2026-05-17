@@ -4,6 +4,15 @@
  */
 
 // ═══ STATE ═══
+// v10.7.1 — these constants MUST be declared before `let S = loadS()` below,
+// because migrateV82 (called from loadS) reads PPL_GROUP_PALETTE. With
+// `const` they're in the TDZ until execution reaches them; if declared
+// after the loadS() call, every load throws and triggers the corruption-
+// recovery path, which moves real data to focal_v1_corrupted_* and resets
+// the user to demo. Keep them here.
+const PPL_GROUP_PALETTE=['#00B5B0','#2563EB','#7C3AED','#D97706','#DC2626','#059669','#DB2777'];
+function _pplHashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=((h<<5)-h)+s.charCodeAt(i); h|=0; } return Math.abs(h); }
+function _pplPickColor(seed){ return PPL_GROUP_PALETTE[_pplHashStr(String(seed))%PPL_GROUP_PALETTE.length]; }
 // State
 let S = loadS();
 let showDone=false, hideConf=true, activeF=new Set(['all']), curView='today', showBacklog=false, wrStage=0;
@@ -26,10 +35,7 @@ const DEFAULT_OUTCOMES=[
   {id:'people',    name:'Leadership / People', color:'#7C3AED', active:true, sort:4},
   {id:'strategic', name:'Strategic Projects',  color:'#00B5B0', active:true, sort:5},
 ];
-// 7-colour palette for groups (v10.7) — same hues as outcomes default for cohesion.
-const PPL_GROUP_PALETTE=['#00B5B0','#2563EB','#7C3AED','#D97706','#DC2626','#059669','#DB2777'];
-function _pplHashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=((h<<5)-h)+s.charCodeAt(i); h|=0; } return Math.abs(h); }
-function _pplPickColor(seed){ return PPL_GROUP_PALETTE[_pplHashStr(String(seed))%PPL_GROUP_PALETTE.length]; }
+// PPL_GROUP_PALETTE, _pplHashStr, _pplPickColor were here — moved above `let S = loadS()` to fix TDZ. See v10.7.1 note.
 function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; (d.personGroups||[]).forEach(g=>{ if(!g.color) g.color=_pplPickColor(g.id||g.name||Math.random()); }); d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(d.settings&&!d.settings.theme) d.settings.theme='light'; }
 function rebuildSecDropdown(){
   const sel=document.getElementById('fSec');
@@ -79,17 +85,26 @@ function loadS(){
   } catch(err){
     // Corrupted JSON or unreadable storage — preserve the bad blob so user can recover it,
     // then fall back to demo seed. Warn loudly on next paint.
+    // CRITICAL (v10.7.1): set _bkSuppressAutoSync so the demo state we're about to load is
+    // NOT auto-mirrored to the user's backup file. Without this guard, every saveS() after
+    // recovery overwrites the good backup file with demo state — silently destroying the
+    // user's last safety net. User must manually click "Save now" to opt-in after recovery.
+    _bkSuppressAutoSync=true;
     try{
       const bad=localStorage.getItem('focal_v1');
       if(bad){ const k='focal_v1_corrupted_'+Date.now(); try{ localStorage.setItem(k,bad); }catch{} }
     }catch{}
-    setTimeout(()=>{ try{ showToast('⚠️ Stored data was unreadable — restored demo. A backup was saved as focal_v1_corrupted_*. Open DevTools → Application → Local Storage to recover.', 10000); }catch{} }, 800);
+    setTimeout(()=>{ try{ showToast('⚠️ Stored data was unreadable — restored demo. Auto-backup PAUSED to protect your file. A backup of the bad data was saved as focal_v1_corrupted_*. Open DevTools → Application → Local Storage to recover.', 14000); }catch{} }, 800);
     console.error('Focal: loadS recovered from corrupted storage:', err);
     const d=clone(FILE_DATA); if(!d.inbox) d.inbox=[]; if(!d.settings) d.settings={claudeKey:'',aiModel:'claude-haiku-4-5-20251001'}; d.sections.forEach(s=>s.tasks.forEach(t=>{ if(t.decided===undefined) t.decided=false; if(!t.kanbanColSince) t.kanbanColSince=null; })); migrateV82(d); return d;
   }
 }
 // _saveWarned debounces the quota toast so we don't spam the user on every action while full.
 let _saveWarned=0;
+// v10.7.1 guard: set by loadS() when corruption-recovery fires. Blocks bkSync until
+// the user explicitly clicks "Save now" or reconnects the backup — protects the
+// backup file from being silently overwritten with demo state.
+let _bkSuppressAutoSync=false;
 function saveS(){
   try{ localStorage.setItem('focal_v1',JSON.stringify(S)); }
   catch(err){
@@ -116,6 +131,8 @@ function saveS(){
     }
   }
   // Mirror to auto-backup file (debounced) if connected. Never blocks the local save.
+  // v10.7.1: skip if corruption-recovery suppressed auto-sync (protects backup file).
+  if(_bkSuppressAutoSync) return;
   try{ if(typeof bkSync==='function') bkSync(false); }catch{}
 }
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -3176,6 +3193,7 @@ async function bkConnect(){
     const db=await etOpenDB();
     await new Promise((res,rej)=>{const tx=db.transaction('handles','readwrite');tx.objectStore('handles').put(handle,'focal_backup');tx.oncomplete=res;tx.onerror=rej;});
     _bkHandle=handle;
+    _bkSuppressAutoSync=false; // explicit user action — re-enable
     await bkSync(true);
     showToast('✓ Auto-backup connected — saves on every change');
     renderDataTab();
@@ -3199,6 +3217,10 @@ async function bkLoadHandle(){
 
 async function bkSync(force){
   if(!_bkHandle) return;
+  // v10.7.1: corruption-recovery suppression. Skip non-forced syncs.
+  // Forced syncs (user clicks "Save now") clear the flag — it's explicit consent.
+  if(_bkSuppressAutoSync && !force) return;
+  if(force) _bkSuppressAutoSync=false;
   // debounce
   if(!force){
     clearTimeout(_bkSyncTimer);
@@ -3283,9 +3305,11 @@ function renderDataTab(){
         <header style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
           <div style="display:flex;align-items:center;gap:10px">
             <h3 style="margin:0;font-size:15.5px;font-weight:600;color:var(--fcl-text)">Auto-backup</h3>
-            ${connected?'<span class="fcl-badge fcl-badge--success fcl-badge--dot">Connected</span>':''}
+            ${connected&&!_bkSuppressAutoSync?'<span class="fcl-badge fcl-badge--success fcl-badge--dot">Connected</span>':''}
+            ${connected&&_bkSuppressAutoSync?'<span class="fcl-badge fcl-badge--warning fcl-badge--dot">Paused</span>':''}
           </div>
         </header>
+        ${connected&&_bkSuppressAutoSync?`<div style="margin-bottom:14px;padding:10px 12px;background:var(--fcl-warning-tint);border:1px solid var(--fcl-warning);border-radius:var(--fcl-r-md);color:var(--fcl-warning);font-size:12.5px;line-height:1.5"><strong>Auto-sync paused.</strong> Focal recovered from a corrupted load and is showing demo state. To protect your backup file from being overwritten, automatic saves are off. <strong>Restore your real data first</strong> (DevTools → Local Storage → focal_v1_corrupted_*), then click <strong>↻ Save now</strong> below to confirm and resume auto-sync.</div>`:''}
         <p style="margin:0 0 14px;color:var(--fcl-text-dim);font-size:13px;max-width:560px;line-height:1.5">Pick a backup file once — Focal saves to it silently on every change. Great paired with a OneDrive, iCloud, or Dropbox folder for cross-device sync.</p>
         ${!fsaOk?`<div class="fcl-badge fcl-badge--warning fcl-badge--dot" style="margin-bottom:14px">Chrome or Edge required for auto-save</div>`:''}
         ${connected?`
