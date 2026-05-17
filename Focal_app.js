@@ -236,7 +236,7 @@ function setLang(code, silent){
   try{ _renderSettingsNav(); _updateSettingsHeader(); }catch{}
   try{ if(_settingsTab==='language') renderLanguageTab(); }catch{}
   if(!silent){
-    try{ showToast('✓ Language: '+(FOCAL_LANGS.find(l=>l.code===code)?.name||code)); }catch{}
+    try{ showToast(t('toast_lang_changed',{name:FOCAL_LANGS.find(l=>l.code===code)?.name||code})); }catch{}
   }
 }
 
@@ -450,7 +450,7 @@ function renderOutcomesTab(){
   const outs=S.outcomes||[];
   const preset=['#059669','#2563EB','#D97706','#DC2626','#7C3AED','#00B5B0','#F59E0B','#6366F1'];
   const colorOpts=preset.map(c=>`<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent;transition:transform .1s" onclick="omPickColor('${c}')" data-c="${c}"></span>`).join('');
-  const rows=outs.map(o=>`<div class="om-row"><span class="om-dot" style="background:${o.color}"></span><span class="om-name">${escHtml(o.name)}</span><button class="om-toggle ${o.active?'on':''}" onclick="toggleOutcomeActive('${o.id}')">${o.active?'Active':'Inactive'}</button><button class="om-del" onclick="deleteOutcome('${o.id}')" title="Remove">×</button></div>`).join('');
+  const rows=outs.map(o=>`<div class="om-row"><span class="om-dot" style="background:${o.color}"></span><span class="om-name">${escHtml(o.name)}</span><button class="om-toggle ${o.active?'on':''}" onclick="toggleOutcomeActive('${o.id}')">${o.active?window.t('outcomes_btn_active'):window.t('outcomes_btn_inactive')}</button><button class="om-del" onclick="deleteOutcome('${o.id}')" title="${window.t('outcomes_title_remove')}">×</button></div>`).join('');
   el.innerHTML=`<div class="mb"><div class="om-list">${rows||'<p style="color:var(--muted);font-size:13px">No outcomes yet.</p>'}</div><div class="om-add"><input class="fi" id="om-name" placeholder="New outcome name (e.g. ARR)" onkeydown="if(event.key==='Enter')addOutcome()"><div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:6px" id="om-color-pick">${colorOpts}</div><button class="bpri" style="margin-top:8px" onclick="addOutcome()">+ Add Outcome</button></div></div>`;
   window._omColor=preset[0];
   el.querySelectorAll('#om-color-pick [data-c]').forEach((e,i)=>{ if(i===0){e.style.transform='scale(1.25)';e.style.borderColor='var(--galaxy)';} });
@@ -482,20 +482,20 @@ function renderStats(){
   let kbTod=0; S.sections.forEach(s=>s.tasks.forEach(t=>{ if(t.kanbanCol==='today') kbTod++; }));
   const bb=document.getElementById('btnBacklog'); if(bb) bb.style.display=back>0?'':'none';
   let aging=0; S.sections.forEach(s=>s.tasks.forEach(t=>{ if(ageLevel(t)!=='none') aging++; }));
-  const ap=document.getElementById('pill-aging'); if(ap){ ap.innerHTML=`<span data-icon="clock"></span> Aging${aging?` (${aging})`:''}`; ap.style.display=aging>0?'':'none'; paintIcons(ap); }
+  const ap=document.getElementById('pill-aging'); if(ap){ ap.innerHTML=`<span data-icon="clock"></span> ${window.t('filter_aging')}${aging?` (${aging})`:''}`; ap.style.display=aging>0?'':'none'; paintIcons(ap); }
   document.getElementById('sbar').innerHTML=`
-    <div class="si" onclick="statClick('p1')" title="Filter: P1 Critical"><div class="sn r">${p1}</div><div class="sl">P1 Critical</div></div>
-    <div class="si" onclick="statClick('prog')" title="Filter: In Progress"><div class="sn t">${prog}</div><div class="sl">In Progress</div></div>
-    <div class="si" onclick="statClick('week')" title="Filter: Due Soon"><div class="sn a">${due}</div><div class="sl">Due Soon</div></div>
-    ${ov?`<div class="si" onclick="statClick('overdue')" title="Filter: Overdue"><div class="sn r">${ov}</div><div class="sl">Overdue</div></div>`:''}
-    ${conf?`<div class="si" onclick="statClick('conf')" title="Filter: Confidential"><div class="sn v">${conf}</div><div class="sl">Confidential</div></div>`:''}
-    ${back?`<div class="si" onclick="statClick('backlog')" title="Filter: Backlog"><div class="sn" style="color:var(--st-back)">${back}</div><div class="sl">Backlog</div></div>`:''}
-    ${kbTod>0?`<div class="si" onclick="sw('kanban')" title="${kbTod} task${kbTod===1?'':'s'} in Kanban Today — click to open"><div class="sn t">${kbTod}</div><div class="sl">In Kanban</div></div>`:''}
-    ${(()=>{const n=getTriageQueue(true).length;return n>0?`<div class="si" onclick="sw('matrix');matrixMode='prioritize';renderMatrix()" title="${n} task${n===1?'':'s'} need priority review — click to open Matrix Prioritize"><div class="sn" style="color:var(--teal)">${n}</div><div class="sl">To Prioritize</div></div>`:'';})()}
-    <div class="si" onclick="statClick('all')" title="Show all tasks"><div class="sn">${open}</div><div class="sl">Total Open</div></div>
+    <div class="si" onclick="statClick('p1')" title="${window.t('stat_title_p1')}"><div class="sn r">${p1}</div><div class="sl">${window.t('filter_p1')}</div></div>
+    <div class="si" onclick="statClick('prog')" title="${window.t('stat_title_prog')}"><div class="sn t">${prog}</div><div class="sl">${window.t('stat_in_progress')}</div></div>
+    <div class="si" onclick="statClick('week')" title="${window.t('stat_title_due')}"><div class="sn a">${due}</div><div class="sl">${window.t('stat_due_soon')}</div></div>
+    ${ov?`<div class="si" onclick="statClick('overdue')" title="${window.t('stat_title_overdue')}"><div class="sn r">${ov}</div><div class="sl">${window.t('stat_overdue')}</div></div>`:''}
+    ${conf?`<div class="si" onclick="statClick('conf')" title="${window.t('stat_title_conf')}"><div class="sn v">${conf}</div><div class="sl">${window.t('stat_confidential')}</div></div>`:''}
+    ${back?`<div class="si" onclick="statClick('backlog')" title="${window.t('stat_title_backlog')}"><div class="sn" style="color:var(--st-back)">${back}</div><div class="sl">${window.t('stat_backlog')}</div></div>`:''}
+    ${kbTod>0?`<div class="si" onclick="sw('kanban')" title="${window.t('stat_title_kanban',{n:kbTod})}"><div class="sn t">${kbTod}</div><div class="sl">${window.t('stat_in_kanban')}</div></div>`:''}
+    ${(()=>{const n=getTriageQueue(true).length;return n>0?`<div class="si" onclick="sw('matrix');matrixMode='prioritize';renderMatrix()" title="${window.t('stat_title_prioritize',{n})}"><div class="sn" style="color:var(--teal)">${n}</div><div class="sl">${window.t('stat_to_prioritize')}</div></div>`:'';})()}
+    <div class="si" onclick="statClick('all')" title="${window.t('stat_title_all')}"><div class="sn">${open}</div><div class="sl">${window.t('stat_total_open')}</div></div>
   `;
   const tt=document.getElementById('tab-today');
-  if(tt){ const {plan:_tp,overdue:_to,week:_tw}=getTodayTasks(); const n=_tp.length+_to.length+_tw.length; tt.innerHTML=`<span data-icon="zap"></span> Today${n>0?` <span class="tbadge">${n}</span>`:''}`; paintIcons(tt); }
+  if(tt){ const {plan:_tp,overdue:_to,week:_tw}=getTodayTasks(); const n=_tp.length+_to.length+_tw.length; tt.innerHTML=`<span data-icon="zap"></span> ${window.t('nav_today')}${n>0?` <span class="tbadge">${n}</span>`:''}`; paintIcons(tt); }
   updateInboxBadge();
 }
 
@@ -504,7 +504,7 @@ function renderStats(){
 function renderAll(){
   const body=S.sections.length
     ? `<div style="display:flex;flex-direction:column;gap:20px">${S.sections.map(renderSec).join('')}</div>`
-    : `<div class="empty-pad"><strong>No sections yet</strong>Open Settings (⚙️) → Categories to add your first section. Each section groups related tasks.</div>`;
+    : `<div class="empty-pad"><strong>${t('sec_empty_title')}</strong>${t('sec_empty_body')}</div>`;
   document.getElementById('view-tasks').innerHTML=body;
   renderStats(); applyF(); populatePersonFilter();
   if(curView==='today') renderToday();
@@ -1131,10 +1131,13 @@ function getTodayTasks(){
 }
 function renderToday(){
   const d=new Date();
-  document.getElementById('tdH').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  document.getElementById('tdS').textContent="Today's committed tasks · overdue · due this week";
+  const _localeMap={en:'en-US',nl:'nl-NL',de:'de-DE',it:'it-IT',pt:'pt-BR',es:'es-ES',hi:'hi-IN'};
+  const _curLang=(S.settings&&S.settings.lang)||'en';
+  const _locale=_localeMap[_curLang]||'en-US';
+  document.getElementById('tdH').textContent=d.toLocaleDateString(_locale,{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('tdS').textContent=t('today_h_subtitle');
   const {plan,overdue,week}=getTodayTasks();
-  if(!plan.length&&!overdue.length&&!week.length){document.getElementById('tdC').innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);font-size:15px">🎉 No urgent tasks today. You are on top of it.</div>`;return;}
+  if(!plan.length&&!overdue.length&&!week.length){document.getElementById('tdC').innerHTML=`<div style="text-align:center;padding:60px;color:var(--muted);font-size:15px">${t('today_empty')}</div>`;return;}
   // Build a flat map of all tasks for parent lookup
   const allTaskMap={};
   S.sections.forEach(s=>s.tasks.forEach(t=>{allTaskMap[t.id]={...t,secId:s.id};}));
@@ -1147,11 +1150,11 @@ function renderToday(){
   let h='';
   if(plan.length){
     const capCls=plan.length>=5?'over':plan.length>=4?'warn':'ok';
-    const capTip=plan.length>=5?`⚠ ${plan.length} tasks — consider reducing focus`:plan.length>=4?`${plan.length} tasks — at capacity`:`${plan.length} task${plan.length===1?'':'s'}`;
-    h+=`<div class="tsec"><div class="tsect" style="color:var(--teal)">📊 Today's Plan<span class="today-cap ${capCls}" title="${capTip}">${capTip}</span></div>`;orderBucket(plan).forEach(t=>h+=todayCard(t,allTaskMap));h+=`</div>`;
+    const capTip=plan.length>=5?t('today_cap_over',{n:plan.length}):plan.length>=4?t('today_cap_warn',{n:plan.length}):t('today_cap_ok',{n:plan.length});
+    h+=`<div class="tsec"><div class="tsect" style="color:var(--teal)">${t('today_section_plan')}<span class="today-cap ${capCls}" title="${capTip}">${capTip}</span></div>`;orderBucket(plan).forEach(t=>h+=todayCard(t,allTaskMap));h+=`</div>`;
   }
-  if(overdue.length){h+=`<div class="tsec"><div class="tsect" style="color:var(--p1)">🔴 Overdue</div>`;orderBucket(overdue).forEach(t=>h+=todayCard(t,allTaskMap));h+=`</div>`;}
-  if(week.length){h+=`<div class="tsec"><div class="tsect" style="color:var(--amber)">📅 Due This Week</div>`;orderBucket(week).forEach(t=>h+=todayCard(t,allTaskMap));h+=`</div>`;}
+  if(overdue.length){h+=`<div class="tsec"><div class="tsect" style="color:var(--p1)">${t('today_section_overdue')}</div>`;orderBucket(overdue).forEach(t=>h+=todayCard(t,allTaskMap));h+=`</div>`;}
+  if(week.length){h+=`<div class="tsec"><div class="tsect" style="color:var(--amber)">${t('today_section_week')}</div>`;orderBucket(week).forEach(t=>h+=todayCard(t,allTaskMap));h+=`</div>`;}
   document.getElementById('tdC').innerHTML=h;
 }
 function todayCard(t,allTaskMap){
@@ -1460,7 +1463,7 @@ function showToast(msg){ const t=document.getElementById('toast'); t.textContent
 let paMode=false, paIdx=0;
 
 function ixAgeDays(added){ const d=safeDate(added); if(!d) return 0; const today=new Date();today.setHours(0,0,0,0); return Math.floor((today-d)/86400000); }
-function ixAgeLabel(days){ if(days===0) return 'Added today'; if(days===1) return 'Added yesterday'; if(days<7) return `Added ${days} days ago`; if(days<14) return 'Added 1 week ago'; return `Added ${Math.floor(days/7)} weeks ago`; }
+function ixAgeLabel(days){ if(days===0) return window.t('ix_age_today'); if(days===1) return window.t('ix_age_yesterday'); if(days<7) return window.t('ix_age_days',{n:days}); if(days<14) return window.t('ix_age_week'); return window.t('ix_age_weeks',{n:Math.floor(days/7)}); }
 
 function updateInboxBadge(){ const n=(S.inbox||[]).length+_etTasks.length; const b=document.getElementById('tbadge-inbox'); if(b){b.textContent=n;b.style.display=n>0?'':'none';} }
 
@@ -1488,8 +1491,8 @@ function renderInbox(){
   const list=document.getElementById('ixList'); if(!list) return;
   const items=S.inbox||[];
   const paBar=document.getElementById('ix-pa-bar');
-  if(paBar){ if(paMode&&items.length>0){ paBar.innerHTML=`<div class="pa-bar"><span class="pa-progress">Processing item ${paIdx+1} of ${items.length}</span><button onclick="paNext()">Skip →</button><button onclick="exitProcessAll()">✓ Done</button></div>`; }else{paBar.innerHTML='';} }
-  if(!items.length){list.innerHTML='<div class="ix-empty">📥 Inbox is empty — use the capture bar above to quickly add items for later triage.</div>';return;}
+  if(paBar){ if(paMode&&items.length>0){ paBar.innerHTML=`<div class="pa-bar"><span class="pa-progress">${window.t('ix_pa_progress',{cur:paIdx+1,total:items.length})}</span><button onclick="paNext()">${window.t('ix_pa_skip')}</button><button onclick="exitProcessAll()">${window.t('ix_pa_done')}</button></div>`; }else{paBar.innerHTML='';} }
+  if(!items.length){list.innerHTML='<div class="ix-empty">'+window.t('ix_empty')+'</div>';return;}
   const toRender=paMode?[items[paIdx]]:items;
   list.innerHTML=toRender.map(item=>{
     const days=ixAgeDays(item.added); const stale=days>=7; const isConf=!!item.confidential;
@@ -1505,24 +1508,24 @@ function renderInbox(){
           ${item.note?`<div class="ix-note">${escHtml(item.note)}</div>`:''}
           <div class="ix-meta"><span class="ix-age${stale?' stale':''}">${ixAgeLabel(days)}</span></div>
           <div class="ix-inline">
-            <select class="ix-isel" title="Section" onchange="ixSetField('${item.id}','secId',this.value)">${secOpts}</select>
-            <select class="ix-isel" title="Priority" onchange="ixSetField('${item.id}','priority',this.value)">${PO.map(p=>`<option value="${p}"${p===pri?' selected':''}>${p}</option>`).join('')}</select>
-            <select class="ix-isel" title="Status" onchange="ixSetField('${item.id}','status',this.value)"><option value="To Do"${stat==='To Do'?' selected':''}>To Do</option><option value="In Progress"${stat==='In Progress'?' selected':''}>In Progress</option></select>
-            <input class="ix-iinp" type="date" title="Due date" value="${due}" onchange="ixSetField('${item.id}','due',this.value)" style="width:130px">
-            <select class="ix-isel" title="Urgency" onchange="ixSetField('${item.id}','urgent',this.value)"><option value="0"${urg==='0'?' selected':''}>Not Urgent</option><option value="1"${urg==='1'?' selected':''}>Urgent</option></select>
+            <select class="ix-isel" title="${window.t('ix_title_section')}" onchange="ixSetField('${item.id}','secId',this.value)">${secOpts}</select>
+            <select class="ix-isel" title="${window.t('ix_title_priority')}" onchange="ixSetField('${item.id}','priority',this.value)">${PO.map(p=>`<option value="${p}"${p===pri?' selected':''}>${p}</option>`).join('')}</select>
+            <select class="ix-isel" title="${window.t('ix_title_status')}" onchange="ixSetField('${item.id}','status',this.value)"><option value="To Do"${stat==='To Do'?' selected':''}>${window.t('opt_todo')}</option><option value="In Progress"${stat==='In Progress'?' selected':''}>${window.t('opt_in_progress')}</option></select>
+            <input class="ix-iinp" type="date" title="${window.t('ix_title_due')}" value="${due}" onchange="ixSetField('${item.id}','due',this.value)" style="width:130px">
+            <select class="ix-isel" title="${window.t('ix_title_urgency')}" onchange="ixSetField('${item.id}','urgent',this.value)"><option value="0"${urg==='0'?' selected':''}>${window.t('ix_opt_not_urgent')}</option><option value="1"${urg==='1'?' selected':''}>${window.t('ix_opt_urgent')}</option></select>
             ${connTags}
-            <input class="ix-iinp" placeholder="+ connection" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();ixAddConn('${item.id}',this.value);this.value='';}">
+            <input class="ix-iinp" placeholder="${window.t('ix_ph_connection')}" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();ixAddConn('${item.id}',this.value);this.value='';}">
           </div>
         </div>
         <div class="ix-actions">
-          <button class="lockbtn ${isConf?'lock-on':'lock-off'}" onclick="toggleInboxConf('${item.id}')" title="${isConf?'Confidential':'Mark confidential'}">${isConf?'🔒':'🔓'}</button>
-          <button class="tp-act" onclick="triageItem('${item.id}','active')" title="Move to active tasks">→ Active</button>
-          <button class="tp-bl" onclick="triageItem('${item.id}','backlog')" title="Send to backlog">📋 Backlog</button>
-          <button class="ixbtn del" onclick="deleteInboxItem('${item.id}')" title="Delete permanently">🗑️</button>
+          <button class="lockbtn ${isConf?'lock-on':'lock-off'}" onclick="toggleInboxConf('${item.id}')" title="${isConf?window.t('ix_title_confidential'):window.t('ix_title_mark_conf')}">${isConf?'🔒':'🔓'}</button>
+          <button class="tp-act" onclick="triageItem('${item.id}','active')" title="${window.t('ix_title_to_active')}">${window.t('ix_btn_active')}</button>
+          <button class="tp-bl" onclick="triageItem('${item.id}','backlog')" title="${window.t('ix_title_to_backlog')}">${window.t('ix_btn_backlog')}</button>
+          <button class="ixbtn del" onclick="deleteInboxItem('${item.id}')" title="${window.t('ix_title_delete')}">🗑️</button>
         </div>
       </div>
     </div>`;
-  }).join('')+((!paMode&&items.length>0)?`<div style="margin-top:10px"><button class="ixbtn" onclick="startProcessAll()">⚡ Process All (${items.length})</button></div>`:'');
+  }).join('')+((!paMode&&items.length>0)?`<div style="margin-top:10px"><button class="ixbtn" onclick="startProcessAll()">${window.t('ix_btn_process_all',{n:items.length})}</button></div>`:'');
 }
 function ixSetField(id,field,value){
   const item=(S.inbox||[]).find(x=>x.id===id); if(!item) return;
@@ -1856,27 +1859,27 @@ function kDrop(toCol){
       arc.note=(t.note?t.note+' ':'')+'[completed '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})+']';
       S.sections.find(s=>s.id===kDragSec).tasks.push(arc);
       t.due=newDue;t.status='To Do';t.lastStatusChange=today;t.kanbanCol=null;
-      showToast(`🔁 Recurring task completed — next cycle set${newDue?' to '+fd(newDue):''}`);
+      showToast(window.t('toast_kb_recurring_done')+(newDue?' '+window.t('toast_kb_next_cycle',{date:fd(newDue)}):''));
     } else {
       t.kanbanCol='done';t.status='Done';t.lastStatusChange=today;
       cascadeSubtasksDone(t.id);
-      showToast('✓ Done');
+      showToast(window.t('toast_kb_done'));
     }
   } else if(toCol==='pool'){
     t.kanbanCol=null;
     cascadeKanbanCol(t.id,'pool');
-    if(from==='done'){t.status='To Do';t.lastStatusChange=today;showToast('Task reopened → Active Pool');}
-    else showToast('Returned to Active Pool');
+    if(from==='done'){t.status='To Do';t.lastStatusChange=today;showToast(window.t('toast_kb_reopened_pool'));}
+    else showToast(window.t('toast_kb_returned_pool'));
   } else if(toCol==='week'){
     t.kanbanCol='week';
     cascadeKanbanCol(t.id,'week');
-    if(from==='done'){t.status='To Do';t.lastStatusChange=today;showToast('Task reopened → This Week');}
-    else showToast('Moved to This Week');
+    if(from==='done'){t.status='To Do';t.lastStatusChange=today;showToast(window.t('toast_kb_reopened_week'));}
+    else showToast(window.t('toast_kb_moved_week'));
   } else if(toCol==='today'){
     t.kanbanCol='today';
     cascadeKanbanCol(t.id,'today');
-    if(from==='done'){t.status='To Do';t.lastStatusChange=today;showToast('Task reopened → Today');}
-    else showToast('Moved to Today');
+    if(from==='done'){t.status='To Do';t.lastStatusChange=today;showToast(window.t('toast_kb_reopened_today'));}
+    else showToast(window.t('toast_kb_moved_today'));
   }
   const evFrom=from||'pool';
   if(toCol==='done') logEvent('done',kDragId,{s:kDragSec,p:t.priority,age:ageDays(t),oc:t.outcomes||[]});
@@ -1894,7 +1897,7 @@ function kbNewWeek(){
   }));
   logEvent('kanban','bulk',{a:'newweek',n:count});
   saveS();renderKanban();renderStats();
-  showToast(`New week started — ${count} task${count===1?'':'s'} returned to Active Pool`);
+  showToast(window.t('toast_new_week',{n:count}));
 }
 function kbClearDone(){
   let count=0;
@@ -1903,7 +1906,7 @@ function kbClearDone(){
   }));
   logEvent('kanban','bulk',{a:'clear',n:count});
   saveS();renderKanban();renderStats();
-  showToast(`↩ ${count} task${count===1?'':'s'} returned to Active Pool`);
+  showToast(window.t('toast_kb_clear_done',{n:count}));
 }
 
 function setupKbDots(){
@@ -1961,7 +1964,7 @@ function kSetSubtask(yes){
         const today=new Date().toISOString().split('T')[0];
         if(t.status==='Done'){t.status='To Do';t.lastStatusChange=today;}
       }
-      saveS();renderAll();renderKanban();showToast('Subtask linked');
+      saveS();renderAll();renderKanban();showToast(window.t('toast_subtask_linked'));
     }
   } else {
     if(onNo){onNo();}else{kDragId=childId;kDragSec=childSec;kDragFromCol=childFromCol;kDrop(targetCol);}
@@ -2035,7 +2038,7 @@ function openAddSub(parentId,parentSec){
 // Kanban section filter bar
 function renderKbFbar(){
   const bar=document.getElementById('kb-fbar'); if(!bar) return;
-  let h=`<span class="kb-fpill ${kanbanSectionFilter.has('all')?'on':''}" onclick="setKbFilter('all',event)">All</span>`;
+  let h=`<span class="kb-fpill ${kanbanSectionFilter.has('all')?'on':''}" onclick="setKbFilter('all',event)">${t('filter_all')}</span>`;
   S.sections.forEach(s=>{ h+=`<span class="kb-fpill ${kanbanSectionFilter.has(s.id)?'on':''}" onclick="setKbFilter('${escJs(s.id)}',event)">${escHtml(s.icon||'')} ${escHtml(s.title.replace(/ — .*/,''))}</span>`; });
   bar.innerHTML=h;
 }
@@ -2063,18 +2066,18 @@ function getAnalyticsPeriodStart(p){
 }
 
 function renderBidirChart(rows, maxVal){
-  if(!rows.length) return '<div style="color:var(--muted);font-size:12px;padding:8px 0">No data</div>';
+  if(!rows.length) return `<div style="color:var(--muted);font-size:12px;padding:8px 0">${t('an_no_data')}</div>`;
   const scale=maxVal||Math.max(1,...rows.map(r=>Math.max(r.open,r.done)));
   const totalOpen=rows.reduce((a,r)=>a+r.open,0);
   const totalDone=rows.reduce((a,r)=>a+r.done,0);
   const header=`<div class="an-bidir-totals">
-    <span class="an-bidir-tot-open">◀ Open: <strong>${totalOpen}</strong></span>
-    <span class="an-bidir-tot-done">Done: <strong>${totalDone}</strong> ▶</span>
+    <span class="an-bidir-tot-open">◀ ${t('an_bidir_open')}: <strong>${totalOpen}</strong></span>
+    <span class="an-bidir-tot-done">${t('an_bidir_done')}: <strong>${totalDone}</strong> ▶</span>
   </div>`;
   const rowsHtml=rows.map(r=>{
     const wO=r.open?Math.max(6,Math.round(r.open/scale*100)):0;
     const wD=r.done?Math.max(6,Math.round(r.done/scale*100)):0;
-    const clickAttr=r.onclick?` onclick="${r.onclick}" title="Click to filter"`:'' ;
+    const clickAttr=r.onclick?` onclick="${r.onclick}" title="${t('an_click_filter')}"`:'' ;
     return `<div class="an-bidir-row${r.onclick?' btn':''}"${clickAttr}>
       <div class="an-bidir-open-cell">
         <div class="an-bidir-val-l">${r.open}</div>
@@ -2195,17 +2198,17 @@ function getWeekPulse(){
 function deltaHTML(cur,avg,invert){
   if(avg===null||avg===undefined) return '';
   const diff=cur-avg;
-  if(Math.abs(diff)<0.5) return '<div class="an-delta flat">— avg</div>';
+  if(Math.abs(diff)<0.5) return `<div class="an-delta flat">— ${t('an_delta_avg')}</div>`;
   const up=diff>0;
   const good=invert?!up:up;
-  return `<div class="an-delta ${good?'down':'up'}">${up?'▲':'▼'} ${Math.abs(Math.round(diff*10)/10)} vs avg</div>`;
+  return `<div class="an-delta ${good?'down':'up'}">${up?'▲':'▼'} ${Math.abs(Math.round(diff*10)/10)} ${t('an_delta_vs_avg')}</div>`;
 }
 
 function renderAnalytics(){
   const el=document.getElementById('view-analytics');
   const log=getLog();
   if(log.events.length===0&&log.weeks.length===0){
-    el.innerHTML='<div class="an-empty">📈 No analytics data yet.<br><small>Start using Focal — events are logged automatically.</small></div>';
+    el.innerHTML=`<div class="an-empty">${t('an_empty')}<br><small>${t('an_empty_sub')}</small></div>`;
     return;
   }
   const now=Math.floor(Date.now()/1000);
@@ -2239,22 +2242,22 @@ function renderAnalytics(){
   }));
   const topPeople=Object.entries(openByPerson).sort((a,b)=>b[1]-a[1]).slice(0,6);
   let html=`<div class="an-wrap">
-    <div><div class="an-title">📈 Analytics</div><div class="an-sub">Health snapshot · work by area · trends</div></div>
+    <div><div class="an-title">${t('an_title')}</div><div class="an-sub">${t('an_subtitle')}</div></div>
     <div class="an-section">
-      <div class="an-section-title">Health Snapshot</div>
+      <div class="an-section-title">${t('an_section_health')}</div>
       <div class="an-cards">
-        <div class="an-card clickable" onclick="statClick('p1')" title="Click to filter P1 tasks"><div class="sn ${openP1>0&&p1Over7>0?'r':openP1>0?'a':'t'}">${openP1}</div><div class="sl">Open P1s</div><div class="an-delta ${p1Over7>0?'up':'flat'}">${p1Over7>0?p1Over7+' over 7d':'all fresh'}</div></div>
-        <div class="an-card clickable" onclick="statClick('aging')" title="Click to view stale tasks"><div class="sn ${stale>5?'r':'a'}">${stale}</div><div class="sl">Stale Tasks</div><div class="an-delta flat">${stale>0?'⏱ click to review':'all active'}</div></div>
-        <div class="an-card clickable" onclick="sw('inbox')" title="Click to open Inbox"><div class="sn ${inboxSize>10?'r':inboxSize>5?'a':'t'}">${inboxSize}</div><div class="sl">Inbox Items</div><div class="an-delta flat">${inboxSize===0?'inbox zero 🎉':inboxSize>5?'needs triage':''}</div></div>
-        <div class="an-card clickable" onclick="sw('review')" title="Click to start Weekly Review"><div class="an-streak">${streakDots}</div><div class="sl">Weekly Review</div><div class="an-delta flat">${reviewedCount}/4 weeks</div></div>
-        ${focusPct!==null?`<div class="an-card"><div class="sn ${focusPct>=50?'t':'a'}">${focusPct}%</div><div class="sl">Focus (P1/P2)</div><div class="an-delta flat">of 30d completions</div></div>`:''}
+        <div class="an-card clickable" onclick="statClick('p1')" title="${t('an_open_p1s_title')}"><div class="sn ${openP1>0&&p1Over7>0?'r':openP1>0?'a':'t'}">${openP1}</div><div class="sl">${t('an_card_open_p1s')}</div><div class="an-delta ${p1Over7>0?'up':'flat'}">${p1Over7>0?t('an_card_over_7d',{n:p1Over7}):t('an_card_all_fresh')}</div></div>
+        <div class="an-card clickable" onclick="statClick('aging')" title="${t('an_stale_title')}"><div class="sn ${stale>5?'r':'a'}">${stale}</div><div class="sl">${t('an_card_stale')}</div><div class="an-delta flat">${stale>0?t('an_card_click_review'):t('an_card_all_active')}</div></div>
+        <div class="an-card clickable" onclick="sw('inbox')" title="${t('an_inbox_title')}"><div class="sn ${inboxSize>10?'r':inboxSize>5?'a':'t'}">${inboxSize}</div><div class="sl">${t('an_card_inbox')}</div><div class="an-delta flat">${inboxSize===0?t('an_card_inbox_zero'):inboxSize>5?t('an_card_inbox_triage'):''}</div></div>
+        <div class="an-card clickable" onclick="sw('review')" title="${t('an_review_title')}"><div class="an-streak">${streakDots}</div><div class="sl">${t('an_card_weekly_review')}</div><div class="an-delta flat">${t('an_card_reviewed',{n:reviewedCount})}</div></div>
+        ${focusPct!==null?`<div class="an-card"><div class="sn ${focusPct>=50?'t':'a'}">${focusPct}%</div><div class="sl">${t('an_card_focus')}</div><div class="an-delta flat">${t('an_card_focus_sub')}</div></div>`:''}
       </div>
     </div>`;
   // Work by Area
   // Work by Area — bi-directional charts with period filter
   const pStart=getAnalyticsPeriodStart(analyticsP);
   const pStartTs=new Date(pStart+'T00:00:00').getTime()/1000;
-  const pLabels={week:'This Week',month:'This Month',quarter:'This Quarter',year:'This Year'};
+  const pLabels={week:t('an_period_week'),month:t('an_period_month'),quarter:t('an_period_quarter'),year:t('an_period_year')};
   const periodBtns=['week','month','quarter','year'].map(p=>
     `<button class="an-period-btn${analyticsP===p?' active':''}" onclick="setAnalyticsPeriod('${p}')">${pLabels[p]}</button>`
   ).join('');
@@ -2292,23 +2295,23 @@ function renderAnalytics(){
   const globalMax=Math.max(1,...catRows.map(r=>Math.max(r.open,r.done)),...priRows.map(r=>Math.max(r.open,r.done)),...pplRows.map(r=>Math.max(r.open,r.done)));
   html+=`<div class="an-section">
     <div class="an-bidir-header-row">
-      <div class="an-section-title" style="margin-bottom:0">Work by Area</div>
+      <div class="an-section-title" style="margin-bottom:0">${t('an_section_work')}</div>
       <div class="an-period-filter">${periodBtns}</div>
     </div>
     <div class="an-bidir-legend">
-      <span class="an-bidir-leg-open">◀ Open tasks (current)</span>
-      <span class="an-bidir-leg-done">Completed this period ▶</span>
+      <span class="an-bidir-leg-open">${t('an_legend_open')}</span>
+      <span class="an-bidir-leg-done">${t('an_legend_done')}</span>
     </div>
-    ${catRows.length?`<div class="an-bidir-block-title">By Category <span class="an-bidir-click-hint">click row → go to section</span></div><div class="an-bidir-chart">${renderBidirChart(catRows,globalMax)}</div>`:''}
-    ${priRows.length?`<div class="an-bidir-block-title" style="margin-top:16px">By Priority <span class="an-bidir-click-hint">click row → filter tasks</span></div><div class="an-bidir-chart">${renderBidirChart(priRows,globalMax)}</div>`:''}
-    ${pplRows.length?`<div class="an-bidir-block-title" style="margin-top:16px">By People <span class="an-bidir-click-hint">click row → filter tasks</span></div><div class="an-bidir-chart">${renderBidirChart(pplRows,globalMax)}</div>`:''}
+    ${catRows.length?`<div class="an-bidir-block-title">${t('an_block_category')} <span class="an-bidir-click-hint">${t('an_hint_section')}</span></div><div class="an-bidir-chart">${renderBidirChart(catRows,globalMax)}</div>`:''}
+    ${priRows.length?`<div class="an-bidir-block-title" style="margin-top:16px">${t('an_block_priority')} <span class="an-bidir-click-hint">${t('an_hint_filter')}</span></div><div class="an-bidir-chart">${renderBidirChart(priRows,globalMax)}</div>`:''}
+    ${pplRows.length?`<div class="an-bidir-block-title" style="margin-top:16px">${t('an_block_people')} <span class="an-bidir-click-hint">${t('an_hint_filter')}</span></div><div class="an-bidir-chart">${renderBidirChart(pplRows,globalMax)}</div>`:''}
   </div>`;
   // 6-week completed trend
   const weeks=log.weeks.slice(-6);
   if(weeks.length>=1){
     const curWkLabel=getISOWeek(new Date());
-    html+=`<div class="an-section"><div class="an-section-title">6-Week Trend — Completed</div>
-      <div style="display:flex;gap:14px;flex-wrap:wrap">${renderBarChart('Completed',weeks,'done','t',curWkLabel)}</div></div>`;
+    html+=`<div class="an-section"><div class="an-section-title">${t('an_section_trend')}</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">${renderBarChart(t('an_chart_completed'),weeks,'done','t',curWkLabel)}</div></div>`;
   }
   // Outcome analytics
   const activeOutcomes=(S.outcomes||[]).filter(o=>o.active);
@@ -2330,7 +2333,7 @@ function renderAnalytics(){
     });
     const recentWeeks=[];
     for(let i=11;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i*7); recentWeeks.push(getISOWeek(d)); }
-    html+=`<div class="an-section"><div class="an-section-title">Completions by Strategic Outcome — last 90 days</div><div class="an-outcome-grid">`;
+    html+=`<div class="an-section"><div class="an-section-title">${t('an_section_outcomes')}</div><div class="an-outcome-grid">`;
     activeOutcomes.forEach(o=>{
       const data=ocCounts[o.id]||{total:0,byWeek:{}};
       const maxV=Math.max(1,...recentWeeks.map(w=>data.byWeek[w]||0));
@@ -2344,8 +2347,8 @@ function renderAnalytics(){
     html+=`</div></div>`;
   }
   html+=`<div class="an-section" style="display:flex;gap:12px;align-items:center">
-    <button class="an-export" onclick="exportAnalytics()">📥 Export Analytics JSON</button>
-    <span style="font-size:11px;color:var(--muted)">${log.events.length} events · ${log.weeks.length} week summaries</span>
+    <button class="an-export" onclick="exportAnalytics()">${t('an_btn_export')}</button>
+    <span style="font-size:11px;color:var(--muted)">${t('an_stats_summary',{events:log.events.length,weeks:log.weeks.length})}</span>
   </div></div>`;
   el.innerHTML=html;
 }
@@ -2374,16 +2377,16 @@ function exportAnalytics(){
   a.download='focal_analytics_'+new Date().toISOString().split('T')[0]+'.json';
   a.click();
   URL.revokeObjectURL(a.href);
-  showToast('📥 Analytics exported');
+  showToast(t('toast_analytics_exported'));
 }
 
 // ── KANBAN COLUMN QUICK-ADD ─────────────────────────────────────────────────
-const KB_COL_LABELS={pool:'Active Pool',week:'This Week',today:'Today'};
+function kbColLabel(id){return ({pool:t('kb_col_pool'),week:t('kb_col_week'),today:t('kb_col_today')})[id]||id;}
 function kColCtxMenu(e,colId){
   e.preventDefault();e.stopPropagation();
   closeCtxMenu();
   kColMenuCol=colId;
-  document.getElementById('kColAddItem').textContent='＋ Add task to '+KB_COL_LABELS[colId];
+  document.getElementById('kColAddItem').textContent=t('kb_col_add_to',{col:kbColLabel(colId)});
   const menu=document.getElementById('kColMenu');
   menu.style.display='block';
   menu.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';
@@ -2394,7 +2397,7 @@ function kColAddTask(){
   const col=kColMenuCol; closeKColMenu(); if(!col) return;
   newTaskKanbanCol=col==='pool'?null:col;
   openAdd(S.sections[0]?.id);
-  document.getElementById('mtitle').textContent='Add Task → '+KB_COL_LABELS[col];
+  document.getElementById('mtitle').textContent=t('kb_modal_title_add_to',{col:kbColLabel(col)});
   if(col==='today') document.getElementById('fStat').value='In Progress';
 }
 
@@ -2405,20 +2408,20 @@ function populatePersonFilter(){
   const groups=(S.personGroups||[]).slice().sort((a,b)=>a.name.localeCompare(b.name));
   const grpNameSet=new Set(groups.map(g=>g.name.toLowerCase()));
   const people=(S.knownConnections||[]).slice().sort().filter(n=>!grpNameSet.has(n.toLowerCase()));
-  let h=`<div class="person-dd-search-wrap"><input class="person-dd-search" id="personDdSearch" type="text" placeholder="Search…" autocomplete="off" oninput="filterPersonDd(this.value)" onclick="event.stopPropagation()"></div>`;
+  let h=`<div class="person-dd-search-wrap"><input class="person-dd-search" id="personDdSearch" type="text" placeholder="${escAttr(t('person_dd_search'))}" autocomplete="off" oninput="filterPersonDd(this.value)" onclick="event.stopPropagation()"></div>`;
   if(groups.length){
-    h+=`<div class="person-dd-grp-hdr" data-sec="grp-hdr">Groups</div>`;
+    h+=`<div class="person-dd-grp-hdr" data-sec="grp-hdr">${t('person_dd_groups')}</div>`;
     groups.forEach(g=>{
       const sel=personFilter.includes(g.name);
-      h+=`<label class="person-dd-item" data-name="${escAttr(g.name.toLowerCase())}" data-type="group"><input type="checkbox" ${sel?'checked':''} onchange="setPersonFilter('${escAttr(g.name)}')"><span>⬡ ${escHtml(g.name)}</span><span style="font-size:11px;color:var(--muted);margin-left:auto;padding-left:6px">${(g.members||[]).length} people</span></label>`;
+      h+=`<label class="person-dd-item" data-name="${escAttr(g.name.toLowerCase())}" data-type="group"><input type="checkbox" ${sel?'checked':''} onchange="setPersonFilter('${escAttr(g.name)}')"><span>⬡ ${escHtml(g.name)}</span><span style="font-size:11px;color:var(--muted);margin-left:auto;padding-left:6px">${(g.members||[]).length} ${t('person_dd_people_suffix')}</span></label>`;
     });
-    if(people.length) h+=`<div class="person-dd-sep" data-sec="sep"></div><div class="person-dd-grp-hdr" data-sec="ind-hdr">Individuals</div>`;
+    if(people.length) h+=`<div class="person-dd-sep" data-sec="sep"></div><div class="person-dd-grp-hdr" data-sec="ind-hdr">${t('person_dd_individuals')}</div>`;
   }
   people.forEach(n=>{
     const sel=personFilter.includes(n);
     h+=`<label class="person-dd-item" data-name="${escAttr(n.toLowerCase())}" data-type="person"><input type="checkbox" ${sel?'checked':''} onchange="setPersonFilter('${escAttr(n)}')"><span>${escHtml(n)}</span></label>`;
   });
-  if(personFilter.length) h+=`<div class="person-dd-clear"><button onclick="clearPersonFilter()">✕ Clear filter</button></div>`;
+  if(personFilter.length) h+=`<div class="person-dd-clear"><button onclick="clearPersonFilter()">${t('person_dd_clear')}</button></div>`;
   menu.innerHTML=h;
   const srch=document.getElementById('personDdSearch');
   if(srch){ srch.value=prevQ; if(prevQ) filterPersonDd(prevQ); }
@@ -2449,9 +2452,9 @@ function clearPersonFilter(){
 function updatePersonDdLabel(){
   const btn=document.getElementById('personDdBtn'); if(!btn) return;
   const ico=`<span data-icon="user"></span> `;
-  if(!personFilter.length){ btn.innerHTML=ico+'All People'; btn.classList.remove('active'); }
+  if(!personFilter.length){ btn.innerHTML=ico+t('person_dd_all'); btn.classList.remove('active'); }
   else if(personFilter.length===1){ btn.innerHTML=ico+escHtml(personFilter[0]); btn.classList.add('active'); }
-  else { btn.innerHTML=ico+escHtml(personFilter.length+' people'); btn.classList.add('active'); }
+  else { btn.innerHTML=ico+escHtml(t('person_dd_count',{n:personFilter.length})); btn.classList.add('active'); }
   paintIcons(btn);
 }
 function filterPersonDd(q){
@@ -2470,7 +2473,7 @@ function filterPersonDd(q){
   if(sep) sep.style.display=(grpVis&&indVis)?'':'none';
   let nm=menu.querySelector('.person-dd-no-match');
   if(!grpVis&&!indVis&&lq){
-    if(!nm){ nm=document.createElement('div'); nm.className='person-dd-no-match'; nm.textContent='No match'; menu.insertBefore(nm,menu.querySelector('.person-dd-clear')||null); }
+    if(!nm){ nm=document.createElement('div'); nm.className='person-dd-no-match'; nm.textContent=t('person_dd_no_match'); menu.insertBefore(nm,menu.querySelector('.person-dd-clear')||null); }
   } else { if(nm) nm.remove(); }
 }
 
@@ -2484,7 +2487,7 @@ function togDecided(id,secId){
   const t=ft(id,secId); if(!t) return;
   t.decided=!t.decided;
   logEvent('decision',id,{decided:t.decided});
-  saveS(); renderAll(); showToast(t.decided?'⚖️ Decision marked as decided':'⚖️ Decision pending');
+  saveS(); renderAll(); showToast(t.decided?window.t('toast_decision_decided'):window.t('toast_decision_pending'));
 }
 
 // ═══ ICONS ═══
@@ -2654,15 +2657,15 @@ function renderAiTab(){
   el.innerHTML=`
     <div class="fcl-fieldrow">
       <div>
-        <div class="fcl-fieldrow-label">Provider</div>
-        <div class="fcl-fieldrow-hint">Where Focal sends AI prompts. Anthropic only for now.</div>
+        <div class="fcl-fieldrow-label">${window.t('ai_label_provider')}</div>
+        <div class="fcl-fieldrow-hint">${window.t('ai_hint_provider')}</div>
       </div>
       <div><select class="fcl-input" style="max-width:320px" disabled><option>Anthropic — Claude</option></select></div>
     </div>
     <div class="fcl-fieldrow">
       <div>
-        <div class="fcl-fieldrow-label">API key<span class="req">*</span></div>
-        <div class="fcl-fieldrow-hint">Stored locally in your browser. Never sent to Focal servers. Get a key at console.anthropic.com.</div>
+        <div class="fcl-fieldrow-label">${window.t('ai_label_api_key')}<span class="req">*</span></div>
+        <div class="fcl-fieldrow-hint">${window.t('ai_hint_api_key')}</div>
       </div>
       <div>
         <div style="display:flex;gap:6px;align-items:center;max-width:420px">
@@ -2674,8 +2677,8 @@ function renderAiTab(){
     </div>
     <div class="fcl-fieldrow">
       <div>
-        <div class="fcl-fieldrow-label">Model</div>
-        <div class="fcl-fieldrow-hint">Haiku is faster and cheaper. Sonnet handles harder structuring.</div>
+        <div class="fcl-fieldrow-label">${window.t('ai_label_model')}</div>
+        <div class="fcl-fieldrow-hint">${window.t('ai_hint_model')}</div>
       </div>
       <div>
         <select class="fcl-input" id="fAiModel" style="max-width:420px" onchange="_aiDirty()">
@@ -2686,12 +2689,12 @@ function renderAiTab(){
     </div>
     <div class="fcl-fieldrow" style="border-bottom:0">
       <div>
-        <div class="fcl-fieldrow-label">Actions</div>
-        <div class="fcl-fieldrow-hint">Test verifies the key connects to Anthropic. Save persists locally.</div>
+        <div class="fcl-fieldrow-label">${window.t('ai_label_actions')}</div>
+        <div class="fcl-fieldrow-hint">${window.t('ai_hint_actions')}</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="fcl-btn" type="button" onclick="testApiKey()">${icon('check',14)} Test connection</button>
-        <button class="fcl-btn fcl-btn--primary" type="button" onclick="saveSettings()">${icon('save',14)} Save</button>
+        <button class="fcl-btn" type="button" onclick="testApiKey()">${icon('check',14)} ${window.t('ai_btn_test')}</button>
+        <button class="fcl-btn fcl-btn--primary" type="button" onclick="saveSettings()">${icon('save',14)} ${window.t('misc_save')}</button>
       </div>
     </div>
   `;
@@ -2710,7 +2713,7 @@ function saveSettings(){
   saveS();
   const hasKey=!!S.settings.claudeKey;
   syncAiVisibility();
-  showToast(hasKey?'✓ AI settings saved':'⚠ No API key — AI features disabled');
+  showToast(hasKey?window.t('toast_ai_saved'):window.t('toast_ai_no_key'));
 }
 
 // People manager
@@ -2876,19 +2879,19 @@ function renameGroupPrompt(id){
   if(!name||!name.trim()||name.trim()===g.name) return;
   const newName=name.trim();
   if((S.personGroups||[]).some(x=>x.id!==id&&x.name.toLowerCase()===newName.toLowerCase())){
-    showToast('A group with that name already exists'); return;
+    showToast(window.t('toast_grp_exists')); return;
   }
   // Update personFilter if it referenced the old name
   personFilter=personFilter.map(f=>f===g.name?newName:f);
   g.name=newName;
   saveS(); populatePersonFilter(); renderPeopleTab(); applyF();
-  showToast('Group renamed to "'+newName+'"');
+  showToast(window.t('toast_grp_renamed',{name:newName}));
 }
 function addPerson(){
   const inp=document.getElementById('pplSearchInp')||document.getElementById('pplAddInp'); if(!inp) return;
   const name=(inp.value||'').trim(); if(!name) return;
   if((S.personGroups||[]).some(g=>g.name.toLowerCase()===name.toLowerCase())){
-    showToast(`"${name}" is already a group — add individual members instead`); return;
+    showToast(window.t('toast_person_is_group',{name})); return;
   }
   if(!S.knownConnections) S.knownConnections=[];
   if(!S.knownConnections.includes(name)){ S.knownConnections.push(name); }
@@ -2918,11 +2921,11 @@ function saveNewGroup(){
   const inp=document.getElementById('pplGrpNameInp');
   const name=((inp&&inp.value)||_newGrpName).trim(); if(!name){ inp?.focus(); return; }
   if(!S.personGroups) S.personGroups=[];
-  if(S.personGroups.find(g=>g.name.toLowerCase()===name.toLowerCase())){ showToast('A group with that name already exists'); return; }
+  if(S.personGroups.find(g=>g.name.toLowerCase()===name.toLowerCase())){ showToast(window.t('toast_grp_exists')); return; }
   S.personGroups.push({id:genId('grp'),name,members:[..._newGrpMembers]});
   S.knownConnections=(S.knownConnections||[]).filter(n=>n.toLowerCase()!==name.toLowerCase());
   _editGrpId=null; _newGrpMembers=[]; _newGrpName='';
-  saveS(); populatePersonFilter(); renderPeopleTab(); showToast('Group "'+name+'" created');
+  saveS(); populatePersonFilter(); renderPeopleTab(); showToast(window.t('toast_grp_created',{name}));
 }
 function toggleGrpEdit(id){
   if(_editGrpId===id){ _editGrpId=null; _newGrpMembers=[]; }
@@ -2948,11 +2951,11 @@ async function testApiKey(){
   const key=document.getElementById('fApiKey').value.trim();
   const model=document.getElementById('fAiModel').value;
   const st=document.getElementById('aiKeyStatus');
-  if(!key){ st.textContent='Enter an API key first.'; st.style.display='block'; st.style.background='var(--p1bg)'; st.style.color='var(--p1)'; return; }
-  st.textContent='Testing…'; st.style.display='block'; st.style.background='var(--bg)'; st.style.color='var(--muted)';
+  if(!key){ st.textContent=window.t('ai_status_enter_key'); st.style.display='block'; st.style.background='var(--p1bg)'; st.style.color='var(--p1)'; return; }
+  st.textContent=window.t('ai_status_testing'); st.style.display='block'; st.style.background='var(--bg)'; st.style.color='var(--muted)';
   const result=await _claudeRaw(key,model,[{role:'user',content:'Reply with just the word OK.'}],10);
-  if(result&&result.toLowerCase().includes('ok')){ st.textContent='✓ Connection successful!'; st.style.background='var(--p4bg)'; st.style.color='var(--p4)'; }
-  else { st.textContent='✗ Connection failed — check your key.'; st.style.background='var(--p1bg)'; st.style.color='var(--p1)'; }
+  if(result&&result.toLowerCase().includes('ok')){ st.textContent=window.t('ai_status_ok'); st.style.background='var(--p4bg)'; st.style.color='var(--p4)'; }
+  else { st.textContent=window.t('ai_status_fail'); st.style.background='var(--p1bg)'; st.style.color='var(--p1)'; }
 }
 
 // ═══ AI CORE ═══
@@ -2971,7 +2974,7 @@ async function _claudeRaw(key,model,messages,maxTokens=500,system=''){
 }
 async function callClaude(messages,maxTokens=500,system=''){
   const s=S.settings||{}; const key=s.claudeKey; const model=s.aiModel||'claude-haiku-4-5-20251001';
-  if(!key){ showToast('⚠ Add your API key in AI Settings (🤖)'); openSettings(); return null; }
+  if(!key){ showToast(window.t('toast_ai_add_key')); openSettings(); return null; }
   return _claudeRaw(key,model,messages,maxTokens,system);
 }
 
@@ -3014,7 +3017,7 @@ async function nlCapture(){
   const prompt=`${_nlCtxStr(ctx)}\n\nInput:"${text}"`;
   const rawRes=await callClaude([{role:'user',content:prompt}],600,sys);
   btn.disabled=false; btn.classList.remove('loading'); btn.textContent='✨ AI → Task';
-  if(!rawRes){ showToast('AI parse failed — check API key'); return; }
+  if(!rawRes){ showToast(window.t('toast_ai_parse_failed')); return; }
   try{
     // Try array first (multi-task response), then single object
     const arrJson=rawRes.match(/\[[\s\S]*\]/)?.[0];
@@ -3033,8 +3036,8 @@ async function nlCapture(){
     document.getElementById('fNote').value=p.note||'';
     _nlApplyToModal(p,text);
     inp.value=''; inp.style.height='auto';
-    showToast('✨ AI parsed — review and save');
-  } catch{ showToast('⚠ Could not parse AI response'); }
+    showToast(window.t('toast_ai_parsed'));
+  } catch{ showToast(window.t('toast_ai_response_err')); }
 }
 
 async function nlBatchCapture(lines,btn){
@@ -3045,14 +3048,14 @@ async function nlBatchCapture(lines,btn){
   const maxTok=Math.min(Math.max(600,lines.length*120),4000);
   const rawRes=await callClaude([{role:'user',content:prompt}],maxTok,sys);
   btn.disabled=false; btn.classList.remove('loading'); btn.textContent='✨ AI → Task';
-  if(!rawRes){ showToast('AI parse failed — check API key'); return; }
+  if(!rawRes){ showToast(window.t('toast_ai_parse_failed')); return; }
   try{
     const json=rawRes.match(/\[[\s\S]*\]/)?.[0]; if(!json) throw new Error('no array');
     const tasks=JSON.parse(json); if(!Array.isArray(tasks)||!tasks.length) throw new Error('empty');
     nlBatchShowPreview(tasks,lines.length);
   } catch(err){
-    if(err instanceof SyntaxError) showToast(`⚠ Response truncated — try splitting into batches of 25 or fewer tasks`);
-    else showToast('⚠ Could not parse AI response');
+    if(err instanceof SyntaxError) showToast(window.t('toast_ai_truncated'));
+    else showToast(window.t('toast_ai_response_err'));
   }
 }
 
@@ -3101,13 +3104,13 @@ function nlBatchCreate(){
   nlBatchCancel(); saveS(); renderAll();
   const parentCount=tasks.filter(t=>!t.parentTask).length;
   const subCount=tasks.filter(t=>!!t.parentTask).length;
-  showToast(subCount?`✨ ${parentCount} task${parentCount===1?'':'s'} + ${subCount} subtask${subCount===1?'':'s'} created`:`✨ ${tasks.length} task${tasks.length===1?'':'s'} created`);
+  showToast(subCount?window.t('toast_ai_created_parents_subs',{parents:parentCount,subs:subCount}):window.t('toast_ai_created',{n:tasks.length}));
 }
 
 // ═══ NL FILL MODAL (B.3) ═══
 async function nlFillModal(){
   const desc=document.getElementById('fTask')?.value.trim();
-  if(!desc){ showToast('Enter a task description first'); return; }
+  if(!desc){ showToast(window.t('toast_ai_need_desc')); return; }
   const btn=document.getElementById('modalAiBtn');
   btn.disabled=true; btn.textContent='Filling…';
   const ctx=_nlContext();
@@ -3115,15 +3118,15 @@ async function nlFillModal(){
   const prompt=`${_nlCtxStr(ctx)}\n\nTask:"${desc}"`;
   const rawRes=await callClaude([{role:'user',content:prompt}],250,sys);
   btn.disabled=false; btn.textContent='✨ AI-fill';
-  if(!rawRes){ showToast('AI fill failed — check API key'); return; }
+  if(!rawRes){ showToast(window.t('toast_ai_fill_failed')); return; }
   try{
     const json=rawRes.match(/\{[\s\S]*\}/)?.[0]; if(!json) throw new Error('no json');
     const p=JSON.parse(json);
     if(p.task) document.getElementById('fTask').value=p.task;
     if(p.note) document.getElementById('fNote').value=p.note;
     _nlApplyToModal(p,desc);
-    showToast('✨ Fields filled — review and save');
-  } catch{ showToast('⚠ Could not parse AI response'); }
+    showToast(window.t('toast_ai_filled'));
+  } catch{ showToast(window.t('toast_ai_response_err')); }
 }
 
 // ═══ AI WEEKLY DEBRIEF (B.2) ═══
@@ -3209,10 +3212,10 @@ function bkExport(){
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(a.href); },0);
     logEvent('backup_export','',{bytes:blob.size});
-    showToast('💾 Backup exported to Downloads');
+    showToast(window.t('toast_bk_exported'));
   }catch(err){
     console.error('bkExport:',err);
-    showToast('⚠️ Export failed — check console');
+    showToast(window.t('toast_bk_export_failed'));
   }
 }
 
@@ -3224,7 +3227,7 @@ function bkImportFile(file){
     try{
       const obj=JSON.parse(reader.result);
       const v=bkValidate(obj);
-      if(!v.ok){ showToast('⚠️ Invalid backup file: '+v.reason, 6000); return; }
+      if(!v.ok){ showToast(window.t('toast_bk_invalid',{reason:v.reason}), 6000); return; }
       const taskCount=obj.sections.reduce((n,s)=>n+s.tasks.length,0);
       const cur=S.sections.reduce((n,s)=>n+s.tasks.length,0);
       if(!confirm(`Restore from this backup?\n\nIncoming: ${obj.sections.length} sections, ${taskCount} tasks\nCurrent:  ${S.sections.length} sections, ${cur} tasks\n\nThis OVERWRITES your current Focal data. A safety copy of your current state will be saved to localStorage as focal_v1_prerestore_<timestamp>.\n\nProceed?`)) return;
@@ -3232,14 +3235,14 @@ function bkImportFile(file){
       try{ localStorage.setItem('focal_v1_prerestore_'+Date.now(), localStorage.getItem('focal_v1')||''); }catch{}
       bkApply(obj);
       logEvent('backup_import','',{tasks:taskCount,sections:obj.sections.length});
-      showToast('✓ Backup restored — '+taskCount+' tasks loaded');
+      showToast(window.t('toast_bk_restored',{n:taskCount}));
       renderDataTab();
     }catch(err){
       console.error('bkImportFile:',err);
-      showToast('⚠️ Could not parse JSON — file may be corrupted', 6000);
+      showToast(window.t('toast_bk_parse_err'), 6000);
     }
   };
-  reader.onerror=()=>showToast('⚠️ Could not read file');
+  reader.onerror=()=>showToast(window.t('toast_bk_read_err'));
   reader.readAsText(file);
 }
 
@@ -3247,7 +3250,7 @@ function bkImportFile(file){
 const _FSA_SUPPORTED=()=>typeof window.showSaveFilePicker==='function';
 
 async function bkConnect(){
-  if(!_FSA_SUPPORTED()){ showToast('Auto-save requires Chrome or Edge — use Export instead', 6000); return; }
+  if(!_FSA_SUPPORTED()){ showToast(window.t('toast_bk_browser'), 6000); return; }
   try{
     const handle=await window.showSaveFilePicker({
       suggestedName:'focal-backup.json',
@@ -3259,7 +3262,7 @@ async function bkConnect(){
     _bkHandle=handle;
     _bkSuppressAutoSync=false; // explicit user action — re-enable
     await bkSync(true);
-    showToast('✓ Auto-backup connected — saves on every change');
+    showToast(window.t('toast_bk_connected'));
     renderDataTab();
     logEvent('backup_connect','',{});
   }catch(err){
@@ -3355,22 +3358,22 @@ function renderDataTab(){
       <section>
         <div class="fcl-section-head">
           <div>
-            <h3>Manual backup</h3>
-            <p>Download a snapshot of your Focal data as JSON, or restore from one. Works in every browser.</p>
+            <h3>${window.t('data_h_manual_backup')}</h3>
+            <p>${window.t('data_p_manual_backup')}</p>
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="fcl-btn" type="button" onclick="bkExport()">${icon('download',14)} Export JSON</button>
-          <label class="fcl-btn" style="cursor:pointer">${icon('upload',14)} Import JSON<input type="file" accept="application/json,.json" style="display:none" onchange="bkImportFile(this.files[0]);this.value=''"></label>
+          <button class="fcl-btn" type="button" onclick="bkExport()">${icon('download',14)} ${window.t('data_btn_export')}</button>
+          <label class="fcl-btn" style="cursor:pointer">${icon('upload',14)} ${window.t('data_btn_import')}<input type="file" accept="application/json,.json" style="display:none" onchange="bkImportFile(this.files[0]);this.value=''"></label>
         </div>
       </section>
 
       <section class="fcl-card">
         <header style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
           <div style="display:flex;align-items:center;gap:10px">
-            <h3 style="margin:0;font-size:15.5px;font-weight:600;color:var(--fcl-text)">Auto-backup</h3>
-            ${connected&&!_bkSuppressAutoSync?'<span class="fcl-badge fcl-badge--success fcl-badge--dot">Connected</span>':''}
-            ${connected&&_bkSuppressAutoSync?'<span class="fcl-badge fcl-badge--warning fcl-badge--dot">Paused</span>':''}
+            <h3 style="margin:0;font-size:15.5px;font-weight:600;color:var(--fcl-text)">${window.t('data_h_autobackup')}</h3>
+            ${connected&&!_bkSuppressAutoSync?`<span class="fcl-badge fcl-badge--success fcl-badge--dot">${window.t('data_badge_connected')}</span>`:''}
+            ${connected&&_bkSuppressAutoSync?`<span class="fcl-badge fcl-badge--warning fcl-badge--dot">${window.t('data_badge_paused')}</span>`:''}
           </div>
         </header>
         ${connected&&_bkSuppressAutoSync?`<div style="margin-bottom:14px;padding:10px 12px;background:var(--fcl-warning-tint);border:1px solid var(--fcl-warning);border-radius:var(--fcl-r-md);color:var(--fcl-warning);font-size:12.5px;line-height:1.5"><strong>Auto-sync paused.</strong> Focal recovered from a corrupted load and is showing demo state. To protect your backup file from being overwritten, automatic saves are off. <strong>Restore your real data first</strong> (DevTools → Local Storage → focal_v1_corrupted_*), then click <strong>↻ Save now</strong> below to confirm and resume auto-sync.</div>`:''}
@@ -3385,12 +3388,12 @@ function renderDataTab(){
             ${_bkLastError?`<span style="color:var(--fcl-text-faint)">Last error</span><span style="color:var(--fcl-danger)">${escHtml(_bkLastError)}</span>`:''}
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <button class="fcl-btn fcl-btn--sm" type="button" onclick="bkSync(true)">${icon('save',14)} Save now</button>
-            <button class="fcl-btn fcl-btn--sm" type="button" onclick="bkRestoreFromFile()">${icon('refresh',14)} Restore from file</button>
-            <button class="fcl-btn fcl-btn--sm fcl-btn--danger" type="button" onclick="bkDisconnect()" style="margin-left:auto">${icon('unlink',14)} Disconnect</button>
+            <button class="fcl-btn fcl-btn--sm" type="button" onclick="bkSync(true)">${icon('save',14)} ${window.t('data_btn_save_now')}</button>
+            <button class="fcl-btn fcl-btn--sm" type="button" onclick="bkRestoreFromFile()">${icon('refresh',14)} ${window.t('data_btn_restore')}</button>
+            <button class="fcl-btn fcl-btn--sm fcl-btn--danger" type="button" onclick="bkDisconnect()" style="margin-left:auto">${icon('unlink',14)} ${window.t('data_btn_disconnect')}</button>
           </div>
         `:`
-          <button class="fcl-btn fcl-btn--primary" type="button" ${fsaOk?'':'disabled style="opacity:.5;cursor:not-allowed"'} onclick="bkConnect()">${icon('link',14)} Connect backup file…</button>
+          <button class="fcl-btn fcl-btn--primary" type="button" ${fsaOk?'':'disabled style="opacity:.5;cursor:not-allowed"'} onclick="bkConnect()">${icon('link',14)} ${window.t('data_btn_connect')}</button>
         `}
       </section>
 
@@ -3671,12 +3674,15 @@ function renderLanguageTab(){
   const matchSys=!!(S.settings&&S.settings.langAuto);
   const langs=(typeof FOCAL_LANGS!=='undefined')?FOCAL_LANGS:[{code:'en',name:'English'}];
   const q=(_langSearch||'').toLowerCase().trim();
-  const filtered=langs.filter(l=>!q || (l.name+' '+t('lang_'+l.code+'_english')).toLowerCase().includes(q));
+  // Right-side card subtitle + "Currently" subtitle always show the English
+  // name, never localized — gives a stable identifier regardless of UI script
+  // (a German user evaluating "हिन्दी" still sees "Hindi"). Search matches both.
+  const filtered=langs.filter(l=>!q || (l.name+' '+(l.english||l.name)).toLowerCase().includes(q));
   const current=langs.find(l=>l.code===cur)||langs[0];
-  const currentEnglish=t('lang_'+current.code+'_english');
+  const currentEnglish=current.english||current.name;
   const cards=filtered.map(l=>{
     const sel=l.code===cur;
-    const eng=t('lang_'+l.code+'_english');
+    const eng=l.english||l.name;
     return `<button class="lng-card ${sel?'on':''}" role="radio" aria-checked="${sel}" onclick="setLang('${escJs(l.code)}')">
       <div class="lng-card-l">
         <div class="lng-card-native">${escHtml(l.name)}</div>
