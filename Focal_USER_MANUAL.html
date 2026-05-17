@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.2.0</title>
+<title>Focal — User Manual v10.3.0</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -713,7 +713,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Focal</div>
       <div class="sidebar-title">User Manual</div>
-      <div class="sidebar-ver">Version 10.1.0 · May 16, 2026</div>
+      <div class="sidebar-ver">Version 10.3.0 · May 17, 2026</div>
     </div>
 
     <div class="nav-group">
@@ -764,7 +764,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.2.0</h1>
+      <h1>Focal v10.3.0</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -1916,6 +1916,39 @@ to a local folder. It should:
 
     <hr class="sec-div">
 
+    <!-- ── HARDENING v10.3.0 ── -->
+    <section class="section" id="hardening">
+      <div class="section-eyebrow">Reliability — v10.3.0</div>
+      <h2>🛡️ Hardening Pass</h2>
+      <p class="section-lead">v10.3.0 is a no-new-features release focused on robustness, accessibility, and data safety. The behaviour and storage schema are unchanged — you do not need to do anything.</p>
+
+      <h3>What changed</h3>
+      <div class="feature-block">
+        <table class="kb-table">
+          <thead><tr><th>Area</th><th>Improvement</th></tr></thead>
+          <tbody>
+            <tr><td>Security</td><td>Connection names, section titles, outcome names and search results are now HTML-escaped everywhere they render — no risk of stray markup or scripts from imported or AI-generated text.</td></tr>
+            <tr><td>Data safety</td><td>If browser storage is full, you now see <em>"⚠️ Browser storage full — your change was NOT saved"</em> instead of silent data loss. The analytics log is auto-trimmed as an emergency fallback.</td></tr>
+            <tr><td>Corruption recovery</td><td>If saved data is unreadable, Focal preserves the bad blob under a <code>focal_v1_corrupted_*</code> key and shows a recovery toast — you can copy it out of DevTools.</td></tr>
+            <tr><td>Long titles</td><td>Tasks with extremely long titles or unbroken URLs no longer push columns off-screen in All Tasks, Today, Matrix, Kanban or Inbox. Connection chips with long names truncate with an ellipsis.</td></tr>
+            <tr><td>Invalid dates</td><td>Malformed due dates from imports or AI capture are rejected with a toast instead of silently breaking overdue/aging logic. Recurring monthly tasks on day 31 now roll forward correctly (e.g. Jan 31 → Feb 28).</td></tr>
+            <tr><td>Dark mode</td><td>Better contrast on hint text (WCAG AA-compliant), stronger card shadows, and red analytics deltas now use a dark-friendly red.</td></tr>
+            <tr><td>Keyboard nav</td><td>Filter pills, view tabs, mobile nav and context-menu items are now reachable with <kbd class="kbd">Tab</kbd> and activate on <kbd class="kbd">Enter</kbd> or <kbd class="kbd">Space</kbd>. View tabs respond to <kbd class="kbd">←</kbd> / <kbd class="kbd">→</kbd> / <kbd class="kbd">Home</kbd> / <kbd class="kbd">End</kbd>.</td></tr>
+            <tr><td>Modals</td><td>Modal dialogs now trap <kbd class="kbd">Tab</kbd> focus inside the form and expose proper <code>role="dialog"</code> and <code>aria-modal</code> for screen readers.</td></tr>
+            <tr><td>Focus rings</td><td>Visible teal focus rings on every interactive surface when navigating by keyboard.</td></tr>
+            <tr><td>Reduced motion</td><td>Honors <code>prefers-reduced-motion</code> — animations are disabled for users who request it at the OS level.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>If you ever see the corruption-recovery toast, open DevTools → Application → Local Storage, find the <code>focal_v1_corrupted_*</code> key, copy its value, and paste it back to <code>focal_v1</code> after fixing the JSON. Most corruption is recoverable.</p>
+      </div>
+    </section>
+
+    <hr class="sec-div">
+
     <!-- ── FEEDBACK ── -->
     <section class="section" id="feedback">
       <div class="section-eyebrow">Feature — v10.2.0</div>
@@ -2092,7 +2125,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.2.0 — May 17, 2026</p>
+      <p>Focal v10.3.0 — May 17, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

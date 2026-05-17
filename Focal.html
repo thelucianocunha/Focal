@@ -34,14 +34,14 @@
 </header>
 
 <!-- VIEW TABS -->
-<div class="vtabs">
-  <div class="vtab on" id="tab-today"  onclick="sw('today')">⚡ Today</div>
-  <div class="vtab"    id="tab-kanban" onclick="sw('kanban')">📊 Kanban</div>
-  <div class="vtab"    id="tab-inbox"  onclick="sw('inbox')">📥 Inbox <span class="tbadge" id="tbadge-inbox" style="display:none"></span></div>
-  <div class="vtab"    id="tab-tasks"  onclick="sw('tasks')">📋 All Tasks</div>
-  <div class="vtab"    id="tab-matrix" onclick="sw('matrix')">🎯 Matrix</div>
-  <div class="vtab"    id="tab-analytics" onclick="sw('analytics')">📈 Analytics</div>
-  <div class="vtab"    id="tab-review" onclick="sw('review')">🔄 Review</div>
+<div class="vtabs" role="tablist" aria-label="Views">
+  <div class="vtab on" id="tab-today"     role="tab" tabindex="0"  aria-selected="true"  onclick="sw('today')">⚡ Today</div>
+  <div class="vtab"    id="tab-kanban"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('kanban')">📊 Kanban</div>
+  <div class="vtab"    id="tab-inbox"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('inbox')">📥 Inbox <span class="tbadge" id="tbadge-inbox" style="display:none" aria-hidden="true"></span></div>
+  <div class="vtab"    id="tab-tasks"     role="tab" tabindex="-1" aria-selected="false" onclick="sw('tasks')">📋 All Tasks</div>
+  <div class="vtab"    id="tab-matrix"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('matrix')">🎯 Matrix</div>
+  <div class="vtab"    id="tab-analytics" role="tab" tabindex="-1" aria-selected="false" onclick="sw('analytics')">📈 Analytics</div>
+  <div class="vtab"    id="tab-review"    role="tab" tabindex="-1" aria-selected="false" onclick="sw('review')">🔄 Review</div>
 </div>
 
 <!-- STATS -->
@@ -50,22 +50,22 @@
 <!-- FILTER BAR -->
 <div class="fbar">
   <div class="sw srch-wrap">
-    <svg class="si2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input class="sinput" type="text" placeholder="Search tasks, connections…" id="srch" oninput="srchInput()" onkeydown="srchKeydown(event)" autocomplete="off">
-    <div class="srch-sug" id="srchSug"></div>
+    <svg class="si2" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="sinput" type="text" placeholder="Search tasks, connections…" id="srch" oninput="srchInput()" onkeydown="srchKeydown(event)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="srchSug" aria-expanded="false" aria-label="Search tasks and connections">
+    <div class="srch-sug" id="srchSug" role="listbox"></div>
   </div>
   <div class="fsep"></div>
-  <div class="pills">
-    <span class="pill on" data-f="all"     onclick="setF('all',this,event)" title="Show all tasks">All</span>
-    <span class="pill"    data-f="p1"      onclick="setF('p1',this,event)"  title="Ctrl+click to combine filters">P1 Critical</span>
-    <span class="pill"    data-f="p2"      onclick="setF('p2',this,event)"  title="Ctrl+click to combine filters">P2 High</span>
-    <span class="pill"    data-f="prog"    onclick="setF('prog',this,event)" title="Ctrl+click to combine filters">In Progress</span>
-    <span class="pill"    data-f="overdue" onclick="setF('overdue',this,event)" title="Ctrl+click to combine filters">Overdue</span>
-    <span class="pill"    data-f="week"    onclick="setF('week',this,event)" title="Ctrl+click to combine filters">Due This Week</span>
-    <span class="pill"    data-f="rec"     onclick="setF('rec',this,event)"  title="Ctrl+click to combine filters">🔁 Recurring</span>
-    <span class="pill"    data-f="conf"    onclick="setF('conf',this,event)" title="Ctrl+click to combine filters">🔒 Confidential</span>
-    <span class="pill"    data-f="backlog" onclick="setF('backlog',this,event)" title="Ctrl+click to combine filters">📋 Backlog</span>
-    <span class="pill"    data-f="aging"   onclick="setF('aging',this,event)" id="pill-aging" style="display:none" title="Ctrl+click to combine filters">⏱ Aging</span>
+  <div class="pills" role="group" aria-label="Task filters">
+    <span class="pill on" data-f="all"     role="button" tabindex="0" aria-pressed="true"  onclick="setF('all',this,event)" title="Show all tasks">All</span>
+    <span class="pill"    data-f="p1"      role="button" tabindex="0" aria-pressed="false" onclick="setF('p1',this,event)"  title="Ctrl+click to combine filters">P1 Critical</span>
+    <span class="pill"    data-f="p2"      role="button" tabindex="0" aria-pressed="false" onclick="setF('p2',this,event)"  title="Ctrl+click to combine filters">P2 High</span>
+    <span class="pill"    data-f="prog"    role="button" tabindex="0" aria-pressed="false" onclick="setF('prog',this,event)" title="Ctrl+click to combine filters">In Progress</span>
+    <span class="pill"    data-f="overdue" role="button" tabindex="0" aria-pressed="false" onclick="setF('overdue',this,event)" title="Ctrl+click to combine filters">Overdue</span>
+    <span class="pill"    data-f="week"    role="button" tabindex="0" aria-pressed="false" onclick="setF('week',this,event)" title="Ctrl+click to combine filters">Due This Week</span>
+    <span class="pill"    data-f="rec"     role="button" tabindex="0" aria-pressed="false" onclick="setF('rec',this,event)"  title="Ctrl+click to combine filters">🔁 Recurring</span>
+    <span class="pill"    data-f="conf"    role="button" tabindex="0" aria-pressed="false" onclick="setF('conf',this,event)" title="Ctrl+click to combine filters">🔒 Confidential</span>
+    <span class="pill"    data-f="backlog" role="button" tabindex="0" aria-pressed="false" onclick="setF('backlog',this,event)" title="Ctrl+click to combine filters">📋 Backlog</span>
+    <span class="pill"    data-f="aging"   role="button" tabindex="0" aria-pressed="false" onclick="setF('aging',this,event)" id="pill-aging" style="display:none" title="Ctrl+click to combine filters">⏱ Aging</span>
   </div>
   <div class="person-dd" id="personDd">
     <button class="person-dd-btn" id="personDdBtn" onclick="togglePersonDd()" title="Filter by person / connection">👤 All People</button>
@@ -107,21 +107,21 @@
     </div>
   </div>
   <!-- Context menu -->
-  <div class="ctx-menu" id="ctxMenu">
-    <div class="ctx-item" id="ctxAddSub" onclick="ctxDoAddSub()">↳ Add subtask</div>
-    <div class="ctx-item" id="ctxEdit" onclick="ctxDoEdit()">✏️ Edit task</div>
-    <div class="ctx-sep"></div>
-    <div class="ctx-item" id="ctxDone" onclick="ctxDoDone()">✓ Mark as Done</div>
-    <div class="ctx-item" id="ctxBacklog" onclick="ctxDoBacklog()">📋 Send to Backlog</div>
-    <div class="ctx-sep" id="ctxSepNav"></div>
-    <div class="ctx-item" id="ctxMoveRight" onclick="ctxDoMove(1)">→ Move right</div>
-    <div class="ctx-item" id="ctxMoveLeft" onclick="ctxDoMove(-1)">← Move left</div>
-    <div class="ctx-sep" id="ctxSepDel"></div>
-    <div class="ctx-item ctx-del" id="ctxDelete" onclick="ctxDoDelete()">🗑 Delete</div>
+  <div class="ctx-menu" id="ctxMenu" role="menu" aria-label="Task actions">
+    <div class="ctx-item" id="ctxAddSub" role="menuitem" tabindex="-1" onclick="ctxDoAddSub()">↳ Add subtask</div>
+    <div class="ctx-item" id="ctxEdit" role="menuitem" tabindex="-1" onclick="ctxDoEdit()">✏️ Edit task</div>
+    <div class="ctx-sep" role="separator"></div>
+    <div class="ctx-item" id="ctxDone" role="menuitem" tabindex="-1" onclick="ctxDoDone()">✓ Mark as Done</div>
+    <div class="ctx-item" id="ctxBacklog" role="menuitem" tabindex="-1" onclick="ctxDoBacklog()">📋 Send to Backlog</div>
+    <div class="ctx-sep" id="ctxSepNav" role="separator"></div>
+    <div class="ctx-item" id="ctxMoveRight" role="menuitem" tabindex="-1" onclick="ctxDoMove(1)">→ Move right</div>
+    <div class="ctx-item" id="ctxMoveLeft" role="menuitem" tabindex="-1" onclick="ctxDoMove(-1)">← Move left</div>
+    <div class="ctx-sep" id="ctxSepDel" role="separator"></div>
+    <div class="ctx-item ctx-del" id="ctxDelete" role="menuitem" tabindex="-1" onclick="ctxDoDelete()">🗑 Delete</div>
   </div>
   <!-- Column quick-add menu -->
-  <div class="ctx-menu" id="kColMenu">
-    <div class="ctx-item" id="kColAddItem" onclick="kColAddTask()">＋ Add task here</div>
+  <div class="ctx-menu" id="kColMenu" role="menu" aria-label="Column actions">
+    <div class="ctx-item" id="kColAddItem" role="menuitem" tabindex="-1" onclick="kColAddTask()">＋ Add task here</div>
   </div>
   <!-- KANBAN PANEL -->
   <div class="vpanel" id="view-kanban">
@@ -176,11 +176,11 @@
 <div class="vpanel" id="view-analytics"></div>
 
 <!-- MODAL -->
-<div class="ovl" id="ovl" onclick="ovlClose(event)">
+<div class="ovl" id="ovl" onclick="ovlClose(event)" role="dialog" aria-modal="true" aria-labelledby="mtitle" aria-hidden="true">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="mh">
       <span class="mt" id="mtitle">Add Task</span>
-      <button class="mx" onclick="closeModal()">×</button>
+      <button class="mx" onclick="closeModal()" aria-label="Close dialog">×</button>
     </div>
     <div class="mb">
       <div class="fg"><div class="fl-row"><label class="fl">Task Description *</label><button class="modal-ai-btn" id="modalAiBtn" onclick="nlFillModal()" title="Describe the task above and let AI fill the rest">✨ AI-fill</button></div><input class="fi" id="fTask" placeholder="What needs to be done?" onkeydown="if(event.key==='Enter'){event.preventDefault();saveTask();}"></div>
@@ -291,9 +291,9 @@
 <div class="pm-ovl" id="pm-ovl" onclick="pmOvlClose(event)"></div>
 
 <!-- SETTINGS MODAL -->
-<div class="ovl" id="settingsOvl" onclick="settingsOvlClose(event)">
+<div class="ovl" id="settingsOvl" onclick="settingsOvlClose(event)" role="dialog" aria-modal="true" aria-label="Settings" aria-hidden="true">
   <div class="modal" onclick="event.stopPropagation()" style="max-width:480px">
-    <div class="mh"><span class="mt">⚙️ Settings</span><button class="mx" onclick="closeSettings()">×</button></div>
+    <div class="mh"><span class="mt">⚙️ Settings</span><button class="mx" onclick="closeSettings()" aria-label="Close settings">×</button></div>
     <div class="stab-nav">
       <button class="stab on" id="stab-categories" onclick="switchSettingsTab('categories')">Categories</button>
       <button class="stab" id="stab-people" onclick="switchSettingsTab('people')">People</button>
@@ -343,9 +343,9 @@
 </div>
 
 <!-- FEEDBACK MODAL -->
-<div class="ovl" id="feedbackOvl" onclick="fbOvlClose(event)" style="display:none">
+<div class="ovl" id="feedbackOvl" onclick="fbOvlClose(event)" style="display:none" role="dialog" aria-modal="true" aria-label="Send feedback" aria-hidden="true">
   <div class="modal" onclick="event.stopPropagation()" style="max-width:480px">
-    <div class="mh"><span class="mt">💬 Send Feedback</span><button class="mx" onclick="closeFeedback()">×</button></div>
+    <div class="mh"><span class="mt">💬 Send Feedback</span><button class="mx" onclick="closeFeedback()" aria-label="Close feedback">×</button></div>
     <div class="mb">
       <div class="fg">
         <label class="fl">Category</label>
@@ -383,20 +383,20 @@
 <div class="toast" id="toast"></div>
 
 <!-- MOBILE NAV -->
-<nav class="mnav">
+<nav class="mnav" aria-label="Mobile navigation">
   <div class="mni">
-    <div class="nit on" id="mnav-today" onclick="sw('today')">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Today
+    <div class="nit on" id="mnav-today" role="button" tabindex="0" aria-label="Today view" onclick="sw('today')">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Today
     </div>
-    <div class="nit" id="mnav-tasks" onclick="sw('tasks')">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks
+    <div class="nit" id="mnav-tasks" role="button" tabindex="0" aria-label="All Tasks view" onclick="sw('tasks')">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks
     </div>
-    <button class="fab" onclick="openAdd()">+</button>
-    <div class="nit" id="mnav-kanban" onclick="sw('kanban')">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="13" rx="1"/><rect x="16" y="3" width="6" height="9" rx="1"/></svg>Kanban
+    <button class="fab" onclick="openAdd()" aria-label="Add task">+</button>
+    <div class="nit" id="mnav-kanban" role="button" tabindex="0" aria-label="Kanban view" onclick="sw('kanban')">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="13" rx="1"/><rect x="16" y="3" width="6" height="9" rx="1"/></svg>Kanban
     </div>
-    <div class="nit" id="mnav-inbox" onclick="sw('inbox')">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Inbox
+    <div class="nit" id="mnav-inbox" role="button" tabindex="0" aria-label="Inbox view" onclick="sw('inbox')">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Inbox
     </div>
   </div>
 </nav>

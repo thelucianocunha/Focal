@@ -943,7 +943,7 @@ tr.tr-sub td:nth-child(2) .tn::before{content:'↳';position:absolute;left:4px;c
 html.dark {
   --galaxy:#E2E8F0; --sapphire:#CBD5E1;
   --bg:#111827; --surface:#1F2937; --surface2:#374151;
-  --border:#4B5563; --text:#F9FAFB; --muted:#9CA3AF; --dim:#6B7280;
+  --border:#4B5563; --text:#F9FAFB; --muted:#CBD5E1; --dim:#9CA3AF;
   --teal:#2DD4BF; --teal-h:#5EEAD4;
   --teal-dim:rgba(45,212,191,0.12); --teal-border:rgba(45,212,191,0.3);
   --amber:#FBBF24; --amber-dim:rgba(251,191,36,0.12); --amber-border:rgba(251,191,36,0.3);
@@ -1020,3 +1020,81 @@ html.dark .kb-fbar{background:var(--surface2)}
 html.dark .conn-av{background:var(--surface2);color:var(--teal)}
 html.dark .pa-bar{background:var(--surface2);color:var(--text)}
 html.dark .kb-newweek:hover{color:#fff}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HARDENING (v10.3) — long-title overflow, dark-mode contrast gaps,
+   focus rings, and a11y polish. Appended last so order-based cascade
+   wins where specificity is equal.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Overflow / long-title containment ───────────────────────── */
+/* All Tasks task-name cell */
+.tn{overflow-wrap:anywhere;word-break:break-word;min-width:0}
+/* Today card title + meta row */
+.tcn{overflow-wrap:anywhere;word-break:break-word;min-width:0}
+.tcb{min-width:0}
+/* Matrix quadrant items */
+.qin{overflow-wrap:anywhere;word-break:break-word;min-width:0}
+.qit{min-width:0}
+/* Inbox text */
+.ix-text{overflow-wrap:anywhere;word-break:break-word;min-width:0}
+.ix-body{min-width:0}
+/* Kanban cards */
+.kc-name{overflow-wrap:anywhere;word-break:break-word;min-width:0}
+.kc-note{overflow-wrap:anywhere;word-break:break-word;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kc{min-width:0}
+/* Connection chips (truncate long names instead of pushing layout) */
+.conn-tag{max-width:180px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:middle}
+.cp-chip{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Person dropdown menu items */
+.person-dd-item{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.person-dd-item > label{overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* Search suggestion truncation */
+.srch-opt-label{max-width:520px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
+.srch-opt-meta{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
+/* Prioritize-mini cards */
+.pm-mini-task{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Prevent flex children from refusing to shrink past content */
+.tcard,.kc,.qit,.ix-card,.pq-card-top,.pq-card{min-width:0}
+
+/* ── 2. Empty-state polish ─────────────────────────────────────── */
+.empty-pad{padding:32px 16px;text-align:center;color:var(--dim);font-size:13px;line-height:1.6}
+.empty-pad strong{display:block;font-size:15px;color:var(--muted);margin-bottom:4px;font-weight:600}
+
+/* ── 3. Focus rings — visible keyboard focus on interactive UI ──── */
+:where(.pill,.mpill,.kb-fpill,.vtab,.nit,.hpill,.hibtn,.hbtn,.stab,.ctx-item,.di,.dpd){outline:0}
+.pill:focus-visible,.mpill:focus-visible,.kb-fpill:focus-visible,.vtab:focus-visible,
+.nit:focus-visible,.hpill:focus-visible,.hibtn:focus-visible,.hbtn:focus-visible,
+.stab:focus-visible,.ctx-item:focus-visible,.lockbtn:focus-visible,.cbtn:focus-visible,
+.kb-cbtn:focus-visible,.kb-newweek:focus-visible,.wrbtn:focus-visible,.fab:focus-visible,
+.person-dd-btn:focus-visible,.tp-act:focus-visible,.tp-bl:focus-visible,.ixbtn:focus-visible,
+.mx:focus-visible,.bsec:focus-visible,.bpri:focus-visible,.bdel:focus-visible{
+  outline:2px solid var(--teal);outline-offset:2px;border-radius:6px
+}
+.fi:focus-visible,.fs:focus-visible,.fta:focus-visible,.sinput:focus-visible,
+.ai:focus-visible,.ix-cap-ta:focus-visible,.ix-cap-note:focus-visible,
+.tp-sel:focus-visible,.tp-inp:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+
+/* Make span-based pills behave like buttons when given role/tabindex via JS-friendly attrs.
+   (HTML rewrite handled separately; this is the visual contract.) */
+.pill[tabindex],.mpill[tabindex],.kb-fpill[tabindex],.vtab[tabindex],.nit[tabindex],
+.ctx-item[tabindex]{cursor:pointer}
+
+/* ── 4. Dark-mode contrast & shadow patches ─────────────────────── */
+/* Hardcoded chart "bad" reds — flip to dark-mode equivalents */
+html.dark .an-delta.up{color:#F87171}
+html.dark .an-bar.neg{background:#F87171}
+/* Card shadows that vanish on dark surface — beef them up */
+html.dark .kc{box-shadow:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.25)}
+html.dark .kc:hover{box-shadow:0 4px 12px rgba(0,0,0,.5),0 2px 4px rgba(0,0,0,.3)}
+html.dark .ctx-menu{box-shadow:0 4px 20px rgba(0,0,0,.55)}
+html.dark .person-dd-menu{box-shadow:0 8px 32px rgba(0,0,0,.6)}
+html.dark .drop,html.dark .dp,html.dark .srch-sug,html.dark .conn-pop,html.dark .conn-sug{box-shadow:0 8px 24px rgba(0,0,0,.5)}
+/* Hint text contrast on dark — already addressed by --dim bump above */
+/* Confidential row tinting on dark — make subtle but visible */
+html.dark .conf-row{background:rgba(167,139,250,.06)}
+
+/* ── 5. Reduced-motion respect ─────────────────────────────────── */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}

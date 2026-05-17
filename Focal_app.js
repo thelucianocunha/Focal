@@ -72,9 +72,43 @@ function loadS(){
     }
     const d=clone(FILE_DATA); if(!d.inbox) d.inbox=[]; migrateV82(d);
     return d;
-  } catch{ const d=clone(FILE_DATA); if(!d.inbox) d.inbox=[]; if(!d.settings) d.settings={claudeKey:'',aiModel:'claude-haiku-4-5-20251001'}; d.sections.forEach(s=>s.tasks.forEach(t=>{ if(t.decided===undefined) t.decided=false; if(!t.kanbanColSince) t.kanbanColSince=null; })); migrateV82(d); return d; }
+  } catch(err){
+    // Corrupted JSON or unreadable storage — preserve the bad blob so user can recover it,
+    // then fall back to demo seed. Warn loudly on next paint.
+    try{
+      const bad=localStorage.getItem('focal_v1');
+      if(bad){ const k='focal_v1_corrupted_'+Date.now(); try{ localStorage.setItem(k,bad); }catch{} }
+    }catch{}
+    setTimeout(()=>{ try{ showToast('⚠️ Stored data was unreadable — restored demo. A backup was saved as focal_v1_corrupted_*. Open DevTools → Application → Local Storage to recover.', 10000); }catch{} }, 800);
+    console.error('Focal: loadS recovered from corrupted storage:', err);
+    const d=clone(FILE_DATA); if(!d.inbox) d.inbox=[]; if(!d.settings) d.settings={claudeKey:'',aiModel:'claude-haiku-4-5-20251001'}; d.sections.forEach(s=>s.tasks.forEach(t=>{ if(t.decided===undefined) t.decided=false; if(!t.kanbanColSince) t.kanbanColSince=null; })); migrateV82(d); return d;
+  }
 }
-function saveS(){ localStorage.setItem('focal_v1',JSON.stringify(S)); }
+// _saveWarned debounces the quota toast so we don't spam the user on every action while full.
+let _saveWarned=0;
+function saveS(){
+  try{ localStorage.setItem('focal_v1',JSON.stringify(S)); }
+  catch(err){
+    const isQuota=err&&(err.name==='QuotaExceededError'||err.code===22||err.code===1014||/quota/i.test(err.message||''));
+    console.error('Focal: saveS failed', err);
+    // Try a one-time emergency trim of analytics log to free space.
+    if(isQuota){
+      try{
+        const log=JSON.parse(localStorage.getItem('focal_log')||'{"events":[],"weeks":[]}');
+        log.events=(log.events||[]).slice(-200);
+        log.weeks=(log.weeks||[]).slice(-26);
+        localStorage.setItem('focal_log',JSON.stringify(log));
+        localStorage.setItem('focal_v1',JSON.stringify(S));
+        return; // recovered
+      }catch{}
+    }
+    const now=Date.now();
+    if(now-_saveWarned>5000){
+      _saveWarned=now;
+      try{ showToast(isQuota?'⚠️ Browser storage full — your change was NOT saved. Export data or remove old tasks/notes.':'⚠️ Save failed — check console.', 8000); }catch{}
+    }
+  }
+}
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
 function genId(p){ return p+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 
@@ -86,15 +120,41 @@ const PR={P1:'rp1',P2:'rp2',P3:'rp3',P4:'rp4'};
 const SC={'To Do':'btodo','In Progress':'bprog',Done:'bdone',Backlog:'bbacklog'};
 const SO=['To Do','In Progress','Done','Backlog'];
 const AGE_THRESH={'To Do':{y:14,r:30},'In Progress':{y:7,r:21},'Backlog':{y:30,r:90}};
-function ageDays(t){ if(!t.lastStatusChange) return 0; const today=new Date();today.setHours(0,0,0,0); return Math.floor((today-new Date(t.lastStatusChange+'T00:00:00'))/86400000); }
+// Strict ISO date validator: accepts YYYY-MM-DD with a real calendar date (no Feb 30, etc).
+function isValidISODate(s){
+  if(!s||typeof s!=='string') return false;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const [y,m,dd]=s.split('-').map(Number);
+  if(y<1900||y>2999||m<1||m>12||dd<1||dd>31) return false;
+  const d=new Date(s+'T00:00:00');
+  return !isNaN(d.getTime())&&d.getFullYear()===y&&d.getMonth()===m-1&&d.getDate()===dd;
+}
+// Parse an ISO date string to local-midnight Date, or return null if invalid/empty/junk.
+function safeDate(s){ return isValidISODate(s)?new Date(s+'T00:00:00'):null; }
+function ageDays(t){
+  const d=safeDate(t.lastStatusChange);
+  if(!d) return 0;
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.floor((today-d)/86400000);
+  return isFinite(diff)?diff:0;
+}
 function ageLevel(t){ if(t.status==='Done') return 'none'; const th=AGE_THRESH[t.status]; if(!th) return 'none'; const d=ageDays(t); return d>=th.r?'red':d>=th.y?'yellow':'none'; }
-function ageTip(t){ const lv=ageLevel(t); if(lv==='none') return ''; if(t.due){ const today=new Date();today.setHours(0,0,0,0); const daysUntil=Math.floor((new Date(t.due+'T00:00:00')-today)/86400000); if(daysUntil<=0) return `Overdue by ${-daysUntil} day${-daysUntil===1?'':'s'} — needs attention`; return `Due in ${daysUntil} day${daysUntil===1?'':'s'} — time to schedule`; } const d=ageDays(t); const act=t.status==='Backlog'?'activate or delete':'update status or move to backlog'; return `${t.status} for ${d} day${d===1?'':'s'} — consider ${act}`; }
+function ageTip(t){ const lv=ageLevel(t); if(lv==='none') return ''; const dueD=safeDate(t.due); if(dueD){ const today=new Date();today.setHours(0,0,0,0); const daysUntil=Math.floor((dueD-today)/86400000); if(daysUntil<=0) return `Overdue by ${-daysUntil} day${-daysUntil===1?'':'s'} — needs attention`; return `Due in ${daysUntil} day${daysUntil===1?'':'s'} — time to schedule`; } const d=ageDays(t); const act=t.status==='Backlog'?'activate or delete':'update status or move to backlog'; return `${t.status} for ${d} day${d===1?'':'s'} — consider ${act}`; }
 
 // ═══ UTILITIES ═══
 function ldStr(d){ return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); }
-function ds(due){ if(!due) return 'e'; const t=new Date();t.setHours(0,0,0,0); const d=new Date(due+'T00:00:00'); if(d<t) return 'u'; const eow=new Date(t);eow.setDate(t.getDate()+(7-t.getDay())%7); return d<=eow?'s':'n'; }
-function dsNW(due){ if(!due) return false; const t=new Date();t.setHours(0,0,0,0); const d=new Date(due+'T00:00:00'); if(d<t) return false; const eow=new Date(t);eow.setDate(t.getDate()+(7-t.getDay())%7); if(d<=eow) return false; const enw=new Date(eow);enw.setDate(eow.getDate()+7); return d<=enw; }
-function fd(due){ if(!due) return '—'; return new Date(due+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+// Add N months, clamping to last day of target month (so Jan 31 + 1mo = Feb 28/29, not Mar 3).
+function addMonthsClamped(d,n){
+  const targetMonth=d.getMonth()+n;
+  const day=d.getDate();
+  const r=new Date(d.getFullYear(),targetMonth,1,12,0,0,0);
+  const lastDayOfTarget=new Date(r.getFullYear(),r.getMonth()+1,0).getDate();
+  r.setDate(Math.min(day,lastDayOfTarget));
+  return r;
+}
+function ds(due){ const d=safeDate(due); if(!d) return 'e'; const t=new Date();t.setHours(0,0,0,0); if(d<t) return 'u'; const eow=new Date(t);eow.setDate(t.getDate()+(7-t.getDay())%7); return d<=eow?'s':'n'; }
+function dsNW(due){ const d=safeDate(due); if(!d) return false; const t=new Date();t.setHours(0,0,0,0); if(d<t) return false; const eow=new Date(t);eow.setDate(t.getDate()+(7-t.getDay())%7); if(d<=eow) return false; const enw=new Date(eow);enw.setDate(eow.getDate()+7); return d<=enw; }
+function fd(due){ const d=safeDate(due); return d?d.toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—'; }
 function ft(id,sec){ const s=S.sections.find(x=>x.id===sec); return s?s.tasks.find(t=>t.id===id):null; }
 
 function allConns(){ const set=new Set([...(S.knownConnections||[]),...(FILE_DATA.knownConnections||[])]); S.sections.forEach(sec=>sec.tasks.forEach(t=>(t.connections||[]).forEach(c=>set.add(c)))); return [...set].sort(); }
@@ -127,16 +187,21 @@ function srchInput(){
   }));
   if(!matches.length){sug.classList.remove('on');sug.innerHTML='';return;}
   srchFocusIdx=-1;
-  sug.innerHTML=matches.slice(0,10).map((m,i)=>`<div class="srch-opt" data-id="${m.id}" data-sec="${m.secId}" data-text="${escAttr(m.text)}" onmousedown="srchPick('${m.id}','${m.secId}')"><span class="srch-opt-label">${highlight(m.text,q)}</span><span class="srch-opt-meta">${m.meta}</span></div>`).join('');
+  sug.innerHTML=matches.slice(0,10).map((m,i)=>`<div class="srch-opt" data-id="${escAttr(m.id)}" data-sec="${escAttr(m.secId)}" data-text="${escAttr(m.text)}" onmousedown="srchPick('${escJs(m.id)}','${escJs(m.secId)}')"><span class="srch-opt-label">${highlight(m.text,q)}</span><span class="srch-opt-meta">${escHtml(m.meta)}</span></div>`).join('');
   sug.classList.add('on');
 }
-function escAttr(s){ return s.replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// HTML-escape: safe for both element content AND attribute values (single OR double quoted).
+function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/`/g,'&#96;'); }
+// escAttr kept as alias for callers; identical to escHtml now that escHtml handles quotes.
+function escAttr(s){ return escHtml(s); }
+// Escape a string for safe embedding inside a JS single-quoted string literal (e.g. onclick="fn('${escJs(name)}')").
+// Belt-and-braces alongside escHtml — protects against names containing apostrophes or backslashes.
+function escJs(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,'\\\'').replace(/</g,'\\u003C'); }
 function highlight(text,q){
   const i=text.toLowerCase().indexOf(q);
   if(i<0) return escHtml(text);
   return escHtml(text.slice(0,i))+'<strong>'+escHtml(text.slice(i,i+q.length))+'</strong>'+escHtml(text.slice(i+q.length));
 }
-function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function dT(s){ if(!demoMode) return escHtml(s); return escHtml(s.replace(/\S+/g,w=>'●'.repeat(w.length))); }
 function srchPick(id,secId){
   const el=document.querySelector(`.srch-opt[data-id="${id}"]`);
@@ -268,7 +333,7 @@ function renderMatrixFilter(){
     // Section filter pills
     html+=`<span class="mfbar-label">Filter:</span>`;
     html+=`<span class="mpill ${matrixSectionFilter.has('all')?'on':''}" onclick="setMatrixFilter('all',event)">All</span>`;
-    S.sections.forEach(s=>{ html+=`<span class="mpill ${matrixSectionFilter.has(s.id)?'on':''}" onclick="setMatrixFilter('${s.id}',event)">${s.icon||''} ${s.title.replace(/ — .*/,'')}</span>`; });
+    S.sections.forEach(s=>{ html+=`<span class="mpill ${matrixSectionFilter.has(s.id)?'on':''}" onclick="setMatrixFilter('${escJs(s.id)}',event)">${escHtml(s.icon||'')} ${escHtml(s.title.replace(/ — .*/,''))}</span>`; });
   } else {
     // Triage filter chips
     const filters=[['all','All'],['needs-review','Needs Review'],['no-outcomes','No Outcomes'],['due-week','Due This Week'],['overdue','Overdue']];
@@ -360,7 +425,10 @@ function renderStats(){
 // ═══ RENDERING ═══
 // Render All
 function renderAll(){
-  document.getElementById('view-tasks').innerHTML=`<div style="display:flex;flex-direction:column;gap:20px">${S.sections.map(renderSec).join('')}</div>`;
+  const body=S.sections.length
+    ? `<div style="display:flex;flex-direction:column;gap:20px">${S.sections.map(renderSec).join('')}</div>`
+    : `<div class="empty-pad"><strong>No sections yet</strong>Open Settings (⚙️) → Categories to add your first section. Each section groups related tasks.</div>`;
+  document.getElementById('view-tasks').innerHTML=body;
   renderStats(); applyF(); populatePersonFilter();
   if(curView==='today') renderToday();
   if(curView==='matrix') renderMatrix();
@@ -385,9 +453,9 @@ function renderSec(sec){
   const rows=sorted.map(t=>renderRow(t,sec.id)).join('')||`<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--dim);font-size:14px">No tasks — quick-add below</td></tr>`;
   return `
   <div class="sc" id="sec-${sec.id}">
-    <div class="sh" onclick="togSec('${sec.id}')">
-      <span class="si3">${sec.icon}</span>
-      <span class="sname">${sec.title}</span>
+    <div class="sh" onclick="togSec('${escJs(sec.id)}')">
+      <span class="si3">${escHtml(sec.icon)}</span>
+      <span class="sname">${escHtml(sec.title)}</span>
       <span class="sbadge">${open} open</span>
       <span class="chev">▾</span>
     </div>
@@ -407,7 +475,7 @@ function renderSec(sec){
         <tbody id="tb-${sec.id}">${rows}</tbody>
       </table>
       <div class="ar">
-        <input class="ai" id="qa-${sec.id}" placeholder="+ Quick add to ${sec.title.split('—')[0].trim()}…" onkeydown="quickAdd(event,'${sec.id}')">
+        <input class="ai" id="qa-${escAttr(sec.id)}" placeholder="+ Quick add to ${escAttr(sec.title.split('—')[0].trim())}…" onkeydown="quickAdd(event,'${escJs(sec.id)}')">
       </div>
     </div>
   </div>`;
@@ -442,7 +510,7 @@ function renderRow(t,secId){
       <div class="drop" id="msd-${t.id}">${SO.map(s=>`<div class="di" onclick="setStat('${t.id}','${secId}','${s}')">${s}</div>`).join('')}</div>
     </span>
     ${t.due?`<span class="dcell ${dCls}" onclick="oDp(event,'${t.id}','${secId}')" style="position:relative">📅 ${fd(t.due)}<div class="dp" id="mdp-${t.id}"></div></span>`:''}
-    ${conns.slice(0,2).map(c=>`<span class="conn-tag">${c}</span>`).join('')}
+    ${conns.slice(0,2).map(c=>`<span class="conn-tag" title="${escAttr(c)}">${escHtml(c)}</span>`).join('')}
     ${isConf?`<button class="lockbtn lock-on" onclick="togConfRow('${t.id}','${secId}')">🔒</button>`:`<button class="lockbtn lock-off" onclick="togConfRow('${t.id}','${secId}')">🔓</button>`}
     ${t.type==='recurring'?`<span class="ticon rec">🔁</span>`:''}
   </div>`;
@@ -543,7 +611,7 @@ function togComplete(id,secId){
     t.status='To Do'; t.lastStatusChange=today; if(t.kanbanCol==='done') t.kanbanCol=null; logEvent('reopen',id,{s:secId}); showToast('Task reopened');
   } else if(t.type==='recurring'){
     const interval=t.rInterval||'monthly'; let newDue='';
-    if(t.due){ const d=new Date(t.due+'T12:00:00'); if(interval==='monthly') d.setMonth(d.getMonth()+1); else if(interval==='weekly') d.setDate(d.getDate()+7); else if(interval==='quarterly') d.setMonth(d.getMonth()+3); newDue=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); }
+    if(isValidISODate(t.due)){ let d=new Date(t.due+'T12:00:00'); if(interval==='monthly') d=addMonthsClamped(d,1); else if(interval==='weekly') d.setDate(d.getDate()+7); else if(interval==='quarterly') d=addMonthsClamped(d,3); newDue=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); }
     const arc=clone(t); arc.id=genId('a'); arc.status='Done'; arc.kanbanCol='done'; arc.note=(t.note?t.note+' ':'')+'[completed '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})+']'; sec.tasks.push(arc);
     t.due=newDue; t.status='To Do'; t.lastStatusChange=today; t.kanbanCol=null; logEvent('done',arc.id,{s:secId,p:t.priority,age:ageDays(t),r:1,oc:(t.outcomes||[])}); showToast(`🔁 Next cycle set${newDue?' to '+fd(newDue):''}`);
   } else { t.status='Done'; t.lastStatusChange=today; t.kanbanCol='done'; const sc=cascadeSubtasksDone(t.id); logEvent('done',id,{s:secId,p:t.priority,age:ageDays(t),oc:(t.outcomes||[])}); showToast(sc?`✓ Done (+${sc} subtask${sc>1?'s':''})`:' ✓ Task completed'); }
@@ -606,10 +674,10 @@ function saveEdit(el,id,secId,field){ el.contentEditable='false'; const val=el.t
 
 // ═══ DATE PICKER ═══
 let dpT=null,dpMode='day',dpY,dpM;
-function oDp(e,id,secId){ e.stopPropagation(); closeDrops(); dpT={id,secId}; const t=ft(id,secId); const today=new Date(); if(t.due){const d=new Date(t.due+'T00:00:00');dpY=d.getFullYear();dpM=d.getMonth();}else{dpY=today.getFullYear();dpM=today.getMonth();} dpMode='day'; const dpEl=document.getElementById('dp-'+id); renderDp(dpEl); positionDrop(e.currentTarget, dpEl); }
+function oDp(e,id,secId){ e.stopPropagation(); closeDrops(); dpT={id,secId}; const t=ft(id,secId); const today=new Date(); const d=safeDate(t.due); if(d){dpY=d.getFullYear();dpM=d.getMonth();}else{dpY=today.getFullYear();dpM=today.getMonth();} dpMode='day'; const dpEl=document.getElementById('dp-'+id); renderDp(dpEl); positionDrop(e.currentTarget, dpEl); }
 function renderDp(el){
   const today=new Date();today.setHours(0,0,0,0);
-  const t=ft(dpT.id,dpT.secId); const sel=t.due?new Date(t.due+'T00:00:00'):null;
+  const t=ft(dpT.id,dpT.secId); const sel=safeDate(t.due);
   const mname=new Date(dpY,dpM,1).toLocaleString('en-US',{month:'long',year:'numeric'});
   const dpElId=document.getElementById('dp-'+dpT.id)?'dp-'+dpT.id:'mdp-'+dpT.id;
   let h=`<div class="dptabs"><div class="dptab ${dpMode==='day'?'on':''}" onclick="event.stopPropagation();dpMode='day';renderDp(document.getElementById('${dpElId}'))">Day</div><div class="dptab ${dpMode==='week'?'on':''}" onclick="event.stopPropagation();dpMode='week';renderDp(document.getElementById('${dpElId}'))">Week</div></div>`;
@@ -812,10 +880,14 @@ function saveTask(){
   const today=new Date().toISOString().split('T')[0];
   const oldTask=eId?{...ft(eId,eSec)}:null;
   const taskType=document.getElementById('fType').value;
+  // Reject malformed dates from imports / older browsers — only accept ISO YYYY-MM-DD.
+  const rawDue=document.getElementById('fDue').value;
+  const safeDue=(rawDue===''||isValidISODate(rawDue))?rawDue:'';
+  if(rawDue&&!safeDue) showToast('⚠️ Due date ignored — use YYYY-MM-DD format');
   const obj={
     task:val, note:document.getElementById('fNote').value.trim(), url:document.getElementById('fUrl').value.trim(),
     priority:document.getElementById('fPri').value, status:newStat,
-    due:document.getElementById('fDue').value, type:taskType,
+    due:safeDue, type:taskType,
     rInterval:document.getElementById('fRInterval').value,
     urgent:parseInt(document.getElementById('fUrg').value),
     confidential:document.getElementById('fConf').value==='1',
@@ -888,7 +960,7 @@ function _fMatch(f,t){
   if(f==='backlog') return t.status==='Backlog';
   if(f==='aging') return ageLevel(t)!=='none';
   if(f==='overdue') return ds(t.due)==='u';
-  if(f==='week'){ if(!t.due) return false; const td=new Date();td.setHours(0,0,0,0); const eow=new Date(td);eow.setDate(td.getDate()+(7-td.getDay())%7); const d=new Date(t.due+'T00:00:00'); return d>=td&&d<=eow; }
+  if(f==='week'){ const d=safeDate(t.due); if(!d) return false; const td=new Date();td.setHours(0,0,0,0); const eow=new Date(td);eow.setDate(td.getDate()+(7-td.getDay())%7); return d>=td&&d<=eow; }
   return false;
 }
 function matchesFilter(t){ for(const f of activeF){ if(_fMatch(f,t)) return true; } return false; }
@@ -902,7 +974,7 @@ function matchesPerson(t){
   });
 }
 function matchesAll(t){ return matchesFilter(t)&&matchesPerson(t); }
-function _syncPills(){ document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',activeF.has(p.dataset.f))); }
+function _syncPills(){ document.querySelectorAll('.pill').forEach(p=>{ const on=activeF.has(p.dataset.f); p.classList.toggle('on',on); p.setAttribute('aria-pressed',String(on)); }); }
 function setF(f,el,evt){
   if(el&&el.classList.contains('pill-disabled')) return;
   const multi=evt&&(evt.ctrlKey||evt.metaKey);
@@ -960,7 +1032,7 @@ function toggleDone(){
   if(curView==='today') renderToday();
 }
 
-function sw(v){ logEvent('view',v,{}); curView=v; document.querySelectorAll('.vpanel').forEach(p=>p.classList.remove('on')); document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('on')); document.querySelectorAll('.nit').forEach(n=>n.classList.remove('on')); document.getElementById('view-'+v).classList.add('on'); const tab=document.getElementById('tab-'+v); if(tab) tab.classList.add('on'); const mnav=document.getElementById('mnav-'+v); if(mnav) mnav.classList.add('on'); const noFilters=v==='inbox'||v==='review'||v==='analytics'; const noBacklog=v==='today'||v==='kanban'||v==='matrix'; document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('pill-disabled',noFilters||(noBacklog&&p.dataset.f==='backlog'))); if((noFilters||noBacklog)&&activeF.has('backlog')){ activeF=new Set(['all']); _syncPills(); } if(v==='tasks') renderAll(); if(v==='today') renderToday(); if(v==='matrix') renderMatrix(); if(v==='inbox'){etLoad();renderInbox();} if(v==='review') renderReview(); if(v==='kanban') renderKanban(); if(v==='analytics') renderAnalytics(); }
+function sw(v){ logEvent('view',v,{}); curView=v; document.querySelectorAll('.vpanel').forEach(p=>p.classList.remove('on')); document.querySelectorAll('.vtab').forEach(t=>{ t.classList.remove('on'); t.setAttribute('aria-selected','false'); t.setAttribute('tabindex','-1'); }); document.querySelectorAll('.nit').forEach(n=>n.classList.remove('on')); document.getElementById('view-'+v).classList.add('on'); const tab=document.getElementById('tab-'+v); if(tab){ tab.classList.add('on'); tab.setAttribute('aria-selected','true'); tab.setAttribute('tabindex','0'); } const mnav=document.getElementById('mnav-'+v); if(mnav) mnav.classList.add('on'); const noFilters=v==='inbox'||v==='review'||v==='analytics'; const noBacklog=v==='today'||v==='kanban'||v==='matrix'; document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('pill-disabled',noFilters||(noBacklog&&p.dataset.f==='backlog'))); if((noFilters||noBacklog)&&activeF.has('backlog')){ activeF=new Set(['all']); _syncPills(); } if(v==='tasks') renderAll(); if(v==='today') renderToday(); if(v==='matrix') renderMatrix(); if(v==='inbox'){etLoad();renderInbox();} if(v==='review') renderReview(); if(v==='kanban') renderKanban(); if(v==='analytics') renderAnalytics(); }
 
 // ═══ TODAY ═══
 // Today View
@@ -1021,7 +1093,7 @@ function todayCard(t,allTaskMap){
       <div class="tcm">
         <span class="badge ${PC[t.priority]}" style="font-size:10px;padding:2px 7px;pointer-events:none"><span class="bd"></span>${t.priority}</span>
         ${t.due?`<span style="color:${d==='u'?'var(--p1)':d==='s'?'var(--amber)':'var(--muted)'};font-size:12px">📅 ${fd(t.due)}</span>`:''}
-        ${conns.map(c=>`<span class="conn-tag" style="font-size:10px">${c}</span>`).join('')}
+        ${conns.map(c=>`<span class="conn-tag" style="font-size:10px" title="${escAttr(c)}">${escHtml(c)}</span>`).join('')}
         ${t.note?`<span style="font-size:12px;color:var(--muted);font-style:italic">${dT(t.note)}</span>`:''}
         ${t.kanbanCol==='today'?`<span style="font-size:11px;color:var(--teal);font-weight:600;margin-left:2px" title="In Kanban Today column">📊</span>`:''}
         ${t.url?`<a class="turl-link" href="${escAttr(t.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="${escAttr(t.url)}">&#128279; Link</a>`:''}
@@ -1070,7 +1142,7 @@ function renderMatrix(){
         <div class="qim">
           <span class="badge ${PC[t.priority]}" style="font-size:10px;padding:2px 7px;pointer-events:none"><span class="bd"></span>${t.priority}</span>
           ${t.due?'· 📅 '+fd(t.due):''}
-          ${(t.connections||[]).slice(0,2).map(c=>`<span class="conn-tag" style="font-size:10px">${c}</span>`).join('')}
+          ${(t.connections||[]).slice(0,2).map(c=>`<span class="conn-tag" style="font-size:10px" title="${escAttr(c)}">${escHtml(c)}</span>`).join('')}
         </div>
       </div>`).join('');
     el.innerHTML=items||`<div class="qdrop-hint">Drop tasks here</div>`;
@@ -1232,7 +1304,7 @@ function triageCard(t){
   // outcome chips (show all active, mark selected)
   const ocHtml=activeOuts.map(o=>{
     const sel=taskOuts.includes(o.id);
-    return `<span class="pq-oc ${sel?'sel':''}" style="${sel?`background:${o.color};border-color:${o.color}`:''}" onclick="toggleTaskOutcomeInline('${t.id}','${t.secId}','${o.id}')" title="${sel?'Remove: ':'Add: '}${escHtml(o.name)}">${escHtml(o.name)}</span>`;
+    return `<span class="pq-oc ${sel?'sel':''}" style="${sel?`background:${escAttr(o.color)};border-color:${escAttr(o.color)}`:''}" onclick="toggleTaskOutcomeInline('${escJs(t.id)}','${escJs(t.secId)}','${escJs(o.id)}')" title="${sel?'Remove: ':'Add: '}${escAttr(o.name)}">${escHtml(o.name)}</span>`;
   }).join('');
   // segmented controls
   function seg(field,opts,cur){ return `<div class="pq-seg">${opts.map(([v,l])=>`<button class="pq-seg-btn ${cur===v?'on':''}" onclick="setPData('${t.id}','${t.secId}','${field}','${v}')">${l}</button>`).join('')}</div>`; }
@@ -1310,7 +1382,7 @@ function showToast(msg){ const t=document.getElementById('toast'); t.textContent
 // ════════════════════════════════════════
 let paMode=false, paIdx=0;
 
-function ixAgeDays(added){ const today=new Date();today.setHours(0,0,0,0); const d=new Date(added+'T00:00:00'); return Math.floor((today-d)/86400000); }
+function ixAgeDays(added){ const d=safeDate(added); if(!d) return 0; const today=new Date();today.setHours(0,0,0,0); return Math.floor((today-d)/86400000); }
 function ixAgeLabel(days){ if(days===0) return 'Added today'; if(days===1) return 'Added yesterday'; if(days<7) return `Added ${days} days ago`; if(days<14) return 'Added 1 week ago'; return `Added ${Math.floor(days/7)} weeks ago`; }
 
 function updateInboxBadge(){ const n=(S.inbox||[]).length+_etTasks.length; const b=document.getElementById('tbadge-inbox'); if(b){b.textContent=n;b.style.display=n>0?'':'none';} }
@@ -1702,7 +1774,7 @@ function kDrop(toCol){
   if(toCol==='done'){
     if(t.type==='recurring'){
       const interval=t.rInterval||'monthly';let newDue='';
-      if(t.due){const d=new Date(t.due+'T12:00:00');if(interval==='monthly')d.setMonth(d.getMonth()+1);else if(interval==='weekly')d.setDate(d.getDate()+7);else if(interval==='quarterly')d.setMonth(d.getMonth()+3);newDue=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
+      if(isValidISODate(t.due)){let d=new Date(t.due+'T12:00:00');if(interval==='monthly')d=addMonthsClamped(d,1);else if(interval==='weekly')d.setDate(d.getDate()+7);else if(interval==='quarterly')d=addMonthsClamped(d,3);newDue=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
       const arc=clone(t);arc.id=genId('a');arc.status='Done';arc.kanbanCol='done';
       arc.note=(t.note?t.note+' ':'')+'[completed '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})+']';
       S.sections.find(s=>s.id===kDragSec).tasks.push(arc);
@@ -1887,7 +1959,7 @@ function openAddSub(parentId,parentSec){
 function renderKbFbar(){
   const bar=document.getElementById('kb-fbar'); if(!bar) return;
   let h=`<span class="kb-fpill ${kanbanSectionFilter.has('all')?'on':''}" onclick="setKbFilter('all',event)">All</span>`;
-  S.sections.forEach(s=>{ h+=`<span class="kb-fpill ${kanbanSectionFilter.has(s.id)?'on':''}" onclick="setKbFilter('${s.id}',event)">${s.icon||''} ${s.title.replace(/ — .*/,'')}</span>`; });
+  S.sections.forEach(s=>{ h+=`<span class="kb-fpill ${kanbanSectionFilter.has(s.id)?'on':''}" onclick="setKbFilter('${escJs(s.id)}',event)">${escHtml(s.icon||'')} ${escHtml(s.title.replace(/ — .*/,''))}</span>`; });
   bar.innerHTML=h;
 }
 function setKbFilter(id,evt){
@@ -1951,10 +2023,33 @@ function anFilterPerson(name){
   sw('tasks');
   setTimeout(()=>applyF(), 100);
 }
-function getLog(){ try{ return JSON.parse(localStorage.getItem('focal_log'))||{events:[],weeks:[]}; }catch{ return {events:[],weeks:[]}; } }
+function getLog(){
+  try{
+    const raw=localStorage.getItem('focal_log');
+    if(!raw) return {events:[],weeks:[]};
+    const parsed=JSON.parse(raw);
+    if(!parsed||typeof parsed!=='object') return {events:[],weeks:[]};
+    if(!Array.isArray(parsed.events)) parsed.events=[];
+    if(!Array.isArray(parsed.weeks)) parsed.weeks=[];
+    return parsed;
+  }catch(err){
+    console.warn('Focal: focal_log unreadable — starting fresh', err);
+    return {events:[],weeks:[]};
+  }
+}
+// Hard cap: events older than 1y get pruned by computeWeekSummary, but also cap raw count to avoid quota DoS.
+const LOG_EVENT_CAP=5000;
 function saveLog(log){
+  if(log&&Array.isArray(log.events)&&log.events.length>LOG_EVENT_CAP) log.events=log.events.slice(-LOG_EVENT_CAP);
   try{ localStorage.setItem('focal_log',JSON.stringify(log)); }
-  catch{ log.events=log.events.slice(-500); try{ localStorage.setItem('focal_log',JSON.stringify(log)); }catch{} }
+  catch(err){
+    // Quota — trim aggressively and retry once. Log if still failing.
+    try{
+      log.events=(log.events||[]).slice(-500);
+      log.weeks=(log.weeks||[]).slice(-26);
+      localStorage.setItem('focal_log',JSON.stringify(log));
+    }catch(err2){ console.warn('Focal: analytics log save failed even after trim', err2); }
+  }
 }
 function logEvent(type,id,data){
   const log=getLog();
@@ -2114,7 +2209,7 @@ function renderAnalytics(){
     });
   }));
   const pplRows=Object.entries(pplMap).sort((a,b)=>(b[1].open+b[1].done)-(a[1].open+a[1].done)).slice(0,8).map(([name,v])=>({
-    name,icon:'',open:v.open,done:v.done,onclick:`anFilterPerson('${escHtml(name)}')`
+    name,icon:'',open:v.open,done:v.done,onclick:`anFilterPerson('${escJs(name)}')`
   }));
   // Shared scale across all three charts
   const globalMax=Math.max(1,...catRows.map(r=>Math.max(r.open,r.done)),...priRows.map(r=>Math.max(r.open,r.done)),...pplRows.map(r=>Math.max(r.open,r.done)));
@@ -3011,6 +3106,61 @@ function fbCopy() {
 // Keyboard
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){if(!modalHasContent())closeModal();closeDrops();kCancelSubDlg();closeCtxMenu();closeKColMenu();closeSettings();closeFeedback();} if(e.key==='n'&&!e.ctrlKey&&!e.metaKey&&document.activeElement.tagName==='BODY') openAdd(); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.ctx-menu')){closeCtxMenu();closeKColMenu();} if(!e.target.closest('#personDd')){ const m=document.getElementById('personDdMenu'); if(m) m.style.display='none'; } });
+
+// Keyboard activation for role=button elements that aren't <button> (pills, vtabs, mobile nav, ctx items).
+// Enter/Space → click. We don't want this on inputs/textareas — `[tabindex]` selector already excludes them.
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ') return;
+  const el=e.target;
+  if(!el||el.tagName==='BUTTON'||el.tagName==='A'||el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT') return;
+  if(el.getAttribute&&el.getAttribute('role')==='button'&&el.tabIndex>=0){
+    e.preventDefault();
+    el.click();
+  } else if(el.getAttribute&&(el.getAttribute('role')==='menuitem'||el.getAttribute('role')==='tab')&&el.tabIndex>=0){
+    e.preventDefault();
+    el.click();
+  }
+});
+
+// Arrow-key navigation between view tabs (left/right + home/end).
+(function(){
+  const tabs=document.querySelector('.vtabs');
+  if(!tabs) return;
+  tabs.addEventListener('keydown',e=>{
+    const items=[...tabs.querySelectorAll('[role="tab"]')];
+    const i=items.indexOf(document.activeElement);
+    if(i<0) return;
+    let next=-1;
+    if(e.key==='ArrowRight') next=(i+1)%items.length;
+    else if(e.key==='ArrowLeft') next=(i-1+items.length)%items.length;
+    else if(e.key==='Home') next=0;
+    else if(e.key==='End') next=items.length-1;
+    if(next>=0){ e.preventDefault(); items[next].focus(); items[next].click(); }
+  });
+})();
+
+// Focus trap for modals — keeps Tab/Shift+Tab cycling inside an open dialog.
+function _modalFocusTrap(e){
+  if(e.key!=='Tab') return;
+  const open=document.querySelector('.ovl.on[role="dialog"]');
+  if(!open) return;
+  const focusables=open.querySelectorAll('button:not([disabled]),[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])');
+  if(!focusables.length) return;
+  const first=focusables[0], last=focusables[focusables.length-1];
+  if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+}
+document.addEventListener('keydown',_modalFocusTrap);
+
+// Sync aria-hidden on dialogs when their .on class toggles.
+const _ovlObserver=new MutationObserver(muts=>{
+  muts.forEach(m=>{
+    if(m.target.classList&&(m.target.id==='ovl'||m.target.id==='settingsOvl'||m.target.id==='feedbackOvl')){
+      m.target.setAttribute('aria-hidden', m.target.classList.contains('on')?'false':'true');
+    }
+  });
+});
+['ovl','settingsOvl','feedbackOvl'].forEach(id=>{ const el=document.getElementById(id); if(el) _ovlObserver.observe(el,{attributes:true,attributeFilter:['class','style']}); });
 
 // ═══ INIT ═══
 
