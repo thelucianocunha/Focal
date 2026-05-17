@@ -99,15 +99,20 @@ function saveS(){
         log.weeks=(log.weeks||[]).slice(-26);
         localStorage.setItem('focal_log',JSON.stringify(log));
         localStorage.setItem('focal_v1',JSON.stringify(S));
-        return; // recovered
-      }catch{}
-    }
-    const now=Date.now();
-    if(now-_saveWarned>5000){
-      _saveWarned=now;
-      try{ showToast(isQuota?'⚠️ Browser storage full — your change was NOT saved. Export data or remove old tasks/notes.':'⚠️ Save failed — check console.', 8000); }catch{}
+        // fall through to bkSync below
+      }catch{
+        const now=Date.now();
+        if(now-_saveWarned>5000){ _saveWarned=now; try{ showToast('⚠️ Browser storage full — your change was NOT saved. Export data or remove old tasks/notes.', 8000); }catch{} }
+        return;
+      }
+    } else {
+      const now=Date.now();
+      if(now-_saveWarned>5000){ _saveWarned=now; try{ showToast('⚠️ Save failed — check console.', 8000); }catch{} }
+      return;
     }
   }
+  // Mirror to auto-backup file (debounced) if connected. Never blocks the local save.
+  try{ if(typeof bkSync==='function') bkSync(false); }catch{}
 }
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
 function genId(p){ return p+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
@@ -2425,14 +2430,15 @@ function openSettingsPanel(tab){
 }
 function switchSettingsTab(tab){
   _settingsTab=tab;
-  ['categories','people','ai','outcomes','email','appearance'].forEach(t=>{
-    document.getElementById('stab-body-'+t).style.display=t===tab?'':'none';
-    document.getElementById('stab-'+t).classList.toggle('on',t===tab);
+  ['categories','people','ai','outcomes','email','appearance','data'].forEach(t=>{
+    const body=document.getElementById('stab-body-'+t); if(body) body.style.display=t===tab?'':'none';
+    const btn=document.getElementById('stab-'+t); if(btn) btn.classList.toggle('on',t===tab);
   });
   document.getElementById('sf-test').style.display=tab==='ai'?'':'none';
   document.getElementById('sf-save').style.display=tab==='ai'?'':'none';
   if(tab==='email') renderEmailSettingsTab();
   if(tab==='appearance') renderAppearanceTab();
+  if(tab==='data') renderDataTab();
 }
 function openSettings(){ openSettingsPanel('ai'); }
 function closeSettings(){
@@ -2754,6 +2760,239 @@ async function generateWeeklyDebrief(){
   if(!el) return;
   if(result){ el.innerHTML=`<div class="wr-ai-debrief-hdr">✨ AI Weekly Debrief</div><div class="wr-ai-debrief-body">${escHtml(result)}</div>`; }
   else { el.innerHTML=`<div class="wr-ai-debrief-hdr">✨ AI Weekly Debrief</div><div class="wr-ai-debrief-body" style="color:var(--muted);font-style:italic">Could not generate debrief — check API connection in 🤖 Settings.</div>`; }
+}
+
+// ═══ BACKUP ═══
+// ════════════════════════════════════════
+//  BACKUP / RESTORE — two layers:
+//   A) Manual export/import (downloads/uploads .json via browser, works everywhere)
+//   B) Auto-save (File System Access API: pick a file once → app writes to it on every change)
+//  Auto-save handle is persisted in IndexedDB ('focal_et' DB, key 'focal_backup').
+//  bkSync is called after every saveS — debounced to coalesce rapid edits.
+// ════════════════════════════════════════
+let _bkHandle=null;            // chosen file (if auto-save connected)
+let _bkSyncTimer=null;         // debounce timer for bkSync
+let _bkLastSyncAt=0;           // epoch ms of last successful auto-save
+let _bkLastError='';           // last write error message (surfaced in UI)
+const BK_DEBOUNCE_MS=500;
+
+// Sanity-check an imported object before overwriting current state.
+// Returns {ok:bool, reason:string} — caller decides whether to proceed.
+function bkValidate(obj){
+  if(!obj||typeof obj!=='object') return {ok:false,reason:'Not a JSON object'};
+  if(!Array.isArray(obj.sections)) return {ok:false,reason:'Missing "sections" array'};
+  for(const s of obj.sections){
+    if(!s||typeof s!=='object') return {ok:false,reason:'Section is not an object'};
+    if(typeof s.id!=='string'||!s.id) return {ok:false,reason:'Section missing id'};
+    if(!Array.isArray(s.tasks)) return {ok:false,reason:`Section "${s.id}" missing tasks array`};
+  }
+  return {ok:true,reason:''};
+}
+
+// Build the JSON blob that represents the current snapshot — same shape as the
+// stored S object so importing it round-trips cleanly.
+function bkSerialize(){ return JSON.stringify(S,null,2); }
+
+// Apply a parsed object as the new state — overwrites localStorage and reloads UI.
+function bkApply(obj){
+  S=obj;
+  // ensure required collections exist after restore from older shape
+  if(!S.inbox) S.inbox=[];
+  if(!S.settings) S.settings={claudeKey:'',aiModel:'claude-haiku-4-5-20251001'};
+  if(!S.knownConnections) S.knownConnections=[];
+  if(!S.personGroups) S.personGroups=[];
+  if(!S.outcomes) S.outcomes=[];
+  saveS();
+  applyTheme(); renderAll(); renderMatrixFilter(); populatePersonFilter();
+}
+
+// ── A. Manual export ──
+function bkExport(){
+  try{
+    const blob=new Blob([bkSerialize()],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='focal-backup-'+new Date().toISOString().split('T')[0]+'.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(a.href); },0);
+    logEvent('backup_export','',{bytes:blob.size});
+    showToast('💾 Backup exported to Downloads');
+  }catch(err){
+    console.error('bkExport:',err);
+    showToast('⚠️ Export failed — check console');
+  }
+}
+
+// ── A. Manual import (file input → JSON.parse → validate → apply) ──
+function bkImportFile(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const obj=JSON.parse(reader.result);
+      const v=bkValidate(obj);
+      if(!v.ok){ showToast('⚠️ Invalid backup file: '+v.reason, 6000); return; }
+      const taskCount=obj.sections.reduce((n,s)=>n+s.tasks.length,0);
+      const cur=S.sections.reduce((n,s)=>n+s.tasks.length,0);
+      if(!confirm(`Restore from this backup?\n\nIncoming: ${obj.sections.length} sections, ${taskCount} tasks\nCurrent:  ${S.sections.length} sections, ${cur} tasks\n\nThis OVERWRITES your current Focal data. A safety copy of your current state will be saved to localStorage as focal_v1_prerestore_<timestamp>.\n\nProceed?`)) return;
+      // safety: snapshot current state before clobbering
+      try{ localStorage.setItem('focal_v1_prerestore_'+Date.now(), localStorage.getItem('focal_v1')||''); }catch{}
+      bkApply(obj);
+      logEvent('backup_import','',{tasks:taskCount,sections:obj.sections.length});
+      showToast('✓ Backup restored — '+taskCount+' tasks loaded');
+      renderDataTab();
+    }catch(err){
+      console.error('bkImportFile:',err);
+      showToast('⚠️ Could not parse JSON — file may be corrupted', 6000);
+    }
+  };
+  reader.onerror=()=>showToast('⚠️ Could not read file');
+  reader.readAsText(file);
+}
+
+// ── B. Auto-backup: connect, sync, restore via File System Access API ──
+const _FSA_SUPPORTED=()=>typeof window.showSaveFilePicker==='function';
+
+async function bkConnect(){
+  if(!_FSA_SUPPORTED()){ showToast('Auto-save requires Chrome or Edge — use Export instead', 6000); return; }
+  try{
+    const handle=await window.showSaveFilePicker({
+      suggestedName:'focal-backup.json',
+      types:[{description:'Focal Backup',accept:{'application/json':['.json']}}],
+      id:'focal-backup', startIn:'documents'
+    });
+    const db=await etOpenDB();
+    await new Promise((res,rej)=>{const tx=db.transaction('handles','readwrite');tx.objectStore('handles').put(handle,'focal_backup');tx.oncomplete=res;tx.onerror=rej;});
+    _bkHandle=handle;
+    await bkSync(true);
+    showToast('✓ Auto-backup connected — saves on every change');
+    renderDataTab();
+    logEvent('backup_connect','',{});
+  }catch(err){
+    if(err.name!=='AbortError'){ console.warn('bkConnect:',err); showToast('⚠️ Could not connect backup file'); }
+  }
+}
+
+async function bkLoadHandle(){
+  if(!_FSA_SUPPORTED()) return;
+  try{
+    const db=await etOpenDB();
+    const handle=await new Promise((res,rej)=>{const tx=db.transaction('handles','readonly');const r=tx.objectStore('handles').get('focal_backup');r.onsuccess=e=>res(e.target.result||null);r.onerror=rej;});
+    if(!handle){ _bkHandle=null; return; }
+    const perm=await handle.queryPermission({mode:'readwrite'});
+    if(perm==='granted'){ _bkHandle=handle; }
+    else { _bkHandle=handle; /* will prompt on first write */ }
+  }catch(err){ console.warn('bkLoadHandle:',err); _bkHandle=null; }
+}
+
+async function bkSync(force){
+  if(!_bkHandle) return;
+  // debounce
+  if(!force){
+    clearTimeout(_bkSyncTimer);
+    _bkSyncTimer=setTimeout(()=>bkSync(true), BK_DEBOUNCE_MS);
+    return;
+  }
+  try{
+    // verify permission still granted (silently re-prompts only if user revoked)
+    const perm=await _bkHandle.queryPermission({mode:'readwrite'});
+    if(perm!=='granted'){ const g=await _bkHandle.requestPermission({mode:'readwrite'}); if(g!=='granted'){ _bkLastError='Permission denied'; renderDataTab(); return; } }
+    const w=await _bkHandle.createWritable();
+    await w.write(bkSerialize());
+    await w.close();
+    _bkLastSyncAt=Date.now();
+    _bkLastError='';
+    renderDataTab();
+  }catch(err){
+    console.warn('bkSync:',err);
+    _bkLastError=err&&err.message?err.message:String(err);
+    renderDataTab();
+  }
+}
+
+async function bkRestoreFromFile(){
+  if(!_bkHandle){ showToast('No backup file connected'); return; }
+  try{
+    const perm=await _bkHandle.queryPermission({mode:'read'});
+    if(perm!=='granted'){ const g=await _bkHandle.requestPermission({mode:'read'}); if(g!=='granted'){ showToast('Read permission denied'); return; } }
+    const file=await _bkHandle.getFile();
+    const txt=await file.text();
+    if(!txt.trim()){ showToast('Backup file is empty'); return; }
+    const obj=JSON.parse(txt);
+    const v=bkValidate(obj);
+    if(!v.ok){ showToast('⚠️ Backup file is invalid: '+v.reason, 6000); return; }
+    const taskCount=obj.sections.reduce((n,s)=>n+s.tasks.length,0);
+    if(!confirm(`Restore from connected backup file?\n\n${obj.sections.length} sections, ${taskCount} tasks will overwrite your current Focal data.\n\nA safety copy will be saved first. Proceed?`)) return;
+    try{ localStorage.setItem('focal_v1_prerestore_'+Date.now(), localStorage.getItem('focal_v1')||''); }catch{}
+    bkApply(obj);
+    showToast('✓ Restored from auto-backup');
+    renderDataTab();
+  }catch(err){
+    console.error('bkRestoreFromFile:',err);
+    showToast('⚠️ Restore failed — '+(err.message||err));
+  }
+}
+
+async function bkDisconnect(){
+  try{
+    const db=await etOpenDB();
+    await new Promise((res,rej)=>{const tx=db.transaction('handles','readwrite');tx.objectStore('handles').delete('focal_backup');tx.oncomplete=res;tx.onerror=rej;});
+  }catch{}
+  _bkHandle=null; _bkLastSyncAt=0; _bkLastError='';
+  showToast('Auto-backup disconnected');
+  renderDataTab();
+}
+
+// Render the Settings → 💾 Data tab body.
+function renderDataTab(){
+  const el=document.getElementById('dataMgrBody'); if(!el) return;
+  const connected=!!_bkHandle;
+  const fsaOk=_FSA_SUPPORTED();
+  const lastSync=_bkLastSyncAt?new Date(_bkLastSyncAt).toLocaleTimeString():'—';
+  const fileName=connected&&_bkHandle.name?escHtml(_bkHandle.name):'(file)';
+  // Show any prerestore safety snapshots so user knows they exist
+  let snapshots=[];
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&(k.startsWith('focal_v1_prerestore_')||k.startsWith('focal_v1_corrupted_'))) snapshots.push(k); } }catch{}
+  el.innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px">📦 Manual backup</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Download a snapshot of your current Focal data as a JSON file, or restore from one. Works in every browser.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="bsec" onclick="bkExport()">⬇ Export JSON</button>
+          <label class="bsec" style="cursor:pointer">⬆ Import JSON<input type="file" accept="application/json,.json" style="display:none" onchange="bkImportFile(this.files[0]);this.value=''"></label>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--border)"></div>
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px">🔄 Auto-backup ${connected?'<span style="font-size:11px;font-weight:500;color:var(--teal);background:var(--teal-dim);padding:2px 7px;border-radius:8px;margin-left:6px">CONNECTED</span>':''}</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Pick a backup file once — Focal will save to it silently on every change. Great when paired with a OneDrive/iCloud/Dropbox folder for cross-device sync.</p>
+        ${!fsaOk?`<div style="font-size:12px;background:var(--p2bg);border:1px solid var(--p2b);color:var(--p2);padding:8px 10px;border-radius:6px;margin-bottom:10px">⚠️ Auto-save requires Chrome or Edge. Use Manual Export above.</div>`:''}
+        ${connected?`
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">
+            <div>File: <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">${fileName}</code></div>
+            <div>Last save: ${lastSync}</div>
+            ${_bkLastError?`<div style="color:var(--p1)">Last error: ${escHtml(_bkLastError)}</div>`:''}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="bsec" onclick="bkSync(true)">↻ Save now</button>
+            <button class="bsec" onclick="bkRestoreFromFile()">↺ Restore from file</button>
+            <button class="bsec" onclick="bkDisconnect()" style="color:var(--p1);border-color:var(--p1b)">✕ Disconnect</button>
+          </div>
+        `:`
+          <button class="bpri" ${fsaOk?'':'disabled style="opacity:.5;cursor:not-allowed"'} onclick="bkConnect()">🔗 Connect backup file…</button>
+        `}
+      </div>
+      ${snapshots.length?`
+        <div style="height:1px;background:var(--border)"></div>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px">🛟 Safety snapshots</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5">Older copies of your data preserved when something went wrong or you ran a restore. Open DevTools → Application → Local Storage to inspect or copy them out.</p>
+          <ul style="font-size:11px;color:var(--muted);padding-left:18px;margin:0">${snapshots.slice(-5).map(k=>`<li><code style="background:var(--surface2);padding:1px 4px;border-radius:3px">${escHtml(k)}</code></li>`).join('')}</ul>
+          ${snapshots.length>5?`<div style="font-size:11px;color:var(--dim);margin-top:4px">+${snapshots.length-5} more</div>`:''}
+        </div>
+      `:''}
+    </div>`;
 }
 
 // ═══ EMAIL TASKS ═══
@@ -3172,5 +3411,6 @@ computeWeekSummary();
 populatePersonFilter();
 syncAiVisibility();
 etLoad();
+bkLoadHandle(); // load auto-backup file handle from IndexedDB (silent if none)
 // Initialize pill disabled states for default view
 (function(){ const v=curView; const noFilters=v==='inbox'||v==='review'||v==='analytics'; const noBacklog=v==='today'||v==='kanban'||v==='matrix'; document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('pill-disabled',noFilters||(noBacklog&&p.dataset.f==='backlog'))); })();

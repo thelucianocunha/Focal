@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.3.0</title>
+<title>Focal — User Manual v10.4.0</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -713,7 +713,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Focal</div>
       <div class="sidebar-title">User Manual</div>
-      <div class="sidebar-ver">Version 10.3.0 · May 17, 2026</div>
+      <div class="sidebar-ver">Version 10.4.0 · May 17, 2026</div>
     </div>
 
     <div class="nav-group">
@@ -764,7 +764,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.3.0</h1>
+      <h1>Focal v10.4.0</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -1916,6 +1916,51 @@ to a local folder. It should:
 
     <hr class="sec-div">
 
+    <!-- ── BACKUP & RESTORE v10.4.0 ── -->
+    <section class="section" id="backup">
+      <div class="section-eyebrow">Feature — v10.4.0</div>
+      <h2>💾 Backup &amp; Restore</h2>
+      <p class="section-lead">Your Focal data lives in your browser's localStorage — fast, private, offline. But browser data can be wiped (cache clear, profile reset, "Clear site data") and there's no cloud sync by default. v10.4.0 adds two ways to back it up — manual export and silent auto-save to a file you choose.</p>
+
+      <h3>Open it</h3>
+      <p><strong>⚙️ Settings → 💾 Data</strong></p>
+
+      <h3>A. Manual export / import (every browser)</h3>
+      <ul class="blist">
+        <li><strong>⬇ Export JSON</strong> — downloads a complete snapshot to your Downloads folder, named <code>focal-backup-YYYY-MM-DD.json</code>. Drop it into OneDrive / iCloud / Dropbox for off-device safety.</li>
+        <li><strong>⬆ Import JSON</strong> — pick a previously exported file to restore. Focal validates the structure first, then asks for confirmation showing incoming vs. current task counts. Your existing state is saved as a <code>focal_v1_prerestore_*</code> snapshot before the overwrite, so you can always roll back.</li>
+      </ul>
+
+      <h3>B. Auto-backup to a file (Chrome / Edge)</h3>
+      <p>Click <strong>🔗 Connect backup file…</strong>, pick a location (e.g. <code>Documents\focal-backup.json</code>), and Focal writes to that exact file silently on every change. Pair it with a synced folder (OneDrive, iCloud Drive, Dropbox, Google Drive) and your Focal data follows you across devices with zero server.</p>
+      <ul class="blist">
+        <li><strong>↻ Save now</strong> — force a write immediately (useful before closing your laptop).</li>
+        <li><strong>↺ Restore from file</strong> — pull the latest state from the backup file (e.g. after editing on another device).</li>
+        <li><strong>✕ Disconnect</strong> — forget the file. Manual export still works.</li>
+      </ul>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Writes are debounced ~500 ms, so rapid edits coalesce into a single save. The "Last save" timestamp on the Data tab confirms the most recent successful write.</p>
+      </div>
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <p>Auto-save uses the File System Access API, available in Chrome and Edge but not Safari or Firefox. On unsupported browsers, the Connect button is disabled and you'll see a prompt to use Manual Export instead.</p>
+      </div>
+
+      <h3>Safety snapshots</h3>
+      <p>Whenever something dangerous happens — a restore, or recovery from corrupted storage — Focal preserves a copy of your previous state under a key like <code>focal_v1_prerestore_1736942000</code> or <code>focal_v1_corrupted_*</code>. The Data tab lists the most recent ones. To recover: open DevTools → Application → Local Storage, find the key, copy the value, and paste it back to <code>focal_v1</code>.</p>
+
+      <h3>Cross-device workflow</h3>
+      <ol class="blist">
+        <li>On your main machine: Connect backup file → pick <code>OneDrive\Documents\focal-backup.json</code>.</li>
+        <li>On a second machine (signed in to the same OneDrive): Connect backup file → pick the same file.</li>
+        <li>On the second machine: click <strong>↺ Restore from file</strong> to pull the latest state.</li>
+      </ol>
+      <p>Note: this is "manual sync" — there's no real-time merge. If you edit on both machines simultaneously, the most recent write wins.</p>
+    </section>
+
+    <hr class="sec-div">
+
     <!-- ── HARDENING v10.3.0 ── -->
     <section class="section" id="hardening">
       <div class="section-eyebrow">Reliability — v10.3.0</div>
@@ -2125,7 +2170,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.3.0 — May 17, 2026</p>
+      <p>Focal v10.4.0 — May 17, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 
