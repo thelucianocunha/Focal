@@ -1519,7 +1519,7 @@ html.dark #feedbackOvl .modal{background:var(--fcl-bg-shell)}
    PEOPLE TAB v10.7 — two-column groups + people, sticky letter
    headers, A-Z jump rail, inline group chips. Scoped to Settings shell.
    ═══════════════════════════════════════════════════════════════════ */
-.fcl-settings .ppl-shell{display:grid;grid-template-columns:240px 1fr;gap:24px;height:100%;min-height:0;overflow:hidden}
+.fcl-settings .ppl-shell{display:grid;grid-template-columns:240px 1fr;gap:24px;flex:1;min-height:0;overflow:hidden}
 .fcl-settings .ppl-groups-col{display:flex;flex-direction:column;gap:2px;border-right:1px solid var(--fcl-border);padding-right:18px;overflow-y:auto;min-height:0}
 .fcl-settings .ppl-grow{display:grid;grid-template-columns:16px 1fr auto;gap:10px;align-items:center;padding:7px 10px;border:0;background:transparent;color:var(--fcl-text-dim);font:inherit;font-size:13.5px;text-align:left;cursor:pointer;border-radius:var(--fcl-r-md);transition:background 100ms ease,color 100ms ease}
 .fcl-settings .ppl-grow:hover:not(.on){background:var(--fcl-bg-hover);color:var(--fcl-text)}
