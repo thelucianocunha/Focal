@@ -2,7 +2,7 @@
 
 > See clearly. Act decisively.
 
-[![Version](https://img.shields.io/badge/version-10.1.0-00B5B0?style=flat-square)](https://github.com/thelucianocunha/Focal/releases)
+[![Version](https://img.shields.io/badge/version-10.9.6-00B5B0?style=flat-square)](https://github.com/thelucianocunha/Focal/releases)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC_BY--NC_4.0-4A90D9?style=flat-square)](LICENSE)
 [![Zero dependencies](https://img.shields.io/badge/dependencies-zero-34D399?style=flat-square)](#)
 
@@ -12,13 +12,25 @@
 
 Focal is a lightweight, privacy-first task management app designed for leaders who need to stay on top of priorities without complexity. It runs entirely in your browser — no server, no account, no tracking. Your data never leaves your device.
 
-| Today — light mode | Today — dark mode |
+| Today — light | Today — dark |
 |---|---|
 | ![Today view — light mode](assets/screenshots/today-light.png) | ![Today view — dark mode](assets/screenshots/today-dark.png) |
 
-| Kanban — light mode | Kanban — dark mode |
+| Kanban — light | Kanban — dark |
 |---|---|
 | ![Kanban view — light mode](assets/screenshots/kanban-light.png) | ![Kanban view — dark mode](assets/screenshots/kanban-dark.png) |
+
+| Matrix — light | Matrix — dark |
+|---|---|
+| ![Matrix view — light mode](assets/screenshots/matrix-light.png) | ![Matrix view — dark mode](assets/screenshots/matrix-dark.png) |
+
+| Analytics — light | Analytics — dark |
+|---|---|
+| ![Analytics view — light mode](assets/screenshots/analytics-light.png) | ![Analytics view — dark mode](assets/screenshots/analytics-dark.png) |
+
+| Theme settings — light | Theme settings — dark |
+|---|---|
+| ![Theme settings — light mode](assets/screenshots/settings-light.png) | ![Theme settings — dark mode](assets/screenshots/settings-dark.png) |
 
 ## Features
 
