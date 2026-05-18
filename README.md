@@ -24,10 +24,6 @@ Focal is a lightweight, privacy-first task management app designed for leaders w
 |---|---|
 | ![Matrix view — light mode](assets/screenshots/matrix-light.png) | ![Matrix view — dark mode](assets/screenshots/matrix-dark.png) |
 
-| Analytics — light | Analytics — dark |
-|---|---|
-| ![Analytics view — light mode](assets/screenshots/analytics-light.png) | ![Analytics view — dark mode](assets/screenshots/analytics-dark.png) |
-
 | Theme settings — light | Theme settings — dark |
 |---|---|
 | ![Theme settings — light mode](assets/screenshots/settings-light.png) | ![Theme settings — dark mode](assets/screenshots/settings-dark.png) |
