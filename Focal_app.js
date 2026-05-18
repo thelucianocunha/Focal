@@ -1725,7 +1725,7 @@ function renderKanban(){
         const rest=ordPool.filter(t=>{const d=ds(t.due);return d!=='u'&&d!=='s'&&!dsNW(t.due);});
         let ph='';
         if(overdue.length){ph+=`<div class="kb-due-hdr kb-due-hdr-od">${t('kb_overdue_badge',{n:overdue.length})}</div>`;ph+=overdue.map(t=>kanbanCard(t,'pool')).join('');ph+=`<div class="kb-due-sep"></div>`;}
-        if(dueSoon.length){ph+=`<div class="kb-due-hdr">${t('kb_due_this_week')}</div>`;ph+=dueSoon.map(t=>kanbanCard(t,'pool')).join('');}
+        if(dueSoon.length){ph+=`<div class="kb-due-hdr"><span>${t('kb_due_this_week')}</span><button class="kb-due-move-btn" onclick="event.stopPropagation();kbMoveWeekDue()" title="${window.t('kb_move_due_week_title')}">${window.t('kb_move_due_week_btn')}</button></div>`;ph+=dueSoon.map(t=>kanbanCard(t,'pool')).join('');}
         if(dueNext.length){if(dueSoon.length)ph+=`<div class="kb-due-sep"></div>`;ph+=`<div class="kb-due-hdr kb-due-hdr-nw">${t('kb_due_next_week')}</div>`;ph+=dueNext.map(t=>kanbanCard(t,'pool')).join('');}
         if((overdue.length||dueSoon.length||dueNext.length)&&rest.length)ph+=`<div class="kb-due-sep"></div>`;
         ph+=rest.map(t=>kanbanCard(t,'pool')).join('');
@@ -1887,6 +1887,19 @@ function kDrop(toCol){
   logEvent('kanban',kDragId,{from:evFrom,to:toCol});
   kDragId=null;kDragSec=null;kDragFromCol=null;
   saveS();renderKanban();renderStats();
+}
+
+function kbMoveWeekDue(){
+  let count=0;
+  S.sections.forEach(s=>s.tasks.forEach(t=>{
+    if(t.kanbanCol===null&&t.status!=='Done'&&t.status!=='Backlog'&&ds(t.due)==='s'){
+      t.kanbanCol='week';count++;
+    }
+  }));
+  if(!count){showToast(window.t('kb_move_due_week_none'));return;}
+  logEvent('kanban','bulk',{a:'move_due_week',n:count});
+  saveS();renderKanban();renderStats();
+  showToast(window.t('kb_move_due_week_toast',{n:count}));
 }
 
 function kbNewWeek(){

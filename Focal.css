@@ -382,8 +382,10 @@ tbody tr:hover .rac{opacity:1}
 .an-wr-pulse .an-card .sn{font-size:18px}
 
 /* == KANBAN POOL DUE-SOON == */
-.kb-due-hdr{font-size:11px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;padding:6px 4px 4px;margin-bottom:4px}
+.kb-due-hdr{font-size:11px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;padding:6px 4px 4px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
 .kb-due-hdr-nw{color:var(--teal)}
+.kb-due-move-btn{font-size:10px;font-weight:600;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(0,181,176,.3);border-radius:10px;padding:2px 8px;cursor:pointer;text-transform:none;letter-spacing:0;white-space:nowrap;line-height:1.4}
+.kb-due-move-btn:hover{background:rgba(0,181,176,.25)}
 .kb-due-hdr-od{color:var(--p1);background:var(--p1bg);border-radius:var(--rs);padding:5px 8px;margin-bottom:4px}
 .kb-due-sep{height:1px;background:var(--border);margin:10px 0}
 .kc-due-week{border-left:3px solid var(--amber)!important}
