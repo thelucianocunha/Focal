@@ -2445,7 +2445,7 @@ function populatePersonFilter(){
   const groups=(S.personGroups||[]).slice().sort((a,b)=>a.name.localeCompare(b.name));
   const grpNameSet=new Set(groups.map(g=>g.name.toLowerCase()));
   const people=(S.knownConnections||[]).slice().sort().filter(n=>!grpNameSet.has(n.toLowerCase()));
-  let h=`<div class="person-dd-search-wrap"><input class="person-dd-search" id="personDdSearch" type="text" placeholder="${escAttr(t('person_dd_search'))}" autocomplete="off" oninput="filterPersonDd(this.value)" onclick="event.stopPropagation()"></div>`;
+  let h=`<div class="person-dd-search-wrap"><input class="person-dd-search" id="personDdSearch" type="text" placeholder="${escAttr(t('person_dd_search'))}" autocomplete="off" oninput="filterPersonDd(this.value)" onclick="event.stopPropagation()"><button class="pd-search-clear" id="pdSearchClear" onclick="clearPersonDdSearch(event)" style="display:none" title="Clear search">×</button></div>`;
   if(groups.length){
     h+=`<div class="person-dd-grp-hdr" data-sec="grp-hdr">${t('person_dd_groups')}</div>`;
     groups.forEach(g=>{
@@ -2494,9 +2494,16 @@ function updatePersonDdLabel(){
   else { btn.innerHTML=ico+escHtml(t('person_dd_count',{n:personFilter.length})); btn.classList.add('active'); }
   paintIcons(btn);
 }
+function clearPersonDdSearch(e){
+  e.stopPropagation();
+  const s=document.getElementById('personDdSearch'); if(s){ s.value=''; s.focus(); }
+  const btn=document.getElementById('pdSearchClear'); if(btn) btn.style.display='none';
+  filterPersonDd('');
+}
 function filterPersonDd(q){
   const menu=document.getElementById('personDdMenu'); if(!menu) return;
   const lq=q.toLowerCase().trim();
+  const clr=document.getElementById('pdSearchClear'); if(clr) clr.style.display=q?'block':'none';
   let grpVis=0, indVis=0;
   menu.querySelectorAll('.person-dd-item[data-name]').forEach(el=>{
     const match=!lq||el.dataset.name.includes(lq);
