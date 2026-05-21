@@ -1,9 +1,9 @@
-�<!DOCTYPE html>
+�<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.9.6</title>
+<title>Focal — User Manual v10.9.7</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -713,7 +713,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Focal</div>
       <div class="sidebar-title">User Manual</div>
-      <div class="sidebar-ver">Version 10.7.1 · May 18, 2026</div>
+      <div class="sidebar-ver">Version 10.9.7 · May 21, 2026</div>
     </div>
 
     <div class="nav-group">
@@ -765,7 +765,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.9.6</h1>
+      <h1>Focal v10.9.7</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -1048,12 +1048,16 @@
       <p>If the task has subtasks, marking it Done <strong>automatically marks all its subtasks Done too</strong> (cascade). The toast shows the count: <em>“✓ Done (+2 subtasks)”</em>.</p>
 
       <h3>Row drag-and-drop — subtask linking or reorder</h3>
-      <p>Drag one row onto another to get a <strong>“Make subtask?”</strong> dialog:</p>
-      <ul class="blist">
+      <p>Drag one row onto another to get a <strong>”Make subtask?”</strong> dialog:</p>
+      <ul class=”blist”>
         <li><strong>✓ Make subtask</strong> — links the dragged task as a child of the target. Subtasks appear indented with a ↳ prefix.</li>
         <li><strong>No, just reorder</strong> — moves the dragged row above the target row with no parent relationship set.</li>
         <li><strong>× (cancel)</strong> or <strong>Escape</strong> — dismisses the dialog with no changes.</li>
       </ul>
+      <div class=”callout tip”>
+        <span class=”callout-icon”>💡</span>
+        <p>The dialog is automatically positioned to stay within the viewport — it will never appear below the bottom edge of the screen (v10.9.7).</p>
+      </div>
     </section>
 
     <hr class="sec-div">
@@ -1588,7 +1592,7 @@
       <p>The same multi-select behavior applies to the <strong>section filter bar in Kanban</strong> and the <strong>section filter pills in Matrix</strong>.</p>
 
       <h3>Search</h3>
-      <p>Type in the search box to filter tasks by name in real time. Search combines with active filter pills.</p>
+      <p>Type in the search box to filter tasks by name in real time. Search combines with active filter pills. When text is present, a <strong>×</strong> button appears on the right side of the search box — click it to clear the query and reset the filter in one step (v10.9.7).</p>
 
       <h3>Stats bar (v9.10)</h3>
       <p>Above the task list, clickable stat chips show at a glance. Every chip navigates or filters on click:</p>
@@ -1663,7 +1667,7 @@
             <tr><td>Section</td><td>Which category/section this task belongs to.</td></tr>
             <tr><td>Priority</td><td>P1 Critical → P4 Low.</td></tr>
             <tr><td>Status</td><td>To Do / In Progress / Done / Backlog.</td></tr>
-            <tr><td>Due Date</td><td>Optional. Shown in Today view and stats bar when due soon.</td></tr>
+            <tr><td>Due Date</td><td>Optional. Shown in Today view and stats bar when due soon. Click the <strong>📅</strong> button next to the date field to open Focal's calendar picker — same Day/Week tabs as inline editing in All Tasks rows (v10.9.7).</td></tr>
             <tr><td>Urgency</td><td>For Matrix view quadrant placement (Urgent / Not Urgent).</td></tr>
             <tr><td>Task Type</td><td>One-time (default) or Recurring.</td></tr>
             <tr><td>Recurrence</td><td>For recurring tasks: interval in days/weeks/months.</td></tr>
@@ -2313,7 +2317,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.9.6 — May 18, 2026</p>
+      <p>Focal v10.9.7 — May 21, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

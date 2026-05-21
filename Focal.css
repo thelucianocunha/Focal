@@ -256,6 +256,8 @@ tbody tr:hover .rac{opacity:1}
 .mb{padding:20px 24px;display:flex;flex-direction:column;gap:16px}
 .fg{display:flex;flex-direction:column;gap:6px}
 .fl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.fi-dp-btn{padding:9px 10px;border:1px solid var(--border);border-radius:var(--rs);background:#fff;cursor:pointer;font-size:14px;line-height:1;transition:border-color .15s;flex-shrink:0}
+.fi-dp-btn:hover{border-color:var(--teal)}
 .fi,.fs,.fta{padding:10px 12px;border:1px solid var(--border);border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:#fff;outline:none;transition:border-color .15s}
 .fi:focus,.fs:focus,.fta:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim)}
 .fta{resize:vertical;min-height:70px}
@@ -322,6 +324,8 @@ tbody tr:hover .rac{opacity:1}
 
 /* == SEARCH AUTOCOMPLETE == */
 .srch-wrap{position:relative}
+.srch-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;line-height:1;color:var(--dim);padding:2px 4px;border-radius:3px;transition:color .15s}
+.srch-clear:hover{color:var(--text)}
 .srch-sug{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:800;background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shm);max-height:220px;overflow-y:auto}
 .srch-sug.on{display:block}
 .srch-opt{padding:8px 12px;cursor:pointer;font-size:13px;color:var(--text);transition:background .1s;display:flex;align-items:center;gap:8px}

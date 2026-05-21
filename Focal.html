@@ -52,6 +52,7 @@
   <div class="sw srch-wrap">
     <svg class="si2" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input class="sinput" type="text" data-i18n-placeholder="search_placeholder" placeholder="Search tasks, connections…" id="srch" oninput="srchInput()" onkeydown="srchKeydown(event)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="srchSug" aria-expanded="false" aria-label="Search tasks and connections">
+    <button class="srch-clear" id="srchClearBtn" onclick="srchClear()" title="Clear search" style="display:none" aria-label="Clear search">×</button>
     <div class="srch-sug" id="srchSug" role="listbox"></div>
   </div>
   <div class="fsep"></div>
@@ -220,7 +221,11 @@
         </div>
         <div class="fg">
           <label class="fl" data-i18n="modal_label_due_date">Due Date</label>
-          <input class="fi" id="fDue" type="date">
+          <div style="display:flex;gap:6px;align-items:center;position:relative">
+            <input class="fi" id="fDue" type="date" style="flex:1;min-width:0">
+            <button type="button" class="fi-dp-btn" onclick="openModalDp(event)" title="Open calendar">📅</button>
+            <div class="dp" id="fDueDp"></div>
+          </div>
         </div>
         <div class="fg">
           <label class="fl" data-i18n="modal_label_urgency">Urgency (Matrix)</label>
