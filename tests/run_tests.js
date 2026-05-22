@@ -23,6 +23,9 @@ const testFiles = [
   'test_filters.test.js',
   'test_i18n.test.js',
   'test_persistence.test.js',
+  'test_tasks.test.js',
+  'test_outcomes.test.js',
+  'test_inbox.test.js',
 ].map(f => path.join(testsDir, f));
 
 const result = spawnSync(
