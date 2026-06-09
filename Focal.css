@@ -19,6 +19,7 @@
   --st-back:#6366F1; --st-back-bg:#EEF2FF; --st-back-b:#C7D2FE;
   --age-y:rgba(245,166,35,0.08); --age-r:rgba(220,38,38,0.07);
   --conf:#7C3AED; --conf-bg:#F5F3FF; --conf-b:#DDD6FE;
+  --hover:rgba(26,27,46,.05);
   --r:8px; --rs:5px; --rl:12px;
   --sh:0 1px 3px rgba(26,27,46,.08),0 1px 2px rgba(26,27,46,.04);
   --shm:0 4px 16px rgba(26,27,46,.12);
@@ -946,11 +947,24 @@ tr.tr-sub td:nth-child(2) .tn::before{content:'↳';position:absolute;left:4px;c
 .fb-ctx-tbl td:first-child{font-weight:600;white-space:nowrap;color:var(--text);width:38%;padding-right:10px}
 .fb-ctx-tbl tr:not(:last-child) td{border-bottom:1px solid var(--border)}
 
+/* Keyboard shortcuts help overlay */
+.kbh-group{margin-bottom:16px}
+.kbh-gtitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:6px}
+.kbh-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border)}
+.kbh-row:last-child{border-bottom:0}
+.kbh-label{font-size:13.5px;color:var(--text)}
+.kbh-keys{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.kbh-key{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 7px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-bottom-width:2px;border-radius:5px}
+.kbh-plus{font-size:11px;color:var(--dim)}
+.kbh-tip{font-size:13px;color:var(--muted);padding:5px 0;line-height:1.4}
+.kbh-footer{margin-top:4px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--dim);text-align:center}
+
 /* ── DARK MODE (v10.1) ─────────────────────────────────────── */
 html.dark {
   --galaxy:#E2E8F0; --sapphire:#CBD5E1;
   --bg:#111827; --surface:#1F2937; --surface2:#374151;
   --border:#4B5563; --text:#F9FAFB; --muted:#CBD5E1; --dim:#9CA3AF;
+  --hover:rgba(255,255,255,.07);
   --teal:#2DD4BF; --teal-h:#5EEAD4;
   --teal-dim:rgba(45,212,191,0.12); --teal-border:rgba(45,212,191,0.3);
   --amber:#FBBF24; --amber-dim:rgba(251,191,36,0.12); --amber-border:rgba(251,191,36,0.3);
@@ -1076,7 +1090,8 @@ html.dark .kb-newweek:hover{color:#fff}
 .stab:focus-visible,.ctx-item:focus-visible,.lockbtn:focus-visible,.cbtn:focus-visible,
 .kb-cbtn:focus-visible,.kb-newweek:focus-visible,.wrbtn:focus-visible,.fab:focus-visible,
 .person-dd-btn:focus-visible,.tp-act:focus-visible,.tp-bl:focus-visible,.ixbtn:focus-visible,
-.mx:focus-visible,.bsec:focus-visible,.bpri:focus-visible,.bdel:focus-visible{
+.mx:focus-visible,.bsec:focus-visible,.bpri:focus-visible,.bdel:focus-visible,
+.abt:focus-visible,.om-toggle:focus-visible,.om-del:focus-visible{
   outline:2px solid var(--teal);outline-offset:2px;border-radius:6px
 }
 .fi:focus-visible,.fs:focus-visible,.fta:focus-visible,.sinput:focus-visible,

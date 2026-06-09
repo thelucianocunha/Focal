@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.9.8</title>
+<title>Focal — User Manual v10.10.0</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -713,7 +713,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Focal</div>
       <div class="sidebar-title">User Manual</div>
-      <div class="sidebar-ver">Version 10.9.8 · May 22, 2026</div>
+      <div class="sidebar-ver">Version 10.10.0 · June 9, 2026</div>
     </div>
 
     <div class="nav-group">
@@ -765,7 +765,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.9.8</h1>
+      <h1>Focal v10.10.0</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -2239,20 +2239,28 @@ to a local folder. It should:
     <section class="section" id="shortcuts">
       <div class="section-eyebrow">Reference</div>
       <h2>Keyboard Shortcuts</h2>
-      <p class="section-lead">Keyboard shortcuts for common actions in the app.</p>
+      <p class="section-lead">Keyboard shortcuts for common actions. Press <kbd class="kbd">?</kbd> at any time to open a quick-reference overlay of these shortcuts inside the app — it follows your selected language.</p>
 
+      <div class="section-eyebrow" style="margin-top:4px">New in v10.10.0</div>
       <table class="kb-table">
         <thead>
           <tr><th>Key</th><th>Action</th></tr>
         </thead>
         <tbody>
-          <tr><td><kbd class="kbd">N</kbd></td><td>Open Add Task modal</td></tr>
-          <tr><td><kbd class="kbd">Esc</kbd></td><td>Close modal / close popover / cancel inline edit</td></tr>
+          <tr><td><kbd class="kbd">?</kbd></td><td>Open / close the keyboard-shortcuts overlay</td></tr>
+          <tr><td><kbd class="kbd">1</kbd> … <kbd class="kbd">7</kbd></td><td>Switch view — 1 Today · 2 Kanban · 3 Inbox · 4 All Tasks · 5 Matrix · 6 Analytics · 7 Review</td></tr>
+          <tr><td><kbd class="kbd">/</kbd></td><td>Jump to the search box</td></tr>
+          <tr><td><kbd class="kbd">N</kbd></td><td>Open Add Task modal (works from any view, not just when nothing is focused)</td></tr>
+          <tr><td><kbd class="kbd">Esc</kbd></td><td>Close modal / overlay / popover / context menu / cancel inline edit</td></tr>
           <tr><td><kbd class="kbd">Enter</kbd></td><td>Save inline edit (task name or notes)</td></tr>
           <tr><td><kbd class="kbd">Enter</kbd></td><td>Save task modal (when cursor is in the Task Description field)</td></tr>
           <tr><td><kbd class="kbd">Enter</kbd></td><td>Add inbox item (in capture input)</td></tr>
         </tbody>
       </table>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p>Navigation shortcuts (<kbd class="kbd">1</kbd>–<kbd class="kbd">7</kbd>, <kbd class="kbd">/</kbd>, <kbd class="kbd">N</kbd>) are ignored while you are typing in a text field, so they never interrupt task entry or search.</p>
+      </div>
     </section>
 
     <hr class="sec-div">
@@ -2317,7 +2325,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.9.8 — May 22, 2026</p>
+      <p>Focal v10.10.0 — June 9, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

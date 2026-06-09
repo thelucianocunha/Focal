@@ -383,6 +383,14 @@
   </div>
 </div>
 
+<!-- KEYBOARD SHORTCUTS MODAL -->
+<div class="ovl" id="kbHelpOvl" onclick="kbHelpOvlClose(event)" style="display:none" role="dialog" aria-modal="true" aria-labelledby="kbHelpTitle" aria-hidden="true">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:460px">
+    <div class="mh"><span class="mt" id="kbHelpTitle" data-i18n="kb_help_title">⌨️ Keyboard Shortcuts</span><button class="mx" onclick="closeKbHelp()" aria-label="Close">×</button></div>
+    <div class="mb" id="kbHelpBody"></div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 

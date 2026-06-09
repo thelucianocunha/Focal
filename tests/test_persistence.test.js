@@ -115,6 +115,41 @@ describe('migrateV82', () => {
     assert.equal(d.settings.theme, 'light');
   });
 
+  test('creates a settings object when entirely missing', () => {
+    const d = minimalState();           // no settings key at all
+    ctx.migrateV82(d);
+    assert.equal(typeof d.settings, 'object');
+    assert.ok(d.settings, 'settings should be a non-null object');
+    assert.equal(d.settings.theme, 'light');
+    assert.equal(d.settings.lang, 'en');
+    assert.equal(d.settings.langAuto, false);
+    assert.equal(d.settings.density, 'cozy');
+    assert.equal(d.settings.reduceMotion, false);
+    assert.equal(d.settings.aiModel, 'claude-haiku-4-5-20251001');
+  });
+
+  test('seeds settings.density = "cozy" when missing', () => {
+    const d = minimalState({ settings: { claudeKey: '' } });
+    ctx.migrateV82(d);
+    assert.equal(d.settings.density, 'cozy');
+  });
+
+  test('seeds settings.reduceMotion = false when missing', () => {
+    const d = minimalState({ settings: { claudeKey: '' } });
+    ctx.migrateV82(d);
+    assert.equal(d.settings.reduceMotion, false);
+  });
+
+  test('does not clobber existing settings values', () => {
+    const d = minimalState({ settings: { claudeKey: 'k', theme: 'dark', lang: 'de', density: 'roomy', reduceMotion: true } });
+    ctx.migrateV82(d);
+    assert.equal(d.settings.theme, 'dark');
+    assert.equal(d.settings.lang, 'de');
+    assert.equal(d.settings.density, 'roomy');
+    assert.equal(d.settings.reduceMotion, true);
+    assert.equal(d.settings.claudeKey, 'k');
+  });
+
   test('adds outcomes/lastPrioritizedAt/pData to tasks that lack them', () => {
     const task = { id: 't1', task: 'T', status: 'To Do', priority: 'P1' };
     const d = minimalState({

@@ -36,7 +36,7 @@ const DEFAULT_OUTCOMES=[
   {id:'strategic', name:'Strategic Projects',  color:'#00B5B0', active:true, sort:5},
 ];
 // PPL_GROUP_PALETTE, _pplHashStr, _pplPickColor were here — moved above `let S = loadS()` to fix TDZ. See v10.7.1 note.
-function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; (d.personGroups||[]).forEach(g=>{ if(!g.color) g.color=_pplPickColor(g.id||g.name||Math.random()); }); d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(d.settings&&!d.settings.theme) d.settings.theme='light'; if(d.settings&&!d.settings.lang) d.settings.lang='en'; if(d.settings&&d.settings.langAuto===undefined) d.settings.langAuto=false; }
+function migrateV82(d){ if(!d.outcomes) d.outcomes=JSON.parse(JSON.stringify(DEFAULT_OUTCOMES)); if(!d.personGroups) d.personGroups=[]; (d.personGroups||[]).forEach(g=>{ if(!g.color) g.color=_pplPickColor(g.id||g.name||Math.random()); }); d.sections.forEach(s=>s.tasks.forEach(t=>{ if(!t.outcomes) t.outcomes=[]; if(t.lastPrioritizedAt===undefined) t.lastPrioritizedAt=null; if(t.pData===undefined) t.pData=null; if(t.type==='recurring'&&!t.rInterval) t.rInterval='monthly'; })); if(!d.settings) d.settings={claudeKey:'',aiModel:'claude-haiku-4-5-20251001'}; if(!d.settings.theme) d.settings.theme='light'; if(!d.settings.lang) d.settings.lang='en'; if(d.settings.langAuto===undefined) d.settings.langAuto=false; if(!d.settings.density) d.settings.density='cozy'; if(d.settings.reduceMotion===undefined) d.settings.reduceMotion=false; }
 function rebuildSecDropdown(){
   const sel=document.getElementById('fSec');
   if(!sel) return;
@@ -235,6 +235,7 @@ function setLang(code, silent){
   try{ renderStats(); }catch{}
   try{ _renderSettingsNav(); _updateSettingsHeader(); }catch{}
   try{ if(_settingsTab==='language') renderLanguageTab(); }catch{}
+  try{ if(typeof _kbHelpOpen==='function'&&_kbHelpOpen()) renderKbHelp(); }catch{}
   if(!silent){
     try{ showToast(t('toast_lang_changed',{name:FOCAL_LANGS.find(l=>l.code===code)?.name||code})); }catch{}
   }
@@ -405,7 +406,7 @@ function delSection(id){
   const sec=S.sections.find(s=>s.id===id);
   if(!sec) return;
   const taskCount=sec.tasks.filter(t=>t.status!=='Done').length;
-  if(taskCount>0&&!confirm(`Delete "${sec.title}"? It has ${taskCount} open task(s). They will be lost.`)) return;
+  if(taskCount>0&&!confirm(window.t('sec_confirm_delete',{name:sec.title,taskCount}))) return;
   S.sections=S.sections.filter(s=>s.id!==id);
   saveS(); renderSecMgr(); showToast(t('toast_cat_deleted'));
 }
@@ -415,19 +416,19 @@ function delSection(id){
 function renderMatrixFilter(){
   const bar=document.getElementById('mfbar');
   // Mode toggle (always shown)
-  let html=`<div class="mfbar-modes"><span class="mpill ${matrixMode==='view'?'on':''}" onclick="setMatrixMode('view')">View</span><span class="mpill ${matrixMode==='prioritize'?'on':''}" onclick="setMatrixMode('prioritize')">✦ Prioritize</span></div><span class="mfbar-sep"></span>`;
+  let html=`<div class="mfbar-modes"><span class="mpill ${matrixMode==='view'?'on':''}" onclick="setMatrixMode('view')">${t('matrix_mode_view')}</span><span class="mpill ${matrixMode==='prioritize'?'on':''}" onclick="setMatrixMode('prioritize')">${t('matrix_mode_prioritize')}</span></div><span class="mfbar-sep"></span>`;
   if(matrixMode==='view'){
     // Section filter pills
-    html+=`<span class="mfbar-label">Filter:</span>`;
-    html+=`<span class="mpill ${matrixSectionFilter.has('all')?'on':''}" onclick="setMatrixFilter('all',event)">All</span>`;
+    html+=`<span class="mfbar-label">${t('matrix_filter_label')}</span>`;
+    html+=`<span class="mpill ${matrixSectionFilter.has('all')?'on':''}" onclick="setMatrixFilter('all',event)">${t('matrix_filter_all')}</span>`;
     S.sections.forEach(s=>{ html+=`<span class="mpill ${matrixSectionFilter.has(s.id)?'on':''}" onclick="setMatrixFilter('${escJs(s.id)}',event)">${escHtml(s.icon||'')} ${escHtml(s.title.replace(/ — .*/,''))}</span>`; });
   } else {
     // Triage filter chips
-    const filters=[['all','All'],['needs-review','Needs Review'],['no-outcomes','No Outcomes'],['due-week','Due This Week'],['overdue','Overdue']];
+    const filters=[['all',t('matrix_filter_all')],['needs-review',t('matrix_filter_needs_review')],['no-outcomes',t('matrix_filter_no_outcomes')],['due-week',t('matrix_filter_due_week')],['overdue',t('matrix_filter_overdue')]];
     filters.forEach(([k,l])=>{ html+=`<span class="mpill ${pmFilter===k?'on':''}" onclick="setPmFilter('${k}')">${l}</span>`; });
     html+=`<span class="mfbar-sep"></span>`;
-    html+=`<button class="pq-focus-btn ${pmFocus?'on':''}" onclick="togglePmFocus()">⚡ Focus 10</button>`;
-    html+=`<button class="pq-focus-btn" style="margin-left:auto" onclick="openSettingsPanel('outcomes')">📊 Outcomes</button>`;
+    html+=`<button class="pq-focus-btn ${pmFocus?'on':''}" onclick="togglePmFocus()">${t('matrix_btn_focus')}</button>`;
+    html+=`<button class="pq-focus-btn" style="margin-left:auto" onclick="openSettingsPanel('outcomes')">${t('matrix_btn_outcomes')}</button>`;
   }
   bar.innerHTML=html;
 }
@@ -537,32 +538,32 @@ function orderedWithChildren(tasks){
 function renderSec(sec){
   const sorted=orderedWithChildren([...sec.tasks].sort((a,b)=>PO.indexOf(a.priority)-PO.indexOf(b.priority)));
   const open=sorted.filter(t=>t.status!=='Done').length;
-  const rows=sorted.map(t=>renderRow(t,sec.id)).join('')||`<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--dim);font-size:14px">No tasks — quick-add below</td></tr>`;
+  const rows=sorted.map(t=>renderRow(t,sec.id)).join('')||`<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--dim);font-size:14px">${window.t('sec_no_tasks')}</td></tr>`;
   return `
   <div class="sc" id="sec-${sec.id}">
     <div class="sh" onclick="togSec('${escJs(sec.id)}')">
       <span class="si3">${escHtml(sec.icon)}</span>
       <span class="sname">${escHtml(sec.title)}</span>
-      <span class="sbadge">${open} open</span>
+      <span class="sbadge">${window.t('sec_open_badge',{n:open})}</span>
       <span class="chev">▾</span>
     </div>
     <div class="sbody">
       <table>
         <thead><tr>
           <th class="tc"></th>
-          <th>Task</th>
-          <th class="cw1">Priority</th>
-          <th class="cw2">Status</th>
-          <th class="cw3">Due Date</th>
-          <th class="cw6">Connections</th>
-          <th class="cw7" title="Confidential">🔒</th>
-          <th class="cw4" title="Type">Type</th>
+          <th>${window.t('th_task')}</th>
+          <th class="cw1">${window.t('th_priority')}</th>
+          <th class="cw2">${window.t('th_status')}</th>
+          <th class="cw3">${window.t('th_due')}</th>
+          <th class="cw6">${window.t('th_connections')}</th>
+          <th class="cw7" title="${window.t('th_conf_title')}">🔒</th>
+          <th class="cw4" title="${window.t('th_type_title')}">${window.t('th_type_title')}</th>
           <th class="cw5"></th>
         </tr></thead>
         <tbody id="tb-${sec.id}">${rows}</tbody>
       </table>
       <div class="ar">
-        <input class="ai" id="qa-${escAttr(sec.id)}" placeholder="+ Quick add to ${escAttr(sec.title.split('—')[0].trim())}…" onkeydown="quickAdd(event,'${escJs(sec.id)}')">
+        <input class="ai" id="qa-${escAttr(sec.id)}" placeholder="${escAttr(window.t('sec_quick_add_ph',{name:sec.title.split('—')[0].trim()}))}" onkeydown="quickAdd(event,'${escJs(sec.id)}')">
       </div>
     </div>
   </div>`;
@@ -767,11 +768,11 @@ function renderDp(el){
   const sel=dpModalMode?safeDate(document.getElementById('fDue')?.value||''):safeDate(ft(dpT.id,dpT.secId)?.due||'');
   const mname=new Date(dpY,dpM,1).toLocaleString('en-US',{month:'long',year:'numeric'});
   const dpElId=dpModalMode?'fDueDp':(document.getElementById('dp-'+dpT.id)?'dp-'+dpT.id:'mdp-'+dpT.id);
-  let h=`<div class="dptabs"><div class="dptab ${dpMode==='day'?'on':''}" onclick="event.stopPropagation();dpMode='day';renderDp(document.getElementById('${dpElId}'))">Day</div><div class="dptab ${dpMode==='week'?'on':''}" onclick="event.stopPropagation();dpMode='week';renderDp(document.getElementById('${dpElId}'))">Week</div></div>`;
+  let h=`<div class="dptabs"><div class="dptab ${dpMode==='day'?'on':''}" onclick="event.stopPropagation();dpMode='day';renderDp(document.getElementById('${dpElId}'))">${t('dp_tab_day')}</div><div class="dptab ${dpMode==='week'?'on':''}" onclick="event.stopPropagation();dpMode='week';renderDp(document.getElementById('${dpElId}'))">${t('dp_tab_week')}</div></div>`;
   if(dpMode==='day'){
     const first=new Date(dpY,dpM,1); const startDow=first.getDay(); const dim=new Date(dpY,dpM+1,0).getDate();
     h+=`<div class="dpnav"><button class="dpa" onclick="event.stopPropagation();dpNav(-1)">◀</button><span class="dpm">${mname}</span><button class="dpa" onclick="event.stopPropagation();dpNav(1)">▶</button></div><div class="dpg">`;
-    ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>h+=`<div class="dpdn">${d}</div>`);
+    [t('dp_day_su'),t('dp_day_mo'),t('dp_day_tu'),t('dp_day_we'),t('dp_day_th'),t('dp_day_fr'),t('dp_day_sa')].forEach(d=>h+=`<div class="dpdn">${d}</div>`);
     for(let i=0;i<startDow;i++) h+=`<div class="dpd om"></div>`;
     for(let d=1;d<=dim;d++){
       const date=new Date(dpY,dpM,d); const iso=`${dpY}-${String(dpM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -786,12 +787,12 @@ function renderDp(el){
     for(let w=0;w<8;w++){
       const ws=new Date(mon);ws.setDate(mon.getDate()+w*7); const we=new Date(ws);we.setDate(ws.getDate()+6);
       const isoE=we.toISOString().split('T')[0];
-      const lbl=w===0?'This Week':w===1?'Next Week':`Week of ${ws.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+      const lbl=w===0?t('dp_this_week'):w===1?t('dp_next_week'):t('dp_week_of',{date:ws.toLocaleDateString('en-US',{month:'short',day:'numeric'})});
       h+=`<div class="dpwrow" onclick="selWeek('${isoE}')"><span>${lbl}</span><span style="font-size:10px;opacity:.6">${ws.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${we.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span></div>`;
     }
     h+=`</div>`;
   }
-  h+=`<button class="dpclear" onclick="clrDue()">Clear Date</button>`;
+  h+=`<button class="dpclear" onclick="clrDue()">${t('dp_clear_date')}</button>`;
   el.innerHTML=h;
 }
 let dpModalMode=false;
@@ -820,7 +821,7 @@ function emailTask(id,secId){
   window.location.href=`mailto:?subject=${sub}&body=${body}`;
 }
 
-function delTask(id,secId){ if(!confirm('Delete this task?')) return; const sec=S.sections.find(s=>s.id===secId); sec.tasks=sec.tasks.filter(t=>t.id!==id); S.sections.forEach(s=>s.tasks.forEach(t=>{if(t.parent===id)t.parent=null;})); saveS();renderAll();showToast(window.t('toast_deleted')); }
+function delTask(id,secId){ if(!confirm(window.t('confirm_delete_task'))) return; const sec=S.sections.find(s=>s.id===secId); sec.tasks=sec.tasks.filter(t=>t.id!==id); S.sections.forEach(s=>s.tasks.forEach(t=>{if(t.parent===id)t.parent=null;})); saveS();renderAll();showToast(window.t('toast_deleted')); }
 function quickAdd(e,secId){ if(e.key!=='Enter') return; const inp=document.getElementById('qa-'+secId); const val=inp.value.trim(); if(!val) return; const nid=genId(secId[0]); S.sections.find(s=>s.id===secId).tasks.push({id:nid,priority:'P3',task:val,status:'To Do',due:'',note:'',url:'',type:'once',urgent:0,confidential:false,connections:[],kanbanCol:null,lastStatusChange:new Date().toISOString().split('T')[0],parent:null}); logEvent('create',nid,{s:secId,p:'P3'}); inp.value=''; saveS();renderAll();showToast(window.t('toast_task_added')); setTimeout(()=>{const el=document.getElementById('qa-'+secId);if(el)el.focus();},50); }
 
 // ═══ CONNECTIONS ═══
@@ -920,7 +921,7 @@ function openAdd(secId){
   eId=null;eSec=null;modalConns=[];modalOutcomes=[]; editingParent=null;
   document.getElementById('fParentRow').style.display='none';
   rebuildSecDropdown();
-  document.getElementById('mtitle').textContent='Add Task';
+  document.getElementById('mtitle').textContent=window.t('modal_add_task');
   document.getElementById('fTask').value=''; document.getElementById('fNote').value=''; document.getElementById('fUrl').value='';
   document.getElementById('fSec').value=secId||S.sections[0]?.id||'monthly'; document.getElementById('fPri').value='P2';
   document.getElementById('fStat').value='To Do'; document.getElementById('fDue').value='';
@@ -939,7 +940,7 @@ function openAdd(secId){
 function openEdit(id,secId){
   const t=ft(id,secId); eId=id;eSec=secId;modalConns=[...(t.connections||[])];modalOutcomes=[...(t.outcomes||[])];
   rebuildSecDropdown();
-  document.getElementById('mtitle').textContent='Edit Task';
+  document.getElementById('mtitle').textContent=window.t('modal_edit_task');
   document.getElementById('fTask').value=t.task; document.getElementById('fNote').value=t.note||''; document.getElementById('fUrl').value=t.url||'';
   document.getElementById('fSec').value=secId; document.getElementById('fPri').value=t.priority||'P2';
   document.getElementById('fStat').value=t.status; document.getElementById('fDue').value=t.due||'';
@@ -1103,7 +1104,7 @@ function applyF(){
     if(q&&vis){ const hay=(t.task+' '+(t.note||'')+' '+(t.connections||[]).join(' ')).toLowerCase(); if(!hay.includes(q)) vis=false; }
     row.classList.toggle('hid',!vis);
   });
-  S.sections.forEach(s=>{ const b=document.querySelector(`#sec-${s.id} .sbadge`); if(b) b.textContent=s.tasks.filter(t=>t.status!=='Done'&&t.status!=='Backlog').length+' open'; });
+  S.sections.forEach(s=>{ const b=document.querySelector(`#sec-${s.id} .sbadge`); if(b) b.textContent=window.t('sec_open_badge',{n:s.tasks.filter(t=>t.status!=='Done'&&t.status!=='Backlog').length}); });
   if(curView==='today') renderToday();
   if(curView==='kanban') renderKanban();
   if(curView==='matrix') renderMatrix();
@@ -1246,7 +1247,7 @@ function renderMatrix(){
           ${(t.connections||[]).slice(0,2).map(c=>`<span class="conn-tag" style="font-size:10px" title="${escAttr(c)}">${escHtml(c)}</span>`).join('')}
         </div>
       </div>`).join('');
-    el.innerHTML=items||`<div class="qdrop-hint">Drop tasks here</div>`;
+    el.innerHTML=items||`<div class="qdrop-hint">${window.t('matrix_drop_hint')}</div>`;
     const quad=el.closest('.quad');
     if(quad){
       quad.ondragover=e=>{e.preventDefault();quad.classList.add('qdrop-active');};
@@ -1390,7 +1391,7 @@ function renderTriageQueue(){
   const tasks=getTriageQueue();
   const total=tasks.length;
   let h=`<div class="pq-queue-hdr"><span class="pq-queue-title">${t('pm_tasks_to_review',{total})}</span><button class="pq-focus-btn ${pmFocus?'on':''}" onclick="togglePmFocus()">${t('matrix_btn_focus')}</button></div>`;
-  if(!total){ h+=`<div class="pq-empty">🎉 All caught up — no tasks need review right now.</div>`; el.innerHTML=h; return; }
+  if(!total){ h+=`<div class="pq-empty">${t('pm_all_caught')}</div>`; el.innerHTML=h; return; }
   h+=tasks.map(t=>triageCard(t)).join('');
   el.innerHTML=h;
 }
@@ -1464,12 +1465,12 @@ function renderMiniMatrix(){
   const el=document.getElementById('pm-mini'); if(!el) return;
   const qs={P1:[],P2:[],P3:[],P4:[]};
   S.sections.forEach(s=>s.tasks.forEach(t=>{ if(t.status==='Done'||t.status==='Backlog') return; if(hideConf&&t.confidential) return; qs[t.priority].push(t); }));
-  const labels={P1:'🔴 P1 — Critical',P2:'🟢 P2 — Important',P3:'🟡 P3 — Urgent',P4:'⚪ P4 — Later'};
+  const labels={P1:window.t('mini_p1'),P2:window.t('mini_p2'),P3:window.t('mini_p3'),P4:window.t('mini_p4')};
   el.innerHTML=Object.entries(labels).map(([p,label])=>{
     const items=qs[p];
     const rows=items.slice(0,6).map(t=>`<div class="pm-mini-task ${t.lastPrioritizedAt?'reviewed':''}" title="${demoMode?'●●●●●●●':escAttr(t.task)}">${dT(t.task)}</div>`).join('');
     const more=items.length>6?`<div class="pm-mini-more">+${items.length-6} more</div>`:'';
-    return `<div class="pm-mini-q"><div class="pm-mini-qh"><span>${label}</span><span class="pm-mini-cnt">${items.length}</span></div>${rows||'<div class="pm-mini-more" style="font-style:normal">Empty</div>'}${more}</div>`;
+    return `<div class="pm-mini-q"><div class="pm-mini-qh"><span>${label}</span><span class="pm-mini-cnt">${items.length}</span></div>${rows||'<div class="pm-mini-more" style="font-style:normal">'+window.t('mini_empty')+'</div>'}${more}</div>`;
   }).join('');
 }
 
@@ -3752,47 +3753,47 @@ function renderAppearanceTab(){
   const density=(S.settings&&S.settings.density)||'cozy';
   const reduceMotion=!!(S.settings&&S.settings.reduceMotion);
   const themeOpts=[
-    {v:'light',label:'Light',icon:'sun'},
-    {v:'dark', label:'Dark', icon:'moon'},
-    {v:'auto', label:'Auto', icon:'monitor'},
+    {v:'light',label:t('appearance_theme_light'),icon:'sun'},
+    {v:'dark', label:t('appearance_theme_dark'), icon:'moon'},
+    {v:'auto', label:t('appearance_theme_auto'), icon:'monitor'},
   ];
   const densityOpts=[
-    {v:'compact',label:'Compact'},
-    {v:'cozy',   label:'Cozy'},
-    {v:'roomy',  label:'Roomy'},
+    {v:'compact',label:t('appearance_density_compact')},
+    {v:'cozy',   label:t('appearance_density_cozy')},
+    {v:'roomy',  label:t('appearance_density_roomy')},
   ];
   el.innerHTML=`
     <div class="fcl-fieldrow">
       <div>
-        <div class="fcl-fieldrow-label">Appearance</div>
-        <div class="fcl-fieldrow-hint">Light or Dark force the theme. Auto follows your operating system setting and reacts live when you toggle it.</div>
+        <div class="fcl-fieldrow-label">${t('appearance_theme_label')}</div>
+        <div class="fcl-fieldrow-hint">${t('appearance_theme_hint')}</div>
       </div>
       <div>
-        <div class="fcl-seg" role="radiogroup" aria-label="Appearance">
+        <div class="fcl-seg" role="radiogroup" aria-label="${escAttr(t('appearance_theme_label'))}">
           ${themeOpts.map(o=>`<button class="fcl-seg-btn ${theme===o.v?'on':''}" role="radio" aria-checked="${theme===o.v}" onclick="setTheme('${escJs(o.v)}')">${icon(o.icon,14)} ${escHtml(o.label)}</button>`).join('')}
         </div>
       </div>
     </div>
     <div class="fcl-fieldrow">
       <div>
-        <div class="fcl-fieldrow-label">Density</div>
-        <div class="fcl-fieldrow-hint">Compact shows more per screen. Roomy gives lists more breathing room. Applies to task rows, Today/Kanban/Matrix/Inbox cards, and Settings lists.</div>
+        <div class="fcl-fieldrow-label">${t('appearance_density_label')}</div>
+        <div class="fcl-fieldrow-hint">${t('appearance_density_hint')}</div>
       </div>
       <div>
-        <div class="fcl-seg" role="radiogroup" aria-label="Density">
+        <div class="fcl-seg" role="radiogroup" aria-label="${escAttr(t('appearance_density_label'))}">
           ${densityOpts.map(o=>`<button class="fcl-seg-btn ${density===o.v?'on':''}" role="radio" aria-checked="${density===o.v}" onclick="setDensity('${escJs(o.v)}')">${escHtml(o.label)}</button>`).join('')}
         </div>
       </div>
     </div>
     <div class="fcl-fieldrow" style="border-bottom:0">
       <div>
-        <div class="fcl-fieldrow-label">Reduce motion</div>
-        <div class="fcl-fieldrow-hint">Skip incidental animations. Also honors your OS-level <code style="font-family:var(--fcl-font-mono);font-size:11px">prefers-reduced-motion</code> setting automatically.</div>
+        <div class="fcl-fieldrow-label">${t('appearance_motion_label')}</div>
+        <div class="fcl-fieldrow-hint">${t('appearance_motion_hint')}</div>
       </div>
       <div>
         <button class="fcl-toggle" type="button" aria-pressed="${reduceMotion}" onclick="setReduceMotion(${!reduceMotion})">
           <span class="fcl-toggle-track"><span class="fcl-toggle-thumb"></span></span>
-          <span style="font-size:13.5px;color:var(--fcl-text-dim)">${reduceMotion?'On':'Off'}</span>
+          <span style="font-size:13.5px;color:var(--fcl-text-dim)">${reduceMotion?t('appearance_on'):t('appearance_off')}</span>
         </button>
       </div>
     </div>
@@ -4085,9 +4086,58 @@ function fbCopy() {
   }).catch(() => showToast('Could not copy — please select the text manually.'));
 }
 
+// ═══ KEYBOARD HELP ═══
+// Shortcuts reference overlay (opened with `?`). Content is i18n-aware and
+// re-rendered on open + on language switch.
+function renderKbHelp(){
+  const body=document.getElementById('kbHelpBody'); if(!body) return;
+  const row=(keys,label)=>`<div class="kbh-row"><span class="kbh-label">${escHtml(label)}</span><span class="kbh-keys">${keys.map(k=>`<kbd class="kbh-key">${escHtml(k)}</kbd>`).join('<span class="kbh-plus">·</span>')}</span></div>`;
+  body.innerHTML=`
+    <div class="kbh-group">
+      <div class="kbh-gtitle">${escHtml(window.t('kb_help_nav'))}</div>
+      ${row(['1','…','7'],window.t('kb_sc_view'))}
+      ${row(['/'],window.t('kb_sc_search'))}
+      ${row(['Esc'],window.t('kb_sc_close'))}
+    </div>
+    <div class="kbh-group">
+      <div class="kbh-gtitle">${escHtml(window.t('kb_help_actions'))}</div>
+      ${row(['n'],window.t('kb_sc_new'))}
+      ${row(['?'],window.t('kb_sc_help'))}
+    </div>
+    <div class="kbh-group">
+      <div class="kbh-gtitle">${escHtml(window.t('kb_help_tips'))}</div>
+      <div class="kbh-tip">${escHtml(window.t('kb_sc_edit_inline'))}</div>
+      <div class="kbh-tip">${escHtml(window.t('kb_sc_ctx'))}</div>
+    </div>
+    <div class="kbh-footer">${escHtml(window.t('kb_help_footer'))}</div>`;
+}
+function openKbHelp(){ renderKbHelp(); const el=document.getElementById('kbHelpOvl'); if(el){ el.style.display='flex'; el.setAttribute('aria-hidden','false'); const x=el.querySelector('.mx'); if(x) setTimeout(()=>x.focus(),50); } }
+function closeKbHelp(){ const el=document.getElementById('kbHelpOvl'); if(el){ el.style.display='none'; el.setAttribute('aria-hidden','true'); } }
+function kbHelpOvlClose(e){ if(e.target===document.getElementById('kbHelpOvl')) closeKbHelp(); }
+function _kbHelpOpen(){ const el=document.getElementById('kbHelpOvl'); return !!(el&&el.style.display==='flex'); }
+function _kbTyping(){ const a=document.activeElement; if(!a) return false; const tag=a.tagName; return tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||a.isContentEditable; }
+function _kbBlockingModalOpen(){
+  return document.getElementById('ovl').classList.contains('on')
+    || document.getElementById('settingsOvl').classList.contains('on')
+    || document.getElementById('feedbackOvl').style.display==='flex';
+}
+// Global shortcut handler (additive). Ignored while typing or when a modifier is held.
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(e.key==='?'){
+    if(_kbHelpOpen()){ closeKbHelp(); e.preventDefault(); return; }
+    if(_kbTyping()||_kbBlockingModalOpen()) return;
+    openKbHelp(); e.preventDefault(); return;
+  }
+  if(_kbTyping()||_kbBlockingModalOpen()||_kbHelpOpen()) return;
+  if(e.key==='/'){ const s=document.getElementById('srch'); if(s){ e.preventDefault(); s.focus(); if(s.select) s.select(); } return; }
+  if(e.key==='n'){ e.preventDefault(); openAdd(); return; }
+  if(/^[1-7]$/.test(e.key)){ e.preventDefault(); const views=['today','kanban','inbox','tasks','matrix','analytics','review']; sw(views[parseInt(e.key,10)-1]); return; }
+});
+
 // ═══ KEYBOARD ═══
 // Keyboard
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){if(!modalHasContent())closeModal();closeDrops();kCancelSubDlg();closeCtxMenu();closeKColMenu();closeSettings();closeFeedback();} if(e.key==='n'&&!e.ctrlKey&&!e.metaKey&&document.activeElement.tagName==='BODY') openAdd(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){if(!modalHasContent())closeModal();closeDrops();kCancelSubDlg();closeCtxMenu();closeKColMenu();closeSettings();closeFeedback();closeKbHelp();} });
 document.addEventListener('click',e=>{ if(!e.target.closest('.ctx-menu')){closeCtxMenu();closeKColMenu();} if(!e.target.closest('#personDd')){ const m=document.getElementById('personDdMenu'); if(m) m.style.display='none'; } });
 
 // Keyboard activation for role=button elements that aren't <button> (pills, vtabs, mobile nav, ctx items).
