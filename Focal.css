@@ -933,6 +933,7 @@ tr.tr-sub td:nth-child(2) .tn::before{content:'↳';position:absolute;left:4px;c
 .et-acts{display:flex;gap:8px}
 .et-btn{border:none;border-radius:6px;padding:5px 13px;font-size:12px;cursor:pointer;font-weight:600;font-family:'Inter',sans-serif;transition:all .12s}
 .et-add{background:var(--teal);color:#fff}.et-add:hover{background:var(--teal-h)}
+.et-done{background:var(--surface2);color:#059669;border:1px solid #6EE7B7}.et-done:hover{background:#059669;color:#fff}
 .et-skip{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}.et-skip:hover{background:var(--border);color:var(--text)}
 .et-clear{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px}
 .et-clear-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0}

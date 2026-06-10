@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.10.0</title>
+<title>Focal — User Manual v10.11.0</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -713,7 +713,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Focal</div>
       <div class="sidebar-title">User Manual</div>
-      <div class="sidebar-ver">Version 10.10.0 · June 9, 2026</div>
+      <div class="sidebar-ver">Version 10.11.0 · June 10, 2026</div>
     </div>
 
     <div class="nav-group">
@@ -765,7 +765,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.10.0</h1>
+      <h1>Focal v10.11.0</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -998,13 +998,14 @@
 
       <h4>Actions</h4>
       <ul>
-        <li><strong>Add as Task</strong> — opens the task modal pre-filled with the extracted title, priority, due date, and a source note (e.g. "Meeting prep: …" for calendar items, "Teams msg from: …" for chats). Review, adjust, and save.</li>
-        <li><strong>Skip</strong> — dismisses the card without creating a task and marks it processed. It will not reappear.</li>
+        <li><strong>Add as Task</strong> — opens the task modal pre-filled with the extracted title, priority, due date, and a source note (e.g. "Meeting prep: …" for calendar items, "Teams msg from: …" for chats). Review, adjust, and save. The item is recorded with status <code>added</code>.</li>
+        <li><strong>Done</strong> (v10.11.0) — for an item you already completed before it reached you. Marks it <code>done</code> and removes the card, without opening the modal.</li>
+        <li><strong>Skip</strong> — dismisses the card without creating a task. Marks it <code>skipped</code>. It will not reappear.</li>
       </ul>
 
       <div class="callout info">
         <span class="callout-icon">ℹ️</span>
-        <p>Once a task is processed (added or skipped) its <code>processed_at</code> timestamp is written back to <code>tasks.json</code>. The overnight extractor uses every <code>source_uri</code> in the file as its cross-source dedup index — never delete entries from that file.</p>
+        <p>Each button records one decision in <code>tasks.json</code>: <strong>Add</strong> → <code>status:"added"</code>, <strong>Done</strong> → <code>status:"done"</code>, <strong>Skip</strong> → <code>status:"skipped"</code>. In every case a fresh <code>processed_at</code> timestamp is written, so the item is never surfaced again. Focal writes <em>only</em> those two fields on the item you act on — every other task in the file is left byte-for-byte untouched. The save is atomic and verified (the file is re-read, the result is checked to parse with an unchanged task count, then replaced in one step). If the file ever fails to parse — which can happen while OneDrive is mid-sync — Focal shows an error and leaves the file alone rather than risk overwriting it. The overnight extractor uses every <code>source_uri</code> in the file as its cross-source dedup index — never delete entries from that file.</p>
       </div>
     </section>
 
@@ -1882,6 +1883,7 @@
         <li><code>subject</code> / <code>from</code> / <code>body</code> — displayed in the Inbox card for context.</li>
         <li><code>category</code> — optional label (<code>"email"</code>, <code>"chat"</code>, <code>"meeting"</code>).</li>
         <li><code>processed_at</code> — set to <code>null</code> for new items. Focal writes a timestamp here after you triage the item, so re-runs of the extractor don't re-surface it.</li>
+        <li><code>status</code> — set to <code>"open"</code> for new items (undecided). When you triage, Focal records your decision here: <code>"added"</code>, <code>"done"</code>, or <code>"skipped"</code>. (The value <code>"dismissed"</code> is reserved for the weekly triage; the app never writes it.)</li>
       </ul>
 
       <h4>Sample Power Automate prompt</h4>
@@ -2325,7 +2327,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.10.0 — June 9, 2026</p>
+      <p>Focal v10.11.0 — June 10, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

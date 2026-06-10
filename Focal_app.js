@@ -3555,7 +3555,7 @@ function renderDataTab(){
 //  File handle persisted in IndexedDB; first use prompts a file picker.
 //  Contract: processed_at===null = show to user; set it after triage.
 // ════════════════════════════════════════
-let _etHandle=null, _etTasks=[], _etPendingId=null;
+let _etHandle=null, _etTasks=[], _etPendingId=null, _etError=null;
 
 const ET_CAT_SEC={board:'board',personal:'personal',hr:'team',people:'team'};
 const ET_CAT_LABEL={board:'Board',execsearch:'Exec Search',finance:'Finance',sales:'Sales',csm:'CSM',hr:'HR',product:'Product',personal:'Personal',other:'Other'};
@@ -3571,6 +3571,7 @@ function etOpenDB(){
 }
 
 async function etLoad(){
+  _etError=null;
   try{
     const db=await etOpenDB();
     const handle=await new Promise((res,rej)=>{const tx=db.transaction('handles','readonly');const r=tx.objectStore('handles').get('email_tasks');r.onsuccess=e=>res(e.target.result||null);r.onerror=rej;});
@@ -3580,7 +3581,16 @@ async function etLoad(){
     if(perm==='prompt'){const g=await handle.requestPermission({mode:'readwrite'});if(g!=='granted'){_etHandle=null;_etTasks=[];renderEmailTasks();return;}}
     _etHandle=handle;
     const file=await handle.getFile();
-    const all=JSON.parse(await file.text());
+    let all;
+    try{ all=JSON.parse(await file.text()); }
+    catch(perr){
+      // Do NOT treat a parse failure as "empty" and never write over the file:
+      // a mid-sync OneDrive view can look like corruption even though the home
+      // copy is intact. Surface an error and stop. (Task app contract 2026-06-10.)
+      console.warn('etLoad parse failed:',perr);
+      _etError='parse'; _etTasks=[]; updateInboxBadge(); renderEmailTasks(); return;
+    }
+    if(!Array.isArray(all)){ _etError='parse'; _etTasks=[]; updateInboxBadge(); renderEmailTasks(); return; }
     _etTasks=all.filter(t=>t.processed_at===null);
     updateInboxBadge();
     renderEmailTasks();
@@ -3597,42 +3607,69 @@ async function etConnect(){
   }catch(err){if(err.name!=='AbortError') console.warn('etConnect:',err);}
 }
 
-async function etWriteBack(all){
-  if(!_etHandle) return;
-  try{const w=await _etHandle.createWritable();await w.write(JSON.stringify(all,null,2));await w.close();}
-  catch(err){console.warn('etWriteBack:',err);}
-}
+// Amsterdam-local ISO 8601 timestamp (CEST). Matches the format the extraction job writes.
+function etNow(){ return new Date().toLocaleString('sv-SE',{timeZone:'Europe/Amsterdam',hour12:false}).replace(' ','T')+'+02:00'; }
 
-async function etMarkProcessed(taskId){
-  if(!_etHandle) return;
+// Single entry point for every triage decision. Writes ONLY status + processed_at
+// on the one acted task and nothing else (Task app contract, 2026-06-10).
+// Safety: re-read the file fresh at write time; if it does not parse, abort and do
+// NOT overwrite (a mid-sync OneDrive view can look like corruption). Verify the
+// serialized output re-parses with an unchanged task count before writing.
+// createWritable() streams to a browser-managed swap file and atomically moves it
+// into place on close() — a temp-file-then-rename, so tasks.json is never left
+// partially written. Returns true on a successful save, false on any abort.
+async function etApplyDecision(taskId, status){
+  if(!_etHandle) return false;
+  let all;
   try{
     const file=await _etHandle.getFile();
-    const all=JSON.parse(await file.text());
-    const now=new Date().toLocaleString('sv-SE',{timeZone:'Europe/Amsterdam',hour12:false}).replace(' ','T')+'+02:00';
-    const t=all.find(x=>x.task_id===taskId);
-    if(t) t.processed_at=now;
-    await etWriteBack(all);
+    all=JSON.parse(await file.text());
+  }catch(err){
+    console.warn('etApplyDecision read/parse failed:',err);
+    showToast('Tasks file unreadable — nothing saved. Try again in a moment.');
+    return false;
+  }
+  if(!Array.isArray(all)){ showToast('Tasks file unreadable — nothing saved.'); return false; }
+  const origCount=all.length;
+  const t=all.find(x=>x.task_id===taskId);
+  if(!t){
+    // Already processed by another writer since load — drop locally, leave file alone.
     _etTasks=_etTasks.filter(x=>x.task_id!==taskId);
-    updateInboxBadge();
-    renderEmailTasks();
-  }catch(err){console.warn('etMarkProcessed:',err);}
+    updateInboxBadge(); renderEmailTasks();
+    return false;
+  }
+  t.status=status;
+  t.processed_at=etNow();
+  // Verify before replacing: output must re-parse and keep the same task count.
+  const out=JSON.stringify(all,null,2);
+  try{ if(JSON.parse(out).length!==origCount) throw new Error('count changed'); }
+  catch(verr){ console.warn('etApplyDecision verify failed:',verr); showToast('Write verification failed — nothing saved.'); return false; }
+  try{
+    const w=await _etHandle.createWritable();
+    await w.write(out);
+    await w.close();
+  }catch(err){
+    console.warn('etApplyDecision write failed:',err);
+    showToast('Could not save tasks file.');
+    return false;
+  }
+  _etTasks=_etTasks.filter(x=>x.task_id!==taskId);
+  updateInboxBadge();
+  renderEmailTasks();
+  return true;
 }
 
-async function etSkip(taskId){
-  if(!_etHandle) return;
-  try{
-    const file=await _etHandle.getFile();
-    const all=JSON.parse(await file.text());
-    const now=new Date().toLocaleString('sv-SE',{timeZone:'Europe/Amsterdam',hour12:false}).replace(' ','T')+'+02:00';
-    const t=all.find(x=>x.task_id===taskId);
-    if(t){t.processed_at=now;t.status='dismissed';}
-    await etWriteBack(all);
-    _etTasks=_etTasks.filter(x=>x.task_id!==taskId);
-    updateInboxBadge();
-    renderEmailTasks();
-    showToast('Email task skipped');
-  }catch(err){showToast('Could not update tasks file');console.warn('etSkip:',err);}
-}
+// Add → status 'added' (live work until done). Called from the modal save once the
+// user confirms the imported task. Before 2026-06-10 this left status 'open', which
+// inflated open counts; the contract now requires 'added'.
+async function etMarkProcessed(taskId){ await etApplyDecision(taskId,'added'); }
+
+// Skip → status 'skipped' (closed, not tracked). Before 2026-06-10 the app wrote
+// 'dismissed' here; 'dismissed' is now reserved for the weekly triage.
+async function etSkip(taskId){ if(await etApplyDecision(taskId,'skipped')) showToast('Email task skipped'); }
+
+// Done → status 'done'. For items Luciano already completed before they reach him.
+async function etDone(taskId){ if(await etApplyDecision(taskId,'done')) showToast('Marked done'); }
 
 function etAddTask(taskId){
   const t=_etTasks.find(x=>x.task_id===taskId); if(!t) return;
@@ -3677,6 +3714,10 @@ function renderEmailTasks(){
     el.innerHTML='<div class="et-connect"><span>📋 Connect your tasks file for daily triage (email · Teams · meetings)</span><button class="et-conn-btn" onclick="etConnect()">Connect</button></div>';
     return;
   }
+  if(_etError==='parse'){
+    el.innerHTML='<div class="et-connect" style="border-color:var(--p1)"><span>⚠️ Tasks file could not be read — it may be mid-sync in OneDrive. The file was left untouched. Wait a moment and retry.</span><button class="et-conn-btn" onclick="etLoad()">Retry</button></div>';
+    return;
+  }
   if(!_etTasks.length){el.innerHTML=`<div class="et-clear"><span class="et-clear-dot"></span>Tasks file connected &nbsp;·&nbsp; No pending tasks — new ones will appear here automatically</div>`;return;}
   const cards=_etTasks.map(t=>{
     const src=t.source_type||'email';
@@ -3691,7 +3732,7 @@ function renderEmailTasks(){
       <div class="et-top"><span class="et-dot ${dotCls}"></span><span class="et-pill">${escHtml(ET_CAT_LABEL[t.category]||t.category)}</span>${dl}</div>
       <div class="et-task">${escHtml(t.task)}</div>
       <div class="et-from">${fromLine}</div>
-      <div class="et-acts"><button class="et-btn et-add" onclick="etAddTask('${t.task_id}')">Add as Task</button><button class="et-btn et-skip" onclick="etSkip('${t.task_id}')">Skip</button></div>
+      <div class="et-acts"><button class="et-btn et-add" onclick="etAddTask('${t.task_id}')">Add as Task</button><button class="et-btn et-done" onclick="etDone('${t.task_id}')">Done</button><button class="et-btn et-skip" onclick="etSkip('${t.task_id}')">Skip</button></div>
     </div>`;
   }).join('');
   el.innerHTML=`<div class="et-section-hdr"><span>📋 Tasks</span><span class="et-count">${_etTasks.length} pending</span></div><div class="et-cards">${cards}</div>`;
