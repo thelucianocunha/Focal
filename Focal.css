@@ -260,6 +260,7 @@ tbody tr:hover .rac{opacity:1}
 .fi,.fs,.fta{padding:10px 12px;border:1px solid var(--border);border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:#fff;outline:none;transition:border-color .15s}
 .fi:focus,.fs:focus,.fta:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim)}
 .fta{resize:vertical;min-height:70px}
+#fNote{min-height:150px}
 .fs.fconf-yes{border-color:var(--conf-b);background:var(--conf-bg);color:var(--conf)}
 .fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}

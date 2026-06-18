@@ -917,12 +917,14 @@ function confSelectStyle(){ const el=document.getElementById('fConf'); el.classL
 
 // ═══ MODAL ═══
 // Modal
+// Restore the user's preferred Notes textarea height (persisted across sessions)
+function restoreNoteH(){ try{ const h=localStorage.getItem('focal_noteH'); const el=document.getElementById('fNote'); if(el) el.style.height=h||''; }catch{} }
 function openAdd(secId){
   eId=null;eSec=null;modalConns=[];modalOutcomes=[]; editingParent=null;
   document.getElementById('fParentRow').style.display='none';
   rebuildSecDropdown();
   document.getElementById('mtitle').textContent=window.t('modal_add_task');
-  document.getElementById('fTask').value=''; document.getElementById('fNote').value=''; document.getElementById('fUrl').value='';
+  document.getElementById('fTask').value=''; document.getElementById('fNote').value=''; document.getElementById('fUrl').value=''; restoreNoteH();
   document.getElementById('fSec').value=secId||S.sections[0]?.id||'monthly'; document.getElementById('fPri').value='P2';
   document.getElementById('fStat').value='To Do'; document.getElementById('fDue').value='';
   document.getElementById('fType').value='once'; document.getElementById('fRInterval').value='monthly';
@@ -941,7 +943,7 @@ function openEdit(id,secId){
   const t=ft(id,secId); eId=id;eSec=secId;modalConns=[...(t.connections||[])];modalOutcomes=[...(t.outcomes||[])];
   rebuildSecDropdown();
   document.getElementById('mtitle').textContent=window.t('modal_edit_task');
-  document.getElementById('fTask').value=t.task; document.getElementById('fNote').value=t.note||''; document.getElementById('fUrl').value=t.url||'';
+  document.getElementById('fTask').value=t.task; document.getElementById('fNote').value=t.note||''; document.getElementById('fUrl').value=t.url||''; restoreNoteH();
   document.getElementById('fSec').value=secId; document.getElementById('fPri').value=t.priority||'P2';
   document.getElementById('fStat').value=t.status; document.getElementById('fDue').value=t.due||'';
   const tType=t.type||'once';
@@ -4260,6 +4262,8 @@ computeWeekSummary();
 populatePersonFilter();
 syncAiVisibility();
 etLoad();
+// Persist Notes textarea height after the user drags the resize handle
+(function(){ const fn=document.getElementById('fNote'); if(fn) fn.addEventListener('mouseup',()=>{ if(fn.style.height) try{ localStorage.setItem('focal_noteH',fn.style.height); }catch{} }); })();
 bkLoadHandle(); // load auto-backup file handle from IndexedDB (silent if none)
 // Initialize pill disabled states for default view
 (function(){ const v=curView; const noFilters=v==='inbox'||v==='review'||v==='analytics'; const noBacklog=v==='today'||v==='kanban'||v==='matrix'; document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('pill-disabled',noFilters||(noBacklog&&p.dataset.f==='backlog'))); })();

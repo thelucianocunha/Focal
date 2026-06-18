@@ -9,12 +9,12 @@
  */
 
 // ═══ APP META ═══
-const VER   = '10.11.0';
-const VDATE = 'June 10, 2026';
+const VER   = '10.11.1';
+const VDATE = 'June 18, 2026';
 
 // ═══ FILE_DATA — edit this to set up your personal Focal ═══
 const FILE_DATA = {
-  version: VER, updated: '2026-06-10',
+  version: VER, updated: '2026-06-18',
   inbox: [],
 
   // People and companies you work with — used for task connections and filtering
