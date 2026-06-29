@@ -679,12 +679,10 @@ function cascadeSubtasksDone(parentId){
 }
 function cascadeKanbanCol(parentId,toCol){
   const kcol=toCol==='pool'?null:toCol;
-  const today=new Date().toISOString().split('T')[0];
   S.sections.forEach(s=>s.tasks.forEach(t=>{
     if(t.parent===parentId){
-      const wasInDone=t.kanbanCol==='done';
-      t.kanbanCol=kcol;
-      if(wasInDone&&toCol!=='done'){t.status='To Do';t.lastStatusChange=today;}
+      // Done subtasks stay done — only open subtasks follow the parent
+      if(t.status!=='Done'){t.kanbanCol=kcol;}
       cascadeKanbanCol(t.id,toCol);
     }
   }));

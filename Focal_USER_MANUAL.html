@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focal — User Manual v10.11.1</title>
+<title>Focal — User Manual v10.11.2</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231E293B'/><text y='23' x='5' font-size='20'>📖</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -713,7 +713,7 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Focal</div>
       <div class="sidebar-title">User Manual</div>
-      <div class="sidebar-ver">Version 10.11.1 · June 18, 2026</div>
+      <div class="sidebar-ver">Version 10.11.2 · June 29, 2026</div>
     </div>
 
     <div class="nav-group">
@@ -765,7 +765,7 @@
     <!-- Hero -->
     <div class="hero">
       <div class="hero-eyebrow">User Manual</div>
-      <h1>Focal v10.11.1</h1>
+      <h1>Focal v10.11.2</h1>
       <p>A personal task manager designed for executives managing 40–50+ tasks across multiple workstreams — with capture, triage, AI-assisted prioritisation, aging alerts, analytics, and a structured weekly review.</p>
       <div class="hero-badges">
         <span class="hbadge">📥 Inbox</span>
@@ -1297,14 +1297,15 @@
       </div>
 
       <h3>Parent → column cascade</h3>
-      <p>When you drag a parent task to any column, <strong>all its children automatically follow</strong>:</p>
+      <p>When you drag a parent task to any column, <strong>its open (not-yet-done) children automatically follow</strong>:</p>
       <ul class="blist">
-        <li>Move parent to <strong>Today</strong> → all children move to Today.</li>
-        <li>Move parent to <strong>This Week</strong> → all children move to This Week.</li>
-        <li>Move parent to <strong>Active Pool</strong> → all children return to Active Pool.</li>
+        <li>Move parent to <strong>Today</strong> → open children move to Today.</li>
+        <li>Move parent to <strong>This Week</strong> → open children move to This Week.</li>
+        <li>Move parent to <strong>Active Pool</strong> → open children return to Active Pool.</li>
         <li>Move parent to <strong>Done</strong> → all children are marked Done (see below).</li>
       </ul>
-      <p>Children are always grouped and rendered directly below their parent in every column, in the same order they appear in the Active Pool. If a child was previously in the Done column (status = Done) and its parent is moved back to an active column, the child’s status resets to <strong>To Do</strong> automatically.</p>
+      <p><strong>Already-completed subtasks stay Done.</strong> If a child is in the Done column when you move its parent to Today, This Week, or Active Pool, that child keeps its Done status and stays in the Done column — only the unfinished subtasks travel with the parent. This keeps finished work from being silently re-opened when you re-plan a parent task.</p>
+      <p>Open children are always grouped and rendered directly below their parent in every column, in the same order they appear in the Active Pool.</p>
 
       <h3>Parent → Done cascade</h3>
       <p>Marking a parent task Done (by any method — checkbox, status dropdown, edit modal, or Kanban drag) <strong>automatically marks all its subtasks Done too</strong>. Subtasks of subtasks are also cascaded recursively. Recurring tasks are excluded (they reset to the next cycle, not truly Done).</p>
@@ -2327,7 +2328,7 @@ to a local folder. It should:
 
     <!-- Footer -->
     <div class="manual-footer">
-      <p>Focal v10.11.1 — June 18, 2026</p>
+      <p>Focal v10.11.2 — June 29, 2026</p>
       <p>Open <a href="Focal.html">Focal.html</a> to launch the app</p>
     </div>
 

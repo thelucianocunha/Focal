@@ -146,6 +146,65 @@ describe('cascadeSubtasksDone — recursive child completion', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// cascadeKanbanCol — parent move to week/today/pool drags only OPEN subtasks
+// ─────────────────────────────────────────────────────────────────────────────
+describe('cascadeKanbanCol — only open subtasks follow the parent', () => {
+  const ctx = createApp();
+  const S = ctx._getS();
+  const sec = S.sections[0];
+
+  beforeEach(() => {
+    sec.tasks.length = 0;
+  });
+
+  test('open subtasks move to the parent column (week)', () => {
+    sec.tasks.push(makeTask({ id: 'kp1', status: 'To Do', kanbanCol: 'week' }));
+    sec.tasks.push(makeTask({ id: 'kc1', status: 'To Do', parent: 'kp1', kanbanCol: null }));
+    ctx.cascadeKanbanCol('kp1', 'week');
+    assert.equal(sec.tasks.find(x => x.id === 'kc1').kanbanCol, 'week');
+  });
+
+  test('Done subtasks stay in the done column and stay Done', () => {
+    sec.tasks.push(makeTask({ id: 'kp2', status: 'To Do', kanbanCol: 'week' }));
+    sec.tasks.push(makeTask({ id: 'kcDone', status: 'Done', parent: 'kp2', kanbanCol: 'done', lastStatusChange: daysFromToday(-3) }));
+    ctx.cascadeKanbanCol('kp2', 'week');
+    const done = sec.tasks.find(x => x.id === 'kcDone');
+    assert.equal(done.status, 'Done');
+    assert.equal(done.kanbanCol, 'done');
+    // not reopened, so lastStatusChange untouched
+    assert.equal(done.lastStatusChange, daysFromToday(-3));
+  });
+
+  test('mixed children: open follows, done stays — moving to today', () => {
+    sec.tasks.push(makeTask({ id: 'kp3', status: 'To Do', kanbanCol: 'today' }));
+    sec.tasks.push(makeTask({ id: 'kOpen', status: 'In Progress', parent: 'kp3', kanbanCol: null }));
+    sec.tasks.push(makeTask({ id: 'kDone', status: 'Done', parent: 'kp3', kanbanCol: 'done' }));
+    ctx.cascadeKanbanCol('kp3', 'today');
+    assert.equal(sec.tasks.find(x => x.id === 'kOpen').kanbanCol, 'today');
+    assert.equal(sec.tasks.find(x => x.id === 'kDone').kanbanCol, 'done');
+  });
+
+  test('moving parent to pool sends open subtasks to null, leaves done ones', () => {
+    sec.tasks.push(makeTask({ id: 'kp4', status: 'To Do', kanbanCol: null }));
+    sec.tasks.push(makeTask({ id: 'kOpen2', status: 'To Do', parent: 'kp4', kanbanCol: 'week' }));
+    sec.tasks.push(makeTask({ id: 'kDone2', status: 'Done', parent: 'kp4', kanbanCol: 'done' }));
+    ctx.cascadeKanbanCol('kp4', 'pool');
+    assert.equal(sec.tasks.find(x => x.id === 'kOpen2').kanbanCol, null);
+    assert.equal(sec.tasks.find(x => x.id === 'kDone2').kanbanCol, 'done');
+  });
+
+  test('recurses into grandchildren: open grandchild moves, done grandchild stays', () => {
+    sec.tasks.push(makeTask({ id: 'kgp', status: 'To Do', kanbanCol: 'week' }));
+    sec.tasks.push(makeTask({ id: 'kgc', status: 'To Do', parent: 'kgp', kanbanCol: null }));
+    sec.tasks.push(makeTask({ id: 'kggcOpen', status: 'To Do', parent: 'kgc', kanbanCol: null }));
+    sec.tasks.push(makeTask({ id: 'kggcDone', status: 'Done', parent: 'kgc', kanbanCol: 'done' }));
+    ctx.cascadeKanbanCol('kgp', 'week');
+    assert.equal(sec.tasks.find(x => x.id === 'kggcOpen').kanbanCol, 'week');
+    assert.equal(sec.tasks.find(x => x.id === 'kggcDone').kanbanCol, 'done');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // togComplete
 // ─────────────────────────────────────────────────────────────────────────────
 describe('togComplete — toggle task completion', () => {
